@@ -1,0 +1,3 @@
+function manipulate(manipulations, tweets){
+
+}
