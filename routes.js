@@ -11,7 +11,7 @@ async function run() {
     await client.connect();
 
     const database = client.db('Twixper');
-    const collection = database.collection('Users');
+    const collection = database.collection('Participants');
     const query = { _id: 2, name: 'nir dz' }; 
     const user = await collection.insertOne(query);
 
@@ -42,20 +42,7 @@ var express = require("express");
 var router = express.Router();
 var url = "mongodb://localhost:27017/";
 
-router.get('/getUsersCollection', function (req, res, next) {
-  var resultArray = [];
-  client.connect(url, function (err, db) {
-    assert.equal(null, err) 
-    var cursor = db.collection('Users').find();
-    cursor.forEach(function (doc, err) {
-      assert.equal(null, err);
-      resultArray.push(doc);
-    }, function () {
-      db.close();
 
-    });
-  });
-});
 
 
 
@@ -69,7 +56,7 @@ router.get('/getUsersCollection', function (req, res, next) {
 
   mongo.content(url, function (err, db) {
     assert.equal(null, err);
-    db.collection('Users').insertOne(item, function (err, result) {//TOOD:check how to choose the right collection you want to insert to
+    db.collection('Participants').insertOne(item, function (err, result) {//TOOD:check how to choose the right collection you want to insert to
       assert.equal(null, err);
       console.log('Item inserted');
       db.close();
