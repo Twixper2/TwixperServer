@@ -1,17 +1,30 @@
-const { MongoClient } = require("mongodb");
+// const { MongoClient } = require("mongodb");
+// const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
+// const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
 
-const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
+var actionsCollection_global = null
+
+async function loadActionsCollection(database) {
+    try {
+        if (!actionsCollection_global)
+            let database = await this.getDatabase()
+            actionsCollection_global = await database.collection('Actions');
+    }
+    catch {
+        return null;
+    }
+}
 
 
-const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
-
-
-function insertAction (action){
+function insertActions (action){
     collection.insert(action);
 }
 
 
 function getExpActions(expId){
     return collection.find({ "_expId": expId });
+}
 
+module.exports = {
+    loadActionsCollection : loadActionsCollection
 }

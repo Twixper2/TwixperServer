@@ -1,11 +1,15 @@
-const { MongoClient } = require("mongodb");
+var participantsCollection_global = null
 
-const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
-
-
-const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
-
-var collection;
+async function loadParticipantsCollection(database) {
+    try {
+        if (!participantsCollection_global)
+            let database = await this.getDatabase()
+            participantsCollection_global = await database.collection('Participants');
+    }
+    catch {
+        return null;
+    }
+}
 
 function insertParticipant (participant){
     collection.insert(participant);
@@ -14,4 +18,8 @@ function insertParticipant (participant){
 
 function getParticipantData(id){
     return collection.find({ "_id": id });
+}
+
+module.exports = {
+    loadParticipantsCollection : loadParticipantsCollection
 }
