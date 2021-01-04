@@ -39,5 +39,6 @@ async function loadExperimentsCollection(database) {
 
   //delete the last experiment and insert the new one
   function insertExperiment (experiment){
-
+    collection.remove({});
+    collection.insert(experiment);
   }

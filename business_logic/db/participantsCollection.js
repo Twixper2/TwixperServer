@@ -13,11 +13,10 @@ async function loadParticipantsCollection(database) {
 }
 
 function insertParticipant (participant){
-
+    collection.insert(participant);
 }
 
 
 function getParticipantData(id){
-
+    return collection.find({ "_id": id });
 }
-
