@@ -19,6 +19,10 @@ function insertExperiment (experiment){
     // Call for more collection modules if needed.
 }
 
+function getExperimentByCode(expCode){
+
+}
+
 function insertParticipant(participant) {
     // Insert to experimentsCollection
     // Insert to participantsCollection
@@ -31,6 +35,7 @@ function insertAction(action){
 function getParticipant(pId){
 
 }
+
 
 // For Hackathon, remove after it finishes.
 // Returns all the experiments in the db.
