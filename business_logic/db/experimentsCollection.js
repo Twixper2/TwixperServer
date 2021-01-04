@@ -29,7 +29,6 @@ async function loadExperimentsCollection(database) {
       if (!experimentsCollection_global)
           let database = await this.getDatabase()
           experimentsCollection_global = await database.collection('Experiments');
-      return experimentsCollection_global
   }
   catch {
       return null;
@@ -41,4 +40,8 @@ async function loadExperimentsCollection(database) {
   function insertExperiment (experiment){
     collection.remove({});
     collection.insert(experiment);
+  }
+
+  module.exports = {
+    loadExperimentsCollection : loadExperimentsCollection
   }

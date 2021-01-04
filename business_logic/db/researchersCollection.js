@@ -5,9 +5,12 @@ async function loadResearchersCollection(database) {
         if (!researchersCollection_global)
             let database = await this.getDatabase()
             researchersCollection_global = await database.collection('Researchers');
-        return researchersCollection_global
     }
     catch {
         return null;
     }
+}
+
+module.exports = {
+    loadResearchersCollection : loadResearchersCollection
 }

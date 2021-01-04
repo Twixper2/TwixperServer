@@ -5,9 +5,12 @@ async function loadTweetsCollection(database) {
         if (!tweetsCollection_global)
             let database = await this.getDatabase()
             tweetsCollection_global = await database.collection('Tweets');
-        return tweetsCollection_global
     }
     catch {
         return null;
     }
+}
+
+module.exports= {
+    loadTweetsCollection : loadTweetsCollection
 }

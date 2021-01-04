@@ -5,7 +5,6 @@ async function loadParticipantsCollection(database) {
         if (!participantsCollection_global)
             let database = await this.getDatabase()
             participantsCollection_global = await database.collection('Participants');
-        return participantsCollection_global
     }
     catch {
         return null;
@@ -19,4 +18,8 @@ function insertParticipant (participant){
 
 function getParticipantData(id){
     return collection.find({ "_id": id });
+}
+
+module.exports = {
+    loadParticipantsCollection : loadParticipantsCollection
 }

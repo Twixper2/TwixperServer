@@ -11,6 +11,9 @@ var database_global = dbConn.getDatabase()
 participantsCollection.loadParticipantsCollection(database_global)
 researchersCollection.loadResearchersCollection(database_global)
 experimentsCollection.loadExperimentsCollection(database_global)
+actionsCollection.loadActionsCollection(database_global)
+tweetsCollection.loadTweetsCollection(database_global)
+
 
 function insertParticipant(participant) {
 
