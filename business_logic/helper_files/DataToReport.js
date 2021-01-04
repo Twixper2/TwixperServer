@@ -31,6 +31,7 @@ exports.groupManipulations = [
 
 exports.experiment = {
     "exp_id": "",
+    "exp_code": "", // Null if Draft
     "title": "",
     "description": "",
     "start_date": "", // Null if not started yet
