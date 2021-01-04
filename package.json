@@ -23,7 +23,8 @@
     "express": "^4.17.1",
     "http": "0.0.1-security",
     "json": "^10.0.0",
-    "mongodb": "^3.6.2"
+    "mongodb": "^3.6.2",
+    "morgan": "^1.10.0"
   },
   "keywords": []
 }
