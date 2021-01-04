@@ -2,7 +2,10 @@ var express = require("express");
 var router = express.Router();
 const participantsService = require("../../service/participants/participantsService.js");
 
-// access control , checking cookie 
+// access control , checking cookie.
+// In this middleware, we check for cookie in the request header.
+// If we found a coockie, we get the user object from the DB and add it to the req object.
+
 // router.use(function (req, res, next) {
     // Check for authentication from Twitter, 
     // and check that this user is in active experiment.

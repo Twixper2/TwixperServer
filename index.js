@@ -49,13 +49,14 @@ const researcherController = require("./controller/researchers/researchersContro
 
 app.get("/", (req, res) => res.send("welcome"));
 
-app.use("/guests", guestController);
 app.use("/participants", participantController);
 app.use("/researchers", researcherController);
 
 app.get("/alive", (req, res) => {
   res.send("I'm alive");
 });
+
+app.use(guestController);
 
 app.use((req,res) => {
   res.sendStatus(404);
