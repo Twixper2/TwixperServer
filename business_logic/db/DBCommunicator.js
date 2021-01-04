@@ -20,6 +20,9 @@ function insertExperiment (experiment){
 }
 
 function insertParticipant(participant) {
+    experimentsCollection.insertParticipant(participant)
+    participantsCollection.insertParticipant(participant)
+    
     // Insert to experimentsCollection
     // Insert to participantsCollection
 }

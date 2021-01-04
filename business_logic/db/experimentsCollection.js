@@ -42,6 +42,15 @@ async function loadExperimentsCollection(database) {
     collection.insert(experiment);
   }
 
+  //what i need to insert? username
+  //to specific exp or just for hackthon the only exp
+  function insertParticipant (participant){
+    collection.find( { status: "A" }, { item: 1, status: 1 } )
+
+    collection.insert(experiment);
+  }
+  
+
   module.exports = {
     loadExperimentsCollection : loadExperimentsCollection,
     insertExperiment: insertExperiment
