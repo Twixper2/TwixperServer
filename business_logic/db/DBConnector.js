@@ -9,17 +9,7 @@ var researchersCollection_global = null
 var actionsCollection_global = null
 var tweetsCollection_global = null
 
-async function getParticipantsCollection() {
-    try {
-        if (!participantsCollection_global)
-            let database = await this.getDatabase()
-            participantsCollection_global = await database.collection('Participants');
-        return participantsCollection_global
-    }
-    catch {
-        return null;
-    }
-}
+
 
 async function getExperimentsCollection() {
     try {
@@ -90,4 +80,5 @@ module.exports = {
     getParticipantsCollection : getParticipantsCollection,
     getResearchersCollection : getResearchersCollection,
     getTweetsCollection : getTweetsCollection,
+    getDatabase: getDatabase,
 }
