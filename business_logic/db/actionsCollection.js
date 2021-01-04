@@ -6,9 +6,9 @@ var actionsCollection_global = null
 
 async function loadActionsCollection(database) {
     try {
-        if (!actionsCollection_global)
-            let database = await this.getDatabase()
+        if (!actionsCollection_global){
             actionsCollection_global = await database.collection('Actions');
+        }
     }
     catch {
         return null;

@@ -26,9 +26,9 @@ var experimentsCollection_global = null
 
 async function loadExperimentsCollection(database) {
   try {
-      if (!experimentsCollection_global)
-          let database = await this.getDatabase()
-          experimentsCollection_global = await database.collection('Experiments');
+    if (!experimentsCollection_global){
+      experimentsCollection_global = await database.collection('Experiments');
+    }
   }
   catch {
       return null;

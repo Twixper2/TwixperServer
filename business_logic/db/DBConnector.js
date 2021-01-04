@@ -21,10 +21,5 @@ async function getDatabase() {
 }
 
 module.exports = {
-    getActionsCollection : getActionsCollection,
-    getExperimentsCollection : getExperimentsCollection, 
-    getParticipantsCollection : getParticipantsCollection,
-    getResearchersCollection : getResearchersCollection,
-    getTweetsCollection : getTweetsCollection,
     getDatabase: getDatabase,
 }

@@ -2,9 +2,9 @@ var participantsCollection_global = null
 
 async function loadParticipantsCollection(database) {
     try {
-        if (!participantsCollection_global)
-            let database = await this.getDatabase()
+        if (!participantsCollection_global){
             participantsCollection_global = await database.collection('Participants');
+        }
     }
     catch {
         return null;

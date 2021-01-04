@@ -2,9 +2,9 @@ var researchersCollection_global = null
 
 async function loadResearchersCollection(database) {
     try {
-        if (!researchersCollection_global)
-            let database = await this.getDatabase()
+        if (!researchersCollection_global){
             researchersCollection_global = await database.collection('Researchers');
+        }
     }
     catch {
         return null;
