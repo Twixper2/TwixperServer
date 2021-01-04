@@ -17,13 +17,12 @@ async function loadActionsCollection(database) {
 
 
 function insertActions (action){
-
-
+    collection.insert(action);
 }
 
 
 function getExpActions(expId){
-
+    return collection.find({ "_expId": expId });
 }
 
 module.exports = {
