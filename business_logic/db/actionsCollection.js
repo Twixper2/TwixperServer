@@ -6,12 +6,12 @@ const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixp
 const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
 
 
-function insertActions (action){
-
-
+function insertAction (action){
+    collection.insert(action);
 }
 
 
 function getExpActions(expId){
+    return collection.find({ "_expId": expId });
 
 }
