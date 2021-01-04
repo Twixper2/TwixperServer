@@ -43,5 +43,6 @@ async function loadExperimentsCollection(database) {
   }
 
   module.exports = {
-    loadExperimentsCollection : loadExperimentsCollection
+    loadExperimentsCollection : loadExperimentsCollection,
+    insertExperiment: insertExperiment
   }
