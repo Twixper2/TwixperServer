@@ -1,7 +1,7 @@
 const twitterComm = require("../../business_logic/twitter_communicator/twitterCommunicator")
 const manipulator = require("../../business_logic/manipulator/manipulator.js")
 
-function getFeed(req){
+function getFeed(){
     /* Check the req, if there are required paramaters missing, throw error.
        For feed, check for additional parameters like "max_id" and "count",
        and send them to twitterComm 
@@ -14,33 +14,23 @@ function getFeed(req){
     return twitterFeedTweets
 }
 
-function searchTweets(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const q = req.query.q
-    console.log("Seacrch Tweets query is "+ q)
-    // if q == null....
-
+function searchTweets(q){
+    
     const twitterSearchTweets = twitterComm.searchTweets(q)
     /* TODO: Apply manipulations */
     
     return twitterSearchTweets
 }
 
-function searchUsers(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const q = req.query.q
-    // if q == null....
-
+function searchUsers(q){    
+    
     const twitterSearchUsers = twitterComm.searchUsers(q)
     /* TODO: Apply manipulations */
     
     return twitterSearchUsers
 }
 
-function getUser(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const username = req.query.username
-    // if username == null....
+function getUser(username){
 
     const twitterGetUser = twitterComm.getUser(username)
     /* TODO: Apply manipulations */
@@ -48,21 +38,15 @@ function getUser(req){
     return twitterGetUser
 }
 
-function getTweet(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const tweetId = req.query.tweetId
-    // if tweetId == null....
-
+function getTweet(tweetId){
+    
     const twitterGetTweet = twitterComm.getTweet(tweetId)
     /* TODO: Apply manipulations */
     
     return twitterGetTweet
 }
 
-function getUserFriends(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const username = req.query.username
-    // if username == null....
+function getUserFriends(username){
 
     const twitterGetUserFriends = twitterComm.getUserFriends(username)
     /* TODO: Apply manipulations */
@@ -70,21 +54,15 @@ function getUserFriends(req){
     return twitterGetUserFriends
 }
 
-function getUserFollowers(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const username = req.query.username
-    // if username == null....
-
+function getUserFollowers(username){
+    
     const twitterGetUserFollowers = twitterComm.getUserFollowers(username)
     /* TODO: Apply manipulations */
     
     return twitterGetUserFollowers
 }
 
-function getUserTimeline(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const username = req.query.username
-    // if username == null....
+function getUserTimeline(username){
 
     const twitterGetUserTimeline = twitterComm.getUserTimeline(username)
     /* TODO: Apply manipulations */
@@ -92,11 +70,8 @@ function getUserTimeline(req){
     return twitterGetUserTimeline
 }
 
-function getUserLikes(req){
-    /* Check the req, if there are required paramaters missing, throw error */
-    const username = req.query.username
-    // if username == null....
-
+function getUserLikes(username){
+   
     const twitterGetUserLikes = twitterComm.getUserLikes(username)
     /* TODO: Apply manipulations */
     

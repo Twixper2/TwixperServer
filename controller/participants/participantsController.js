@@ -23,8 +23,11 @@ const participantsService = require("../../service/participants/participantsServ
 // });
 
 router.get("/getFeed", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error.
+     For feed, check for additional parameters like "max_id" and "count"
+  */
   try{
-    const feedTweets = participantsService.getFeed(req)
+    const feedTweets = participantsService.getFeed()
     res.send(feedTweets)
   }
   catch(e){
@@ -36,8 +39,13 @@ router.get("/getFeed", async (req, res, next) => {
 });
 
 router.get("/searchTweets", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, send err status */
+  const q = req.query.q
+  console.log("Seacrch Tweets query is "+ q)
+  // if q == null....
+
   try{
-    const tweetsSearchResults = participantsService.searchTweets(req)
+    const tweetsSearchResults = participantsService.searchTweets(q)
     res.send(tweetsSearchResults)
   }
   catch(e){
@@ -47,8 +55,12 @@ router.get("/searchTweets", async (req, res, next) => {
 });
 
 router.get("/searchUsers", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, send err status */
+  const q = req.query.q
+  // if q == null....
+
   try{
-    const usersSearchResults = participantsService.searchUsers(req)
+    const usersSearchResults = participantsService.searchUsers(q)
     res.send(usersSearchResults)
   }
   catch(e){
@@ -58,8 +70,12 @@ router.get("/searchUsers", async (req, res, next) => {
 });
 
 router.get("/getUser", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error */
+  const username = req.query.username
+  // if username == null....
+
   try{
-    const user = participantsService.getUser(req)
+    const user = participantsService.getUser(username)
     res.send(user)
   }
   catch(e){
@@ -69,8 +85,12 @@ router.get("/getUser", async (req, res, next) => {
 });
 
 router.get("/getTweet", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error */
+  const tweetId = req.query.tweetId
+  // if tweetId == null....
+
   try{
-    const tweet = participantsService.getTweet(req)
+    const tweet = participantsService.getTweet(tweetId)
     res.send(tweet)
   }
   catch(e){
@@ -80,8 +100,12 @@ router.get("/getTweet", async (req, res, next) => {
 });
 
 router.get("/getUserFriends", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error */
+  const username = req.query.username
+  // if username == null....
+
   try{
-    const userFriends = participantsService.getUserFriends(req)
+    const userFriends = participantsService.getUserFriends(username)
     res.send(userFriends)
   }
   catch(e){
@@ -91,8 +115,12 @@ router.get("/getUserFriends", async (req, res, next) => {
 });
 
 router.get("/getUserFollowers", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error */
+  const username = req.query.username
+  // if username == null....
+
   try{
-    const userFollowers = participantsService.getUserFollowers(req)
+    const userFollowers = participantsService.getUserFollowers(username)
     res.send(userFollowers)
   }
   catch(e){
@@ -102,8 +130,12 @@ router.get("/getUserFollowers", async (req, res, next) => {
 });
 
 router.get("/getUserTimeline", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error */
+  const username = req.query.username
+  // if username == null....
+
   try{
-    const userTimelineTweets = participantsService.getUserTimeline(req)
+    const userTimelineTweets = participantsService.getUserTimeline(username)
     res.send(userTimelineTweets)
   }
   catch(e){
@@ -113,8 +145,12 @@ router.get("/getUserTimeline", async (req, res, next) => {
 });
 
 router.get("/getUserLikes", async (req, res, next) => {
+  /* Check the req, if there are required paramaters missing, throw error */
+  const username = req.query.username
+  // if username == null....
+
   try{
-    const userLikesTweets = participantsService.getUserLikes(req)
+    const userLikesTweets = participantsService.getUserLikes(username)
     res.send(userLikesTweets)
   }
   catch(e){
