@@ -2,7 +2,7 @@ require("dotenv").config();
 //#region express configures
 var express = require("express");
 var path = require("path");
-//var logger = require("morgan");
+var logger = require("morgan");
 const session = require("client-sessions");
 const cors = require("cors");
 
@@ -13,7 +13,7 @@ var app = express();
 
 // Letting all origins to pass
 //app.use(cors());
-/*app.use(cors({origin:true,credentials: true}));
+app.use(cors({origin:true,credentials: true}));
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -24,10 +24,10 @@ app.use(function (req, res, next) {
   } else {
       next();
   }
-});*/
+});
 
 
-//app.use(logger("dev")); //logger
+app.use(logger("dev")); //logger
 app.use(express.json()); // parse application/json
 app.use(
   session({
@@ -61,7 +61,7 @@ app.use((req,res) => {
   res.sendStatus(404);
 });
 
-var port = process.env.PORT;
+const port = process.env.PORT;
 const hostname = process.env.HOSTNAME;
 
 const server = app.listen(port, hostname, () => {
