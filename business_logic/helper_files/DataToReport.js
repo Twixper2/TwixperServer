@@ -66,8 +66,8 @@ exports.experiment = {
 exports.activeParticipant = {
     "exp_id": "",
     "group_id": "",
-    "participant_twiitter_id" : 1356534568586513,
-    "participant_twiitter_username": "aviCohen",
+    "participant_twitter_id" : 1356534568586513,
+    "participant_twitter_username": "aviCohen",
     "group_manipulations":[ // array of objects
         {},
         {}

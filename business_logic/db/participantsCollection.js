@@ -20,6 +20,13 @@ function getParticipantData(id){
     return collection.find({ "_id": id });
 }
 
+function getParticipant(id){
+    return collection.find({ participant_twiitter_id: id});
+}
+
 module.exports = {
-    loadParticipantsCollection : loadParticipantsCollection
+    loadParticipantsCollection : loadParticipantsCollection,
+    insertParticipant: insertParticipant,
+    getParticipant: getParticipant
+
 }

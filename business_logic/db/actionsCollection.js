@@ -16,15 +16,20 @@ async function loadActionsCollection(database) {
 }
 
 
-function insertActions (action){
+function insertAction (action){
     collection.insert(action);
 }
 
 
 function getExpActions(expId){
-    return collection.find({ "_expId": expId });
+    return collection.find(
+        { exp_id: expId  },
+        { action_type: 1, action_date: 1,participant_twiitter_username: 1, participant_group_id: 1, exp_id:0 }
+    )   
 }
 
 module.exports = {
-    loadActionsCollection : loadActionsCollection
+    loadActionsCollection : loadActionsCollection,
+    insertAction : insertAction,
+    getExpActions, getExpActions
 }

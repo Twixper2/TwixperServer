@@ -15,44 +15,50 @@ actionsCollection.loadActionsCollection(database_global)
 tweetsCollection.loadTweetsCollection(database_global)
 
 function insertExperiment (experiment){
-    experimentsCollection.insertExperiment(experiment)
-    // Call for more collection modules if needed.
+    experimentsCollection.insertExperiment(experiment);
+    
 }
 
 function getExperimentByCode(expCode){
+    return experimentsCollection.getExperimentByCode(expCode);
 
 }
 
 function insertParticipant(participant) {
-    experimentsCollection.insertParticipant(participant)
-    participantsCollection.insertParticipant(participant)
-    
-    // Insert to experimentsCollection
-    // Insert to participantsCollection
+    var parsedData = JSON.parse(participant);
+    var expId;
+    for(item in parsedData) {
+        if(item=="exp_id"){
+            expId=parsedData[item];
+        }
+    }
+    experimentsCollection.insertParticipant(expId,participant); //find the exp id from participant 
+    participantsCollection.insertParticipant(participant);
 }
 
 function insertAction(action){
-
+    actionsCollection.insertAction(action);
 }
 
 function getParticipant(pId){
-
+    return participantsCollection.getParticipant(pId);
 }
 
 
 // For Hackathon, remove after it finishes.
 // Returns all the experiments in the db.
 function getExperiments(){
-
+    return experimentsCollection.getExperiments();
 }
 
 // For report
 function getExperiment(expId){
+    return experimentsCollection.getExperiment(expId);
 
 }
 
-function getExperimentActions(expId){
-
+function getActionsOfExperiment(expId){
+    return actionsCollection.getExpActions(expId);
 }
 
 // After Hackathon finishes:
