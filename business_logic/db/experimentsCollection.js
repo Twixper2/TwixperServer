@@ -53,28 +53,17 @@ function getExperimentByCode(expCode) {
   return collection.find({ exp_code: expCode });
 }
 
-//what i need to insert? username
-//to specific exp or just for hackthon the only exp - specific
-function insertParticipant(expId, participant) {
-  var parsedData = JSON.parse(participant);
-  var username;
-  var groupId;
-  for (item in parsedData) {
-    if (item == "participant_twitter_username") {
-      username = parsedData[item];
-    }
-    if (item == "group_id") {
-      groupId = parsedData[item];
-    }
 
-  }
+function insertParticipant(expId, participant) {
+  var username = participant.participant_twitter_username;
+  var groupId = participant.group_id;
   var experiment = collection.find({ exp_id: expId });
   var groups = experiment.exp_groups;
   for (var i = 0; i < groups.length; i++) {
     if (groups[i].group_id == groupId) {
       groups[i].push(username);
     }
-  }
+  } 
   collection.insert(experiment);
 }
 

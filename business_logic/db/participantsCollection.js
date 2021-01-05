@@ -16,10 +16,6 @@ function insertParticipant (participant){
 }
 
 
-function getParticipantData(id){
-    return collection.find({ "_id": id });
-}
-
 function getParticipant(id){
     return collection.find({ participant_twiitter_id: id});
 }
