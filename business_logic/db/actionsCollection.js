@@ -28,8 +28,12 @@ function getExpActions(expId){
     )   
 }
 
+function deleteActions() {
+    collection.remove({});
+}
 module.exports = {
     loadActionsCollection : loadActionsCollection,
     insertAction : insertAction,
-    getExpActions, getExpActions
+    getExpActions, getExpActions,
+    deleteActions: deleteActions
 }

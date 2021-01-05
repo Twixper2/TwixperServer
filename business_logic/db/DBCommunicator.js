@@ -14,9 +14,14 @@ experimentsCollection.loadExperimentsCollection(database_global)
 actionsCollection.loadActionsCollection(database_global)
 tweetsCollection.loadTweetsCollection(database_global)
 
+//TO BE CHANGED AFTER HACKHATON!!
 function insertExperiment (experiment){
     experimentsCollection.insertExperiment(experiment);
-    
+    //wipe the whole db
+    actionsCollection.deleteActions();
+    participantsCollection.deleteParticipants();
+    researchersCollection.deleteResearchers();
+    tweetsCollection.deleteTweets();
 }
 
 function getExperimentByCode(expCode){

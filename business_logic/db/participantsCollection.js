@@ -24,9 +24,14 @@ function getParticipant(id){
     return collection.find({ participant_twiitter_id: id});
 }
 
+function deleteParticipants() {
+    collection.remove({});
+}
+
 module.exports = {
     loadParticipantsCollection : loadParticipantsCollection,
     insertParticipant: insertParticipant,
-    getParticipant: getParticipant
+    getParticipant: getParticipant,
+    deleteParticipants: deleteParticipants
 
 }

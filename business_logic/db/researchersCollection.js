@@ -11,6 +11,11 @@ async function loadResearchersCollection(database) {
     }
 }
 
+function deleteResearchers() {
+    collection.remove({});
+}
+
 module.exports = {
-    loadResearchersCollection : loadResearchersCollection
+    loadResearchersCollection : loadResearchersCollection,
+    deleteResearchers: deleteResearchers
 }

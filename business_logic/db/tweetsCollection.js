@@ -11,6 +11,11 @@ async function loadTweetsCollection(database) {
     }
 }
 
+function deleteTweets() {
+    collection.remove({});
+}
+
 module.exports= {
-    loadTweetsCollection : loadTweetsCollection
+    loadTweetsCollection : loadTweetsCollection,
+    deleteTweets: deleteTweets
 }
