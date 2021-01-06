@@ -23,6 +23,19 @@ function getExperimentByCode(expCode){
 
 }
 
+function getExperimentById(expId){
+
+}
+
+/**
+ * 
+ * @param {experiment code} reqExpCode 
+ * @returns experiment ID if experiment with the code provided exists, else null
+ */
+function isExperimentExists(reqExpCode) {
+
+}
+
 function insertParticipant(participant) {
     // Insert to experimentsCollection
     // Insert to participantsCollection
