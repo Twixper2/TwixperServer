@@ -12,7 +12,11 @@ async function loadResearchersCollection(database) {
 }
 
 function deleteResearchers() {
-    collection.remove({});
+    researchersCollection_global.remove({}, function (err, res) {
+        if (err);
+        return false;
+    });
+    return true;
 }
 
 module.exports = {

@@ -38,19 +38,31 @@ async function loadExperimentsCollection(database) {
 
 //delete the last experiment and insert the new one
 function insertExperiment(experiment) {
-  collection.remove({});
-  collection.insert(experiment);
+  experimentsCollection_global.remove({});
+  experimentsCollection_global.insert(experiment);
 }
 function getExperiment(expId) {
-  return experimentsCollection.find({ exp_id: expId });
+  let output = experimentsCollection_global.find({ exp_id: expId }, function (err, res) {
+    if (err);
+    return null;
+  });
+  return output;
 }
 //remove after hackhton
 function getExperiments() {
-  return collection.find({});
+  let output = experimentsCollection_global.find({}, function (err, res) {
+    if (err);
+    return null;
+  });
+  return output;
 }
 
 function getExperimentByCode(expCode) {
-  return collection.find({ exp_code: expCode });
+  let output = experimentsCollection_global.find({ exp_code: expCode }, function (err, res) {
+    if (err);
+    return null;
+  });
+  return output;
 }
 
 
@@ -63,8 +75,12 @@ function insertParticipant(expId, participant) {
     if (groups[i].group_id == groupId) {
       groups[i].push(username);
     }
-  } 
-  collection.insert(experiment);
+  }
+  experimentsCollection_global.insertOne(experiment, function (err, res) {
+    if (err);
+    return false;
+  });
+  return true;
 }
 
 

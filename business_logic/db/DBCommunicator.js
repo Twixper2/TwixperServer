@@ -7,13 +7,15 @@ var actionsCollection = require("./actionsCollection")
 
 
 /* loading collections */
-var database_global = dbConn.getDatabase()
-participantsCollection.loadParticipantsCollection(database_global)
-researchersCollection.loadResearchersCollection(database_global)
-experimentsCollection.loadExperimentsCollection(database_global)
-actionsCollection.loadActionsCollection(database_global)
-tweetsCollection.loadTweetsCollection(database_global)
-
+ var database_global = dbConn.getDatabase()
+// await async function retriveCollections(){
+await participantsCollection.loadParticipantsCollection(database_global)
+await researchersCollection.loadResearchersCollection(database_global)
+await experimentsCollection.loadExperimentsCollection(database_global)
+await actionsCollection.loadActionsCollection(database_global)
+await tweetsCollection.loadTweetsCollection(database_global)
+//  }
+//  retriveCollections();
 //TO BE CHANGED AFTER HACKHATON!!
 function insertExperiment (experiment){
     experimentsCollection.insertExperiment(experiment);
@@ -66,6 +68,20 @@ function getResearcherExperiments(researcherId){
 }
 
 
+module.exports = {
+    getExperimentByCode : getExperimentByCode,
+    insertParticipant: insertParticipant,
+    getParticipant: getParticipant,
+    insertAction: insertAction,
+    insertExperiment : insertExperiment,
+    getExperiments: getExperiments,
+    getExperiment: getExperiment,
+    getActionsOfExperiment: getActionsOfExperiment,
+    getResearcherExperiments: getResearcherExperiments
 
+}
 
+// if(getParticipant(1).participant_twitter_id==1){
+    console.log(getParticipant(1));
+// }
 

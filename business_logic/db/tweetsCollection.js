@@ -12,7 +12,11 @@ async function loadTweetsCollection(database) {
 }
 
 function deleteTweets() {
-    collection.remove({});
+    tweetsCollection_global.remove({}, function (err, res) {
+        if (err);
+        return false;
+    });
+    return true;
 }
 
 module.exports= {
