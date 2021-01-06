@@ -30,8 +30,7 @@ function getExperimentByCode(expCode){
 }
 
 function insertParticipant(participant) {
-    var parsedData = JSON.parse(participant);
-    var expId = participant.exp_id; 
+    let expId = participant.exp_id; 
     experimentsCollection.insertParticipant(expId,participant); //find the exp id from participant 
     participantsCollection.insertParticipant(participant);
 }
