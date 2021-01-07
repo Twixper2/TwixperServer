@@ -4,20 +4,10 @@ var makeDb = require("./DBConnector.js").makeDb
 //delete the last experiment and insert the new one
 async function insertExperiment(experiment) {
   const db = await makeDb()
-  // let experimentsCollection = await db.collection("Experiments")
-  // // await experimentsCollection.deleteMany({});
-  // let success = null 
-  // await experimentsCollection.insertOne(experiment, function (err, res) {
-  //   if (err)
-  //     success = false;
-  //   else{
-  //     success = true;
-  //   }
-  // });
-
   let result = null
   try{
-    result = await db.collection("Experiments").insertOne(experiment);
+    collection = db.collection("Experiments")
+    result = await collection.insertOne(experiment);
   }
   catch(e){
     return false
@@ -28,58 +18,99 @@ async function insertExperiment(experiment) {
 }
 
 async function getExperimentById(expId) {
-  let output = await experimentsCollection_global.find({ exp_id: expId }, function (err, res) {
-    if (err)
-      return null;
-  });
-  return output;
+  const db = await makeDb()
+  let result = null
+  try{
+    collection = db.collection("Experiments")
+    result = await collection.findOne({ exp_id: expId })
+  }
+  catch(e){
+    return null
+  }
+  return result
 }
 
 
 //remove after hackhton
 async function getExperiments() {
-  let output = await experimentsCollection_global.find({}, function (err, res) {
-    if (err);
-    return null;
-  });
-  return output;
+  const db = await makeDb()
+  let result = null
+  try{
+    collection = db.collection("Experiments")
+    result = await collection.find({})
+  }
+  catch(e){
+    return null
+  }
+  return result
 }
 
-async function getExperimentByCode(expCode) {
-  let output = await experimentsCollection_global.find({ exp_code: expCode }, function (err, res) {
-    if (err)
-      return null;
-  });
-  return output;
+async function getExperimentByCode(expCode) { 
+  const db = await makeDb()
+  let result = null
+  try{
+    collection = db.collection("Experiments")
+    result = await collection.findOne({ exp_code: expCode }, { exp_id: 1, _id: 0 })
+  }
+  catch(e){
+    return null
+  }
+  return result
 }
 
 
-async function insertParticipant(expId, participant) {
+async function insertParticipantToExp(expId, participant) {
   let username = participant.participant_twitter_username;
   let groupId = participant.group_id;
-  let experiment = await experimentsCollection_global.find({ exp_id: expId });
+  
+  const exp = await getExperimentById(expId)
+  if (exp == null) { return false; }
+
   let groups = experiment.exp_groups;
   for (let i = 0; i < groups.length; i++) {
-    if (groups[i].group_id == groupId) {
-      groups[i].group_participants.push(username);
+    const group = groups[i]
+    if (group.group_id == groupId) {
+      group.group_participants.push(username);
     }
   }
-  await experimentsCollection_global.insertOne(experiment, function (err, res) {
-    if (err)
-      return false;
-  });
-  return true;
+
+  const db = await makeDb()
+  let result = null
+  try{
+    collection = db.collection("Experiments")
+    await collection.deleteOne({ exp_code: expCode })
+    result = await collection.insertOne(experiment)
+  }
+  catch(e){
+    return false
+  }
+  if (result) {
+    return true
+  }
+  return false
 }
 
 //remove after hackhton
 async function deleteAllExperiments() {
-  
+  const db = await makeDb()
+  let result = null
+  try{
+    collection = db.collection("Experiments")
+    result = await collection.deleteMany({})
+  }
+  catch(e){
+    return false
+  }
+  if (result) {
+    return true 
+  }
+  return false
 }
 
 
 module.exports = {
   insertExperiment: insertExperiment,
-  insertParticipant: insertParticipant,
+  insertParticipantToExp: insertParticipantToExp,
   getExperimentById: getExperimentById,
   getExperiments: getExperiments,
   getExperimentByCode: getExperimentByCode,
