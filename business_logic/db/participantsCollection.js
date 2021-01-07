@@ -10,8 +10,8 @@ async function loadParticipantsCollection(database) {
         return null;
     }
 }
-function insertParticipant(participant) {
-    participantsCollection_global.insertOne(participant, function (err, res) {
+async function insertParticipant(participant) {
+    await participantsCollection_global.insertOne(participant, function (err, res) {
         if (err);
         return false;
     });
@@ -19,8 +19,8 @@ function insertParticipant(participant) {
 }
 
 
-function getParticipant(id) {
-    let output = participantsCollection_global.find({ participant_twitter_id: id }, function (err, res) {
+async function getParticipant(id) {
+    let output = await participantsCollection_global.find({ participant_twitter_id: id }, function (err, res) {
         if (err);
         return null;
       });
@@ -28,8 +28,8 @@ function getParticipant(id) {
     // return participantsCollection_global == null
 }
 
-function deleteParticipants() {
-        participantsCollection_global.remove({}, function (err, res) {
+async function deleteParticipants() {
+    await participantsCollection_global.remove({}, function (err, res) {
             if (err);
             return false;
         });

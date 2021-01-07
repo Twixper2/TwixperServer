@@ -11,8 +11,8 @@ async function loadTweetsCollection(database) {
     }
 }
 
-function deleteTweets() {
-    tweetsCollection_global.remove({}, function (err, res) {
+async function deleteTweets() {
+    await tweetsCollection_global.remove({}, function (err, res) {
         if (err);
         return false;
     });

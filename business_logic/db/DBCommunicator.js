@@ -17,53 +17,66 @@ await tweetsCollection.loadTweetsCollection(database_global)
 //  }
 //  retriveCollections();
 //TO BE CHANGED AFTER HACKHATON!!
-function insertExperiment (experiment){
-    experimentsCollection.insertExperiment(experiment);
+async function insertExperiment (experiment){
+    await experimentsCollection.insertExperiment(experiment);
     //wipe the whole db
-    actionsCollection.deleteActions();
-    participantsCollection.deleteParticipants();
-    researchersCollection.deleteResearchers();
-    tweetsCollection.deleteTweets();
+    await actionsCollection.deleteActions();
+    await participantsCollection.deleteParticipants();
+    await researchersCollection.deleteResearchers();
+    await tweetsCollection.deleteTweets();
 }
 
-function getExperimentByCode(expCode){
-    return experimentsCollection.getExperimentByCode(expCode);
+async function getExperimentByCode(expCode){
+    return await experimentsCollection.getExperimentByCode(expCode);
+
+}
+//return the whole experience
+async function getExperimentById(expId){
+    return await experimentsCollection.getExperimentById(expId);
 
 }
 
-function insertParticipant(participant) {
+// For report
+async function getExperimentById(expId){
+    return await experimentsCollection.getExperimentById(expId);
+
+}
+
+ //returns experiment ID if experiment with the code provided exists, else null
+ async function isExperimentExists(reqExpCode) {
+
+}
+
+async function insertParticipant(participant) {
     let expId = participant.exp_id; 
-    experimentsCollection.insertParticipant(expId,participant); //find the exp id from participant 
-    participantsCollection.insertParticipant(participant);
+    await experimentsCollection.insertParticipant(expId,participant); //find the exp id from participant 
+    await participantsCollection.insertParticipant(participant);
 }
 
-function insertAction(action){
-    actionsCollection.insertAction(action);
+async function insertAction(action){
+    await actionsCollection.insertAction(action);
 }
 
-function getParticipant(pId){
-    return participantsCollection.getParticipant(pId);
+async function getParticipant(pId){
+    return await participantsCollection.getParticipant(pId);
 }
 
 
 // For Hackathon, remove after it finishes.
 // Returns all the experiments in the db.
-function getExperiments(){
-    return experimentsCollection.getExperiments();
+async function getExperiments(){
+    return await experimentsCollection.getExperiments();
 }
 
-// For report
-function getExperiment(expId){
-    return experimentsCollection.getExperiment(expId);
 
+
+async function getActionsOfExperiment(expId){
+    return await actionsCollection.getExpActions(expId);
 }
 
-function getActionsOfExperiment(expId){
-    return actionsCollection.getExpActions(expId);
-}
 
 // After Hackathon finishes:
-function getResearcherExperiments(researcherId){
+async function getResearcherExperiments(researcherId){
 
 }
 
@@ -75,9 +88,10 @@ module.exports = {
     insertAction: insertAction,
     insertExperiment : insertExperiment,
     getExperiments: getExperiments,
-    getExperiment: getExperiment,
     getActionsOfExperiment: getActionsOfExperiment,
-    getResearcherExperiments: getResearcherExperiments
+    getResearcherExperiments: getResearcherExperiments,
+    getExperimentById: getExperimentById,
+    isExperimentExists: isExperimentExists
 
 }
 
