@@ -41,8 +41,9 @@ async function getExperimentById(expId){
 
 async function insertParticipant(participant) {
     let expId = participant.exp_id; 
-    await experimentsCollection.insertParticipant(expId,participant); //find the exp id from participant 
+    await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
     await participantsCollection.insertParticipant(participant);
+    return true
 }
 
 async function insertAction(action){

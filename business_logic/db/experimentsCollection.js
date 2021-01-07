@@ -6,7 +6,7 @@ async function insertExperiment(experiment) {
   const db = await makeDb()
   let result = null
   try{
-    collection = db.collection("Experiments")
+    let collection = db.collection("Experiments")
     result = await collection.insertOne(experiment);
   }
   catch(e){
@@ -21,8 +21,10 @@ async function getExperimentById(expId) {
   const db = await makeDb()
   let result = null
   try{
-    collection = db.collection("Experiments")
-    result = await collection.findOne({ exp_id: expId }).toArray()[0]
+    let collection = db.collection("Experiments")
+    result = await collection.find({ exp_id: expId })
+    result = await result.toArray()
+    result = result[0]
   }
   catch(e){
     return null
@@ -36,7 +38,7 @@ async function getExperiments() {
   const db = await makeDb()
   let result = null
   try{
-    collection = db.collection("Experiments")
+    let collection = db.collection("Experiments")
     result = await collection.find({}).toArray()
   }
   catch(e){
@@ -49,8 +51,10 @@ async function getExperimentByCode(expCode) {
   const db = await makeDb()
   let result = null
   try{
-    collection = db.collection("Experiments")
-    result = await collection.findOne({ exp_code: expCode }, { exp_id: 1, _id: 0 }).toArray()[0]
+    let collection = db.collection("Experiments")
+    result = await collection.find({ exp_code: expCode })
+    result = await result.toArray() //, { exp_id: 1, _id: 0 }
+    result = result[0]
   }
   catch(e){
     return null
@@ -66,7 +70,7 @@ async function insertParticipantToExp(expId, participant) {
   const exp = await getExperimentById(expId)
   if (exp == null) { return false; }
 
-  let groups = experiment.exp_groups;
+  let groups = exp.exp_groups;
   for (let i = 0; i < groups.length; i++) {
     const group = groups[i]
     if (group.group_id == groupId) {
@@ -76,12 +80,14 @@ async function insertParticipantToExp(expId, participant) {
 
   const db = await makeDb()
   let result = null
+  // TODO: Update instead of insert and delete
   try{
-    collection = db.collection("Experiments")
-    await collection.deleteOne({ exp_code: expCode })
-    result = await collection.insertOne(experiment)
+    let collection = db.collection("Experiments")
+    await collection.deleteOne({ exp_id: expId })
+    result = await collection.insertOne(exp)
   }
   catch(e){
+    console.log(e)
     return false
   }
   if (result) {
@@ -95,7 +101,7 @@ async function deleteAllExperiments() {
   const db = await makeDb()
   let result = null
   try{
-    collection = db.collection("Experiments")
+    let collection = db.collection("Experiments")
     result = await collection.deleteMany({})
   }
   catch(e){

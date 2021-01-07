@@ -33,11 +33,25 @@ app.use(
   session({
     cookieName: "session", // the cookie key name
     secret: process.env.COOKIE_SECRET, // the encryption key
-    duration: 30 * 60 * 1000, // expired after 30 minutes
-    activeDuration: 5 * 60 * 1000 // if expiresIn < activeDuration,
-    //the session will be extended by 5 minutes
+    duration: 100 * 60 * 1000, // expired after 30 minutes
+    activeDuration: 100 * 60 * 1000, // if expiresIn < activeDuration,
+    cookie:{
+      httpOnly: false
+    }
+    //the session will be extended by
   })
 );
+
+// app.use(function(req, res, next) {
+//   if (req.session.id) {
+//     res.setHeader('X-Seen-You', 'true');
+//   } else {
+//     // setting a property will automatically cause a Set-Cookie response
+//     // to be sent
+//     req.session.id = true;
+//     res.setHeader('X-Seen-You', 'false');
+//   }
+// });
 
 app.use(express.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files

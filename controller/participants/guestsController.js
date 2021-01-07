@@ -19,17 +19,24 @@ router.post("/login", async (req, res, next) => {
 
     //if no such user, creating the user
     if (!user) { 
-      //no such experiment, bad request
-      let expId = await database.isExperimentExists(reqExpCode); 
-      if (expId == null) { 
+      // TODO: Call getExpIdByExpCode (isExperimentExists) instead of this
+      let exp = await database.getExperimentByCode(reqExpCode); 
+      if(exp == null){
+        //no such experiment, bad request
         res.status(400).send("No such Experiment.")
+        return;
       }
+      let expId = exp.exp_id
+      // if (expId == null) { 
+      //   res.status(400).send("No such Experiment.")
+      // }
       user = await participantsService.registerParticipant(userTwitterToken, expId)
     }
 
     //giving the user (new or just re logged-in) a cookie and responding with 200 and twitter username
     if (user != null) {
       req.session.id = user.participant_twitter_id;
+      // Sending the username to the client so he can know that he is log on
       res.status(200).send(user.participant_twitter_username);
     }
     else {

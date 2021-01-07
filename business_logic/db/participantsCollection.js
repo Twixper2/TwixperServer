@@ -4,7 +4,7 @@ async function insertParticipant(participant) {
     const db = await makeDb()
     let result = null
     try{
-        collection = db.collection("Participants")
+        let collection = db.collection("Participants")
         result = await collection.insertOne(participant)
     }
     catch(e){
@@ -21,8 +21,10 @@ async function getParticipant(id) {
     const db = await makeDb()
     let result = null
     try{
-        collection = db.collection("Participants")
-        result = await collection.findOne({participant_twitter_id: id}).toArray()[0]
+        let collection = db.collection("Participants")
+        result = await collection.find({participant_twitter_id: id})
+        result = result.toArray()
+        result = result[0]
     }
     catch(e){
         return null
@@ -34,7 +36,7 @@ async function deleteParticipants() {
     const db = await makeDb()
     let result = null
     try{
-        collection = db.collection("Participants")
+        let collection = db.collection("Participants")
         result = await collection.deleteMany({})
     }
     catch(e){
