@@ -12,9 +12,9 @@ async function loadTweetsCollection(database) {
 }
 
 async function deleteTweets() {
-    await tweetsCollection_global.remove({}, function (err, res) {
-        if (err);
-        return false;
+    await tweetsCollection_global.deleteMany({}, function (err, res) {
+        if (err)
+            return false;
     });
     return true;
 }

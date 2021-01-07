@@ -4,78 +4,78 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
 
 
-function getFeed(){
+async function getFeed(){
     /* Check the req, if there are required paramaters missing, throw error.
        For feed, check for additional parameters like "max_id" and "count",
        and send them to twitterComm 
     */
 
     // Get the feed from Twitter
-    const twitterFeedTweets = twitterComm.getFeed()
+    const twitterFeedTweets = await twitterComm.getFeed()
     /* TODO: Apply manipulations */
     
     return twitterFeedTweets
 }
 
-function searchTweets(q){
+async function searchTweets(q){
     
-    const twitterSearchTweets = twitterComm.searchTweets(q)
+    const twitterSearchTweets = await twitterComm.searchTweets(q)
     /* TODO: Apply manipulations */
     
     return twitterSearchTweets
 }
 
-function searchUsers(q){    
+async function searchUsers(q){    
     
-    const twitterSearchUsers = twitterComm.searchUsers(q)
+    const twitterSearchUsers = await twitterComm.searchUsers(q)
     /* TODO: Apply manipulations */
     
     return twitterSearchUsers
 }
 
-function getUser(username){
+async function getUser(username){
 
-    const twitterGetUser = twitterComm.getUser(username)
+    const twitterGetUser = await twitterComm.getUser(username)
     /* TODO: Apply manipulations */
     
     return twitterGetUser
 }
 
-function getTweet(tweetId){
+async function getTweet(tweetId){
     
-    const twitterGetTweet = twitterComm.getTweet(tweetId)
+    const twitterGetTweet = await twitterComm.getTweet(tweetId)
     /* TODO: Apply manipulations */
     
     return twitterGetTweet
 }
 
-function getUserFriends(username){
+async function getUserFriends(username){
 
-    const twitterGetUserFriends = twitterComm.getUserFriends(username)
+    const twitterGetUserFriends = await twitterComm.getUserFriends(username)
     /* TODO: Apply manipulations */
     
     return twitterGetUserFriends
 }
 
-function getUserFollowers(username){
+async function getUserFollowers(username){
     
-    const twitterGetUserFollowers = twitterComm.getUserFollowers(username)
+    const twitterGetUserFollowers = await twitterComm.getUserFollowers(username)
     /* TODO: Apply manipulations */
     
     return twitterGetUserFollowers
 }
 
-function getUserTimeline(username){
+async function getUserTimeline(username){
 
-    const twitterGetUserTimeline = twitterComm.getUserTimeline(username)
+    const twitterGetUserTimeline = await twitterComm.getUserTimeline(username)
     /* TODO: Apply manipulations */
     
     return twitterGetUserTimeline
 }
 
-function getUserLikes(username){
+async function getUserLikes(username){
    
-    const twitterGetUserLikes = twitterComm.getUserLikes(username)
+    const twitterGetUserLikes = await twitterComm.getUserLikes(username)
     /* TODO: Apply manipulations */
     
     return twitterGetUserLikes
