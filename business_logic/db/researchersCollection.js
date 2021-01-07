@@ -11,6 +11,15 @@ async function loadResearchersCollection(database) {
     }
 }
 
+function deleteResearchers() {
+    researchersCollection_global.remove({}, function (err, res) {
+        if (err);
+        return false;
+    });
+    return true;
+}
+
 module.exports = {
-    loadResearchersCollection : loadResearchersCollection
+    loadResearchersCollection : loadResearchersCollection,
+    deleteResearchers: deleteResearchers
 }

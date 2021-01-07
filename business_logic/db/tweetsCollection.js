@@ -11,6 +11,15 @@ async function loadTweetsCollection(database) {
     }
 }
 
+function deleteTweets() {
+    tweetsCollection_global.remove({}, function (err, res) {
+        if (err);
+        return false;
+    });
+    return true;
+}
+
 module.exports= {
-    loadTweetsCollection : loadTweetsCollection
+    loadTweetsCollection : loadTweetsCollection,
+    deleteTweets: deleteTweets
 }
