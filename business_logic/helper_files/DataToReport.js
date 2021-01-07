@@ -52,8 +52,8 @@ exports.experiment = {
             "group_num_of_participants": "",
             "group_size_in_percentage": "", //גודל הקבוצה באחוזים כפי שהחוקר הגדיר בצור ניסוי
             "group_participants": [ // array of objects
-                {"participant_twiitter_username": ""}, // possibly more fields like "last action time"
-                {"participant_twiitter_username": ""}
+                {"participant_twitter_username": ""}, // possibly more fields like "last action time"
+                {"participant_twitter_username": ""}
             ],
             "group_manipulations":[ // array of objects
                 {},
@@ -67,7 +67,6 @@ exports.activeParticipant = {
     "exp_id": "",
     "group_id": "",
     "participant_twitter_id" : 1356534568586513,
-    "user_twitter_token" : "123",
     "participant_twitter_username": "aviCohen",
     "group_manipulations":[ // array of objects
         {},
@@ -79,7 +78,7 @@ exports.action = { // Fields that are included in all actions
     "exp_id": "",
     "action_type" : "",
     "action_date": "",
-    "participant_twiitter_username" : "",
+    "participant_twitter_username" : "",
     "participant_group_id": ""
 }
 
@@ -87,7 +86,7 @@ exports.loginAction = {
     "exp_id": "",
     "action_type" : "login",
     "action_date": "",
-    "participant_twiitter_username" : "",
+    "participant_twitter_username" : "",
     "participant_group_id": ""
 }
 
@@ -119,8 +118,8 @@ exports.report = {
             "group_num_of_participants": "",
             "group_size_in_percentage": "", //גודל הקבוצה באחוזים כפי שהחוקר הגדיר בצור ניסוי
             "group_participants": [ // array of objects
-                {"participants_twiitter_username": "", "last_action_time": ""}, // possibly more fields
-                {"participants_twiitter_username": "", "last_action_time": ""}
+                {"participants_twitter_username": "", "last_action_time": ""}, // possibly more fields
+                {"participants_twitter_username": "", "last_action_time": ""}
             ],
             "group_manipulations":[ // array of objects
                 {},
@@ -135,7 +134,7 @@ exports.report = {
         // The fields which are included in all the action objects:
         {
             "action_date": "",
-            "participant_twiitter_username" : "",
+            "participant_twitter_username" : "",
             "participant_group_id": "",
             "action_type" : ""
         },

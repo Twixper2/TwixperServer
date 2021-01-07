@@ -4,7 +4,9 @@
   "description": "Twixper server side",
   "main": "routes.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test1": "./business_logic/db/DBCommunicator.js"
+
   },
   "repository": {
     "type": "git",

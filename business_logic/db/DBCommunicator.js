@@ -7,70 +7,95 @@ var actionsCollection = require("./actionsCollection")
 
 
 /* loading collections */
-var database_global = dbConn.getDatabase()
-participantsCollection.loadParticipantsCollection(database_global)
-researchersCollection.loadResearchersCollection(database_global)
-experimentsCollection.loadExperimentsCollection(database_global)
-actionsCollection.loadActionsCollection(database_global)
-tweetsCollection.loadTweetsCollection(database_global)
-
-function insertExperiment (experiment){
-    experimentsCollection.insertExperiment(experiment)
-    // Call for more collection modules if needed.
+ var database_global = dbConn.getDatabase()
+// await async function retriveCollections(){
+await participantsCollection.loadParticipantsCollection(database_global)
+await researchersCollection.loadResearchersCollection(database_global)
+await experimentsCollection.loadExperimentsCollection(database_global)
+await actionsCollection.loadActionsCollection(database_global)
+await tweetsCollection.loadTweetsCollection(database_global)
+//  }
+//  retriveCollections();
+//TO BE CHANGED AFTER HACKHATON!!
+async function insertExperiment (experiment){
+    await experimentsCollection.insertExperiment(experiment);
+    //wipe the whole db
+    await actionsCollection.deleteActions();
+    await participantsCollection.deleteParticipants();
+    await researchersCollection.deleteResearchers();
+    await tweetsCollection.deleteTweets();
 }
 
-function getExperimentByCode(expCode){
+async function getExperimentByCode(expCode){
+    return await experimentsCollection.getExperimentByCode(expCode);
 
 }
-
-function getExperimentById(expId){
-
-}
-
-/**
- * 
- * @param {experiment code} reqExpCode 
- * @returns experiment ID if experiment with the code provided exists, else null
- */
-function isExperimentExists(reqExpCode) {
-
-}
-
-function insertParticipant(participant) {
-    // Insert to experimentsCollection
-    // Insert to participantsCollection
-}
-
-function insertAction(action){
+//return the whole experience
+async function getExperimentById(expId){
+    return await experimentsCollection.getExperimentById(expId);
 
 }
 
-function getParticipant(pId){
+// For report
+async function getExperimentById(expId){
+    return await experimentsCollection.getExperimentById(expId);
 
+}
+
+ //returns experiment ID if experiment with the code provided exists, else null
+ async function isExperimentExists(reqExpCode) {
+
+}
+
+async function insertParticipant(participant) {
+    let expId = participant.exp_id; 
+    await experimentsCollection.insertParticipant(expId,participant); //find the exp id from participant 
+    await participantsCollection.insertParticipant(participant);
+}
+
+async function insertAction(action){
+    await actionsCollection.insertAction(action);
+}
+
+async function getParticipant(pId){
+    return await participantsCollection.getParticipant(pId);
 }
 
 
 // For Hackathon, remove after it finishes.
 // Returns all the experiments in the db.
-function getExperiments(){
-
+async function getExperiments(){
+    return await experimentsCollection.getExperiments();
 }
 
-// For report
-function getExperiment(expId){
 
+
+async function getActionsOfExperiment(expId){
+    return await actionsCollection.getExpActions(expId);
 }
 
-function getExperimentActions(expId){
-
-}
 
 // After Hackathon finishes:
-function getResearcherExperiments(researcherId){
+async function getResearcherExperiments(researcherId){
 
 }
 
 
+module.exports = {
+    getExperimentByCode : getExperimentByCode,
+    insertParticipant: insertParticipant,
+    getParticipant: getParticipant,
+    insertAction: insertAction,
+    insertExperiment : insertExperiment,
+    getExperiments: getExperiments,
+    getActionsOfExperiment: getActionsOfExperiment,
+    getResearcherExperiments: getResearcherExperiments,
+    getExperimentById: getExperimentById,
+    isExperimentExists: isExperimentExists
 
+}
 
+// if(getParticipant(1).participant_twitter_id==1){
+    console.log(getParticipant(1));
+// }
 
