@@ -7,7 +7,7 @@ const database = require("../../business_logic/db/DBCommunicator.js")
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
   is there's a problem, respond with code 401 */
-router.use(function (req, res, next) {
+router.use(async function (req, res, next) {
     if (req.session &&  req.session.id) {
       const id = req.session.id;
       const user = await checkIdOnDb(id);

@@ -7,12 +7,16 @@ var actionsCollection = require("./actionsCollection")
 
 //TO BE CHANGED AFTER HACKHATON!!
 async function insertExperiment (experiment){
-    await experimentsCollection.insertExperiment(experiment);
-    //wipe the whole db
-    await actionsCollection.deleteActions();
-    await participantsCollection.deleteParticipants();
-    await researchersCollection.deleteResearchers();
-    await tweetsCollection.deleteTweets();
+    // wipe the whole db
+    // await actionsCollection.deleteActions();
+    // await participantsCollection.deleteParticipants();
+    // await researchersCollection.deleteResearchers();
+    // await tweetsCollection.deleteTweets();
+
+    // TODO: call experimentsCollection.deleteAllExperiments()
+
+    return await experimentsCollection.insertExperiment(experiment);
+    
 }
 
 async function getExperimentByCode(expCode){
@@ -84,8 +88,4 @@ module.exports = {
     isExperimentExists: isExperimentExists
 
 }
-
-// if(getParticipant(1).participant_twitter_id==1){
-    console.log(getParticipant(1));
-// }
 

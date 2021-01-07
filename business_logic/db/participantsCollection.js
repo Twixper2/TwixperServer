@@ -12,8 +12,8 @@ async function loadParticipantsCollection(database) {
 }
 async function insertParticipant(participant) {
     await participantsCollection_global.insertOne(participant, function (err, res) {
-        if (err);
-        return false;
+        if (err)
+            return false;
     });
     return true;
 }
@@ -21,8 +21,8 @@ async function insertParticipant(participant) {
 
 async function getParticipant(id) {
     let output = await participantsCollection_global.find({ participant_twitter_id: id }, function (err, res) {
-        if (err);
-        return null;
+        if (err)
+            return null;
       });
       return output;
     // return participantsCollection_global == null
@@ -30,8 +30,8 @@ async function getParticipant(id) {
 
 async function deleteParticipants() {
     await participantsCollection_global.remove({}, function (err, res) {
-            if (err);
-            return false;
+            if (err)
+                return false;
         });
         return true;
     
