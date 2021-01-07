@@ -5,7 +5,7 @@ async function insertAction(action) {
     const db = await makeDb()
     let result = null
     try{
-        collection = db.collection("Actions")
+        let collection = db.collection("Actions")
         result = await collection.insertOne(action)
     }
     catch(e){
@@ -22,7 +22,7 @@ async function getExpActions(expId) {
     const db = await makeDb()
     let result = null
     try{
-        collection = db.collection("Actions")
+        let collection = db.collection("Actions")
         result = await collection.find({ exp_id: expId },{ _id:0, exp_id: 0 }).toArray()
     }
     catch(e){
@@ -35,7 +35,7 @@ async function deleteActions() {
     const db = await makeDb()
     let result = null
     try{
-        collection = db.collection("Actions")
+        let collection = db.collection("Actions")
         result = await collection.deleteMany({})
     }
     catch(e){

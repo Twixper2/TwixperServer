@@ -4,16 +4,16 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
 
 
-async function getFeed(){
+async function getFeed(user){
     /* Check the req, if there are required paramaters missing, throw error.
        For feed, check for additional parameters like "max_id" and "count",
        and send them to twitterComm 
     */
 
     // Get the feed from Twitter
-    const twitterFeedTweets = await twitterComm.getFeed()
+    let twitterFeedTweets = await twitterComm.getFeed()
     /* TODO: Apply manipulations */
-    
+    twitterFeedTweets = manipulator.manipulateTweets(user.group_manipulations, twitterFeedTweets)
     return twitterFeedTweets
 }
 
@@ -92,22 +92,22 @@ async function registerParticipant(userTwitterToken, expId) {
     // raffle group for user, after hackathon do it using another file 
     let groupId = -1
     let username = ""
-    if (userTwitterToken = "123"){
-        const groupId = 11
+    if (userTwitterToken == "123"){
+        groupId = 11
         username = "Nir"
     }
-    else if (userTwitterToken = "456"){
-        const groupId = 12
+    else if (userTwitterToken == "456"){
+        groupId = 12
         username = "Tal"
 
     }
     else{
-        const groupId = 12
+        groupId = 12
         username = "Dekel"
     }
 
     // find exp group by groupId within experiment 
-    const group = exp_groups.filter(obj => {
+    const group = expGroups.filter(obj => {
         return obj.group_id == groupId
     })[0]
 
@@ -120,7 +120,11 @@ async function registerParticipant(userTwitterToken, expId) {
         "group_manipulations": group.group_manipulations
     }
     
-    database.insertParticipant(user)
+    const successRegister = await database.insertParticipant(user)
+    if(successRegister){
+        return user
+    }
+    return null
 
 }
 
@@ -134,3 +138,5 @@ exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
 exports.getUserLikes = getUserLikes
+
+exports.registerParticipant = registerParticipant
