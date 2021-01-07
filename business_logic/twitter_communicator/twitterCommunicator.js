@@ -30,7 +30,7 @@ if(returnStaticData){ // Require them only when we need to.
 /* End of static data */
 
 // Possibly add more fields such as "max_id" and "count"
-function getFeed(){ 
+async function getFeed(){ 
     if(returnStaticData){
         return feedJSON
     }
@@ -38,7 +38,7 @@ function getFeed(){
 }
 
 // Possibly add more fields
-function searchTweets(query){
+async function searchTweets(query){
     if(returnStaticData){
         return searchTweetsJSON
     }
@@ -46,49 +46,49 @@ function searchTweets(query){
 }
 
 // Possibly add more fields
-function searchUsers(query){
+async function searchUsers(query){
     if(returnStaticData){
         return peopleJSON
     }
     //Else, call and return relevant function from the modules
 }
 
-function getUser(username){
+async function getUser(username){
     if(returnStaticData){
         return userPageJSON
     }
     //Else, call and return relevant function from the modules
 }
 
-function getTweet(tweetId){
+async function getTweet(tweetId){
     if(returnStaticData){
         return tweetPageJSON
     }
     //Else, call and return relevant function from the modules
 }
 
-function getUserFriends(username){
+async function getUserFriends(username){
     if(returnStaticData){
         return friendsPeopleJSON
     }
     //Else, call and return relevant function from the modules
 }
 
-function getUserFollowers(username){
+async function getUserFollowers(username){
     if(returnStaticData){
         return followersPeopleJSON
     }
     //Else, call and return relevant function from the modules
 }
 
-function getUserTimeline(username){
+async function getUserTimeline(username){
     if(returnStaticData){
         return userTimelineJSON
     }
     //Else, call and return relevant function from the modules
 }
 
-function getUserLikes(username){
+async function getUserLikes(username){
     if(returnStaticData){
         return userLikesJSON
     }

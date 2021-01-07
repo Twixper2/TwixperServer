@@ -6,7 +6,7 @@ module.exports = router;
 // We go here when we don't have a cookie.
 // When the client side see that we are not log on, he send the request to here.
 router.post("/login", async (req, res, next) => {
-    const reqExpCode = req.body.expCode // Should be 123 fo the Hackathon.
+    const reqExpCode = req.body.expCode // Should be "123" fo the Hackathon.
     
 
     /*try{

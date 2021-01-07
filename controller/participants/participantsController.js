@@ -30,7 +30,7 @@ router.get("/getFeed", async (req, res, next) => {
      For feed, check for additional parameters like "max_id" and "count"
   */
   try{
-    const feedTweets = participantsService.getFeed()
+    const feedTweets = await participantsService.getFeed()
     res.send(feedTweets)
   }
   catch(e){
@@ -48,7 +48,7 @@ router.get("/searchTweets", async (req, res, next) => {
   // if q == null....
 
   try{
-    const tweetsSearchResults = participantsService.searchTweets(q)
+    const tweetsSearchResults = await participantsService.searchTweets(q)
     res.send(tweetsSearchResults)
   }
   catch(e){
@@ -63,7 +63,7 @@ router.get("/searchUsers", async (req, res, next) => {
   // if q == null....
 
   try{
-    const usersSearchResults = participantsService.searchUsers(q)
+    const usersSearchResults = await participantsService.searchUsers(q)
     res.send(usersSearchResults)
   }
   catch(e){
@@ -78,7 +78,7 @@ router.get("/getUser", async (req, res, next) => {
   // if username == null....
 
   try{
-    const user = participantsService.getUser(username)
+    const user = await participantsService.getUser(username)
     res.send(user)
   }
   catch(e){
@@ -93,7 +93,7 @@ router.get("/getTweet", async (req, res, next) => {
   // if tweetId == null....
 
   try{
-    const tweet = participantsService.getTweet(tweetId)
+    const tweet = await participantsService.getTweet(tweetId)
     res.send(tweet)
   }
   catch(e){
@@ -108,7 +108,7 @@ router.get("/getUserFriends", async (req, res, next) => {
   // if username == null....
 
   try{
-    const userFriends = participantsService.getUserFriends(username)
+    const userFriends = await participantsService.getUserFriends(username)
     res.send(userFriends)
   }
   catch(e){
@@ -123,7 +123,7 @@ router.get("/getUserFollowers", async (req, res, next) => {
   // if username == null....
 
   try{
-    const userFollowers = participantsService.getUserFollowers(username)
+    const userFollowers = await participantsService.getUserFollowers(username)
     res.send(userFollowers)
   }
   catch(e){
@@ -138,7 +138,7 @@ router.get("/getUserTimeline", async (req, res, next) => {
   // if username == null....
 
   try{
-    const userTimelineTweets = participantsService.getUserTimeline(username)
+    const userTimelineTweets = await participantsService.getUserTimeline(username)
     res.send(userTimelineTweets)
   }
   catch(e){
@@ -153,7 +153,7 @@ router.get("/getUserLikes", async (req, res, next) => {
   // if username == null....
 
   try{
-    const userLikesTweets = participantsService.getUserLikes(username)
+    const userLikesTweets = await participantsService.getUserLikes(username)
     res.send(userLikesTweets)
   }
   catch(e){
