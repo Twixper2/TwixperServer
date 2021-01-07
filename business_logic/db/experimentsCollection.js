@@ -1,45 +1,12 @@
-// const { MongoClient } = require("mongodb");
-
-// const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
-
-
-// const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
-
-
-// async function run() {
-//     try {
-//       await client.connect();
-
-//       const database = client.db('Twixper');
-//       const collection = database.collection('Participants');
-//       const query = { _id: 2, name: 'nir dz' }; 
-//       const user = await collection.insertOne(query);
-
-//     } finally {
-//       // Ensures that the client will close when you finish/error
-//       await client.close();
-//     }
-//   }
-
-
-var experimentsCollection_global = null
-
-async function loadExperimentsCollection(database) {
-  try {
-    if (!experimentsCollection_global) {
-      experimentsCollection_global = await database.collection('Experiments');
-    }
-  }
-  catch {
-    return null;
-  }
-}
+import makeDb from "./DBConnector.js"
 
 
 //delete the last experiment and insert the new one
 async function insertExperiment(experiment) {
-  await experimentsCollection_global.remove({});
-  await experimentsCollection_global.insert(experiment);
+  const db = await makeDb()
+  let experimentsCollection = await db.collection("Experiments")
+  await experimentsCollection.remove({});
+  await experimentsCollection.insert(experiment);
 }
 
 async function getExperimentById(expId) {

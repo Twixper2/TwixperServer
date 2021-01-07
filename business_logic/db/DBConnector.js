@@ -1,25 +1,18 @@
-const { MongoClient } = require("mongodb");
-
+import mongodb from 'mongodb'
+const MongoClient = mongodb.MongoClient
 const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
+const dbName =  "Twixper"
+const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
 
-var database_global = null
 
-
-
-async function getDatabase() {
-    if (!database_global) {
-        try {
-            const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
-            await client.connect();
-            database_global = client.db('Twixper');
-        }
-        catch { 
-            return null;
-        }
-        return database_global
+async function makeDb () {
+    if (!client.isConnected()) {
+      await client.connect()
     }
+    return client.db(dbName)
 }
 
+
 module.exports = {
-    getDatabase: getDatabase,
+    makeDb: makeDb,
 }
