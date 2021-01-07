@@ -3,16 +3,6 @@ var makeDb = require("./DBConnector.js").makeDb
 
 //delete the last experiment and insert the new one
 async function insertExperiment(experiment) {
-  // let experimentsCollection = await db.collection("Experiments")
-  // // await experimentsCollection.deleteMany({});
-  // let success = null 
-  // await experimentsCollection.insertOne(experiment, function (err, res) {
-  //   if (err)
-  //     success = false;
-  //   else{
-  //     success = true;
-  //   }
-  // });
   const db = await makeDb()
   let result = null
   try{
@@ -55,13 +45,12 @@ async function getExperiments() {
   return result
 }
 
-// TODO return only exp_id
 async function getExperimentByCode(expCode) { 
   const db = await makeDb()
   let result = null
   try{
     collection = db.collection("Experiments")
-    result = await collection.findOne({ exp_code: expCode })
+    result = await collection.findOne({ exp_code: expCode }, { exp_id: 1, _id: 0 })
   }
   catch(e){
     return null
