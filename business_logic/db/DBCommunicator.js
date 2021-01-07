@@ -8,12 +8,11 @@ var actionsCollection = require("./actionsCollection")
 //TO BE CHANGED AFTER HACKHATON!!
 async function insertExperiment (experiment){
     // wipe the whole db
-    // await actionsCollection.deleteActions();
-    // await participantsCollection.deleteParticipants();
+    await actionsCollection.deleteActions();
+    await participantsCollection.deleteParticipants();
     // await researchersCollection.deleteResearchers();
     // await tweetsCollection.deleteTweets();
-
-    // TODO: call experimentsCollection.deleteAllExperiments()
+    await experimentsCollection.deleteAllExperiments()
 
     return await experimentsCollection.insertExperiment(experiment);
     

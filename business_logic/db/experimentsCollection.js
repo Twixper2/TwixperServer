@@ -22,7 +22,7 @@ async function getExperimentById(expId) {
   let result = null
   try{
     collection = db.collection("Experiments")
-    result = await collection.findOne({ exp_id: expId })
+    result = await collection.findOne({ exp_id: expId }).toArray()[0]
   }
   catch(e){
     return null
@@ -37,7 +37,7 @@ async function getExperiments() {
   let result = null
   try{
     collection = db.collection("Experiments")
-    result = await collection.find({})
+    result = await collection.find({}).toArray()
   }
   catch(e){
     return null
@@ -50,7 +50,7 @@ async function getExperimentByCode(expCode) {
   let result = null
   try{
     collection = db.collection("Experiments")
-    result = await collection.findOne({ exp_code: expCode }, { exp_id: 1, _id: 0 })
+    result = await collection.findOne({ exp_code: expCode }, { exp_id: 1, _id: 0 }).toArray()[0]
   }
   catch(e){
     return null
