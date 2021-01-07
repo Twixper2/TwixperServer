@@ -16,8 +16,8 @@ async function loadActionsCollection(database) {
 }
 
 
-function insertAction(action) {
-    actionsCollection_global.insertOne(action, function (err, res) {
+async function insertAction(action) {
+    await actionsCollection_global.insertOne(action, function (err, res) {
         if (err);
         return false;
       });
@@ -25,8 +25,8 @@ function insertAction(action) {
 }
 
 
-function getExpActions(expId) {
-    let output = actionsCollection_global.find({ exp_id: expId },
+async function getExpActions(expId) {
+    let output = await actionsCollection_global.find({ exp_id: expId },
         { action_type: 1, action_date: 1, participant_twitter_username: 1, participant_group_id: 1, exp_id: 0 }, function (err, res) {
             if (err);
             return null;
@@ -34,8 +34,8 @@ function getExpActions(expId) {
     return output;
 }
 
-function deleteActions() {
-    actionsCollection_global.remove({}, function (err, res) {
+async function deleteActions() {
+    await actionsCollection_global.remove({}, function (err, res) {
         if (err);
         return false;
     });

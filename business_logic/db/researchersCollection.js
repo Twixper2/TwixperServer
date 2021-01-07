@@ -11,8 +11,8 @@ async function loadResearchersCollection(database) {
     }
 }
 
-function deleteResearchers() {
-    researchersCollection_global.remove({}, function (err, res) {
+async function deleteResearchers() {
+    await researchersCollection_global.remove({}, function (err, res) {
         if (err);
         return false;
     });

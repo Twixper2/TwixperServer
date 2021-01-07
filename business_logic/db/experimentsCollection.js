@@ -37,28 +37,31 @@ async function loadExperimentsCollection(database) {
 
 
 //delete the last experiment and insert the new one
-function insertExperiment(experiment) {
-  experimentsCollection_global.remove({});
-  experimentsCollection_global.insert(experiment);
+async function insertExperiment(experiment) {
+  await experimentsCollection_global.remove({});
+  await experimentsCollection_global.insert(experiment);
 }
-function getExperiment(expId) {
-  let output = experimentsCollection_global.find({ exp_id: expId }, function (err, res) {
+
+async function getExperimentById(expId) {
+  let output = await experimentsCollection_global.find({ exp_id: expId }, function (err, res) {
     if (err);
     return null;
   });
   return output;
 }
+
+
 //remove after hackhton
-function getExperiments() {
-  let output = experimentsCollection_global.find({}, function (err, res) {
+async function getExperiments() {
+  let output = await experimentsCollection_global.find({}, function (err, res) {
     if (err);
     return null;
   });
   return output;
 }
 
-function getExperimentByCode(expCode) {
-  let output = experimentsCollection_global.find({ exp_code: expCode }, function (err, res) {
+async function getExperimentByCode(expCode) {
+  let output = await experimentsCollection_global.find({ exp_code: expCode }, function (err, res) {
     if (err);
     return null;
   });
@@ -66,17 +69,17 @@ function getExperimentByCode(expCode) {
 }
 
 
-function insertParticipant(expId, participant) {
+async function insertParticipant(expId, participant) {
   let username = participant.participant_twitter_username;
   let groupId = participant.group_id;
-  let experiment = experimentsCollection_global.find({ exp_id: expId });
+  let experiment = await experimentsCollection_global.find({ exp_id: expId });
   let groups = experiment.exp_groups;
   for (let i = 0; i < groups.length; i++) {
     if (groups[i].group_id == groupId) {
       groups[i].group_participants.push(username);
     }
   }
-  experimentsCollection_global.insertOne(experiment, function (err, res) {
+  await experimentsCollection_global.insertOne(experiment, function (err, res) {
     if (err);
     return false;
   });
@@ -88,7 +91,7 @@ module.exports = {
   loadExperimentsCollection: loadExperimentsCollection,
   insertExperiment: insertExperiment,
   insertParticipant: insertParticipant,
-  getExperiment: getExperiment,
+  getExperimentById: getExperimentById,
   getExperiments: getExperiments,
   getExperimentByCode: getExperimentByCode
 }
