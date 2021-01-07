@@ -1,8 +1,6 @@
-// const { MongoClient } = require("mongodb");
-// const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
-// const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
+import makeDb from "./DBConnector.js"
 
-var actionsCollection_global = null
+var actionsCollection_global = makeDb()
 
 async function loadActionsCollection(database) {
     try {
