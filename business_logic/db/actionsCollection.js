@@ -23,8 +23,7 @@ async function getExpActions(expId) {
     let result = null
     try{
         collection = db.collection("Actions")
-        result = await collection.findAll({ exp_id: expId },
-            { _id:0, exp_id: 0 })
+        result = await collection.find({ exp_id: expId },{ _id:0, exp_id: 0 }).toArray()
     }
     catch(e){
         return null

@@ -22,7 +22,7 @@ async function getParticipant(id) {
     let result = null
     try{
         collection = db.collection("Participants")
-        result = await collection.findOne({participant_twitter_id: id})
+        result = await collection.findOne({participant_twitter_id: id}).toArray()[0]
     }
     catch(e){
         return null
