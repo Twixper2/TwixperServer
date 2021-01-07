@@ -69,11 +69,11 @@ function getExperimentByCode(expCode) {
 function insertParticipant(expId, participant) {
   let username = participant.participant_twitter_username;
   let groupId = participant.group_id;
-  let experiment = collection.find({ exp_id: expId });
+  let experiment = experimentsCollection_global.find({ exp_id: expId });
   let groups = experiment.exp_groups;
   for (let i = 0; i < groups.length; i++) {
     if (groups[i].group_id == groupId) {
-      groups[i].push(username);
+      groups[i].group_participants.push(username);
     }
   }
   experimentsCollection_global.insertOne(experiment, function (err, res) {
