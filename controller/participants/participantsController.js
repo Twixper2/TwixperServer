@@ -1,29 +1,27 @@
 var express = require("express");
 var router = express.Router();
 const participantsService = require("../../service/participants/participantsService.js");
+const database = require("../../business_logic/db/DBCommunicator.js")
 
-// access control , checking cookie.
-// In this middleware, we check for cookie in the request header.
-// If we found a coockie, we get the user object from the DB and add it to the req object.
 
-// router.use(function (req, res, next) {
-    // Check for authentication from Twitter, 
-    // and check that this user is in active experiment.
+/* Make sure user is authenticated by checking id provided in the cookie
+  and append user data from db to req
+  is there's a problem, respond with code 401 */
+router.use(function (req, res, next) {
+    if (req.session &&  req.session.id) {
+      const id = req.session.id;
+      const user = await checkIdOnDb(id);
 
-    /*if (req.session && req.session.user_id) {
-      DButils.execQuery("SELECT user_id FROM users")
-        .then((users) => {
-          if (users.find((x) => x.user_id === req.session.user_id)) {
-            req.user_id = req.session.user_id;
-            next();
-          }
-          else throw { status: 401, message: "unauthorized" };
-        })
-        .catch((error) => res.send(error));
-    } else {
-      res.sendStatus(401);
-    }*/
-// });
+      if (user) {
+          req.user = user; //every method has the user now
+          next(); //go to the request
+      }
+    }
+    else {
+        res.sendStatus(401); //user authentication failed, responde with unautorized
+    }
+});
+
 
 router.get("/getFeed", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error.
@@ -162,8 +160,9 @@ router.get("/getUserLikes", async (req, res, next) => {
   }
 });
 
-router.use((req,res) => {
-  res.sendStatus(404);
-});
+async function checkIdOnDb(id) {
+  //should give id and username
+  return await database.getParticipant(id); 
+}
 
 module.exports = router;

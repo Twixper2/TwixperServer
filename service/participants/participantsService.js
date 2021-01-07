@@ -1,5 +1,8 @@
 const twitterComm = require("../../business_logic/twitter_communicator/twitterCommunicator")
 const manipulator = require("../../business_logic/manipulator/manipulator.js")
+const database = require("../../business_logic/db/DBCommunicator.js");
+const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
+
 
 async function getFeed(){
     /* Check the req, if there are required paramaters missing, throw error.
@@ -77,6 +80,50 @@ async function getUserLikes(username){
     
     return twitterGetUserLikes
 }
+
+/**
+ * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
+ * @param {*} userTwitterToken 
+ * @param {*} expId 
+ */
+async function registerParticipant(userTwitterToken, expId) {
+    const experiment = await database.getExperimentById(expId);
+    const expGroups = experiment.exp_groups;
+    // raffle group for user, after hackathon do it using another file 
+    let groupId = -1
+    let username = ""
+    if (userTwitterToken = "123"){
+        const groupId = 11
+        username = "Nir"
+    }
+    else if (userTwitterToken = "456"){
+        const groupId = 12
+        username = "Tal"
+
+    }
+    else{
+        const groupId = 12
+        username = "Dekel"
+    }
+
+    // find exp group by groupId within experiment 
+    const group = exp_groups.filter(obj => {
+        return obj.group_id == groupId
+    })[0]
+
+    let user = {
+        "exp_id": expId,
+        "group_id": group.group_id,
+        "participant_twitter_id" : 99999,
+        "user_twitter_token" : userTwitterToken,
+        "participant_twitter_username": username,
+        "group_manipulations": group.group_manipulations
+    }
+    
+    database.insertParticipant(user)
+
+}
+
 
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
