@@ -1,4 +1,4 @@
-import makeDb from "./DBConnector.js"
+import { makeDb } from "./DBConnector.js"
 
 
 //delete the last experiment and insert the new one
