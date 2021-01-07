@@ -1,18 +1,36 @@
-import { makeDb } from "./DBConnector.js"
+var makeDb = require("./DBConnector.js").makeDb
 
 
 //delete the last experiment and insert the new one
 async function insertExperiment(experiment) {
   const db = await makeDb()
-  let experimentsCollection = await db.collection("Experiments")
-  await experimentsCollection.remove({});
-  await experimentsCollection.insert(experiment);
+  // let experimentsCollection = await db.collection("Experiments")
+  // // await experimentsCollection.deleteMany({});
+  // let success = null 
+  // await experimentsCollection.insertOne(experiment, function (err, res) {
+  //   if (err)
+  //     success = false;
+  //   else{
+  //     success = true;
+  //   }
+  // });
+
+  let result = null
+  try{
+    result = await db.collection("Experiments").insertOne(experiment);
+  }
+  catch(e){
+    return false
+  }
+  if(result){
+    return true
+  }
 }
 
 async function getExperimentById(expId) {
   let output = await experimentsCollection_global.find({ exp_id: expId }, function (err, res) {
-    if (err);
-    return null;
+    if (err)
+      return null;
   });
   return output;
 }
@@ -29,8 +47,8 @@ async function getExperiments() {
 
 async function getExperimentByCode(expCode) {
   let output = await experimentsCollection_global.find({ exp_code: expCode }, function (err, res) {
-    if (err);
-    return null;
+    if (err)
+      return null;
   });
   return output;
 }
@@ -47,18 +65,23 @@ async function insertParticipant(expId, participant) {
     }
   }
   await experimentsCollection_global.insertOne(experiment, function (err, res) {
-    if (err);
-    return false;
+    if (err)
+      return false;
   });
   return true;
 }
 
+//remove after hackhton
+async function deleteAllExperiments() {
+  
+}
+
 
 module.exports = {
-  loadExperimentsCollection: loadExperimentsCollection,
   insertExperiment: insertExperiment,
   insertParticipant: insertParticipant,
   getExperimentById: getExperimentById,
   getExperiments: getExperiments,
-  getExperimentByCode: getExperimentByCode
+  getExperimentByCode: getExperimentByCode,
+  deleteAllExperiments: deleteAllExperiments
 }

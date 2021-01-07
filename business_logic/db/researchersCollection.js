@@ -12,9 +12,9 @@ async function loadResearchersCollection(database) {
 }
 
 async function deleteResearchers() {
-    await researchersCollection_global.remove({}, function (err, res) {
-        if (err);
-        return false;
+    await researchersCollection_global.deleteMany({}, function (err, res) {
+        if (err)
+            return false;
     });
     return true;
 }

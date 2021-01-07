@@ -1,7 +1,7 @@
-import mongodb from 'mongodb'
-const MongoClient = mongodb.MongoClient
-const uri = "mongodb+srv://dekellevy:dekeldekel@twixper0.jo1eq.mongodb.net/Twixper()?retryWrites=true&w=majority";
-const dbName =  "Twixper"
+const { MongoClient } = require("mongodb");
+
+const uri = process.env.MONGODB_URI;
+const dbName =  process.env.DB_NAME;
 const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: true});
 
 
@@ -14,5 +14,5 @@ async function makeDb () {
 
 
 module.exports = {
-    makeDb: makeDb,
+  makeDb: makeDb,
 }
