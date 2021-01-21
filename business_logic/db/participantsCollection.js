@@ -16,7 +16,10 @@ async function insertParticipant(participant) {
     return false
 }
 
-
+/**
+ * 
+ * @param {user twiiter id} id 
+ */
 async function getParticipant(id) {
     const db = await makeDb()
     let result = null

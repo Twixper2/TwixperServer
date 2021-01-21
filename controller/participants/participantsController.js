@@ -8,13 +8,16 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   and append user data from db to req
   is there's a problem, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.session &&  req.session.id) {
-    const id = req.session.id;
+  if (req.cookies &&  req.cookies.userTwitterId) {
+    const id = req.cookies.userTwitterId;
     const user = await checkIdOnDb(id);
 
     if (user) {
         req.user = user; //every method has the user now
         next(); //go to the request
+    }
+    else {
+      res.sendStatus(401);
     }
   }
   else {

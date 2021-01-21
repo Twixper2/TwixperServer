@@ -5,6 +5,7 @@ const { data } = require("../../business_logic/twitter_communicator/static_twitt
 const participantsService = require("../../service/participants/participantsService.js");
 
 
+
 module.exports = router;
 
 // When user trying to log in (new user or client side asked him to login again), we go here
@@ -35,7 +36,9 @@ router.post("/login", async (req, res, next) => {
 
     //giving the user (new or just re logged-in) a cookie and responding with 200 and twitter username
     if (user != null) {
-      req.session.id = user.participant_twitter_id;
+      res.cookie("userTwitterId", user.participant_twitter_id);
+      //res.cookie("userTwitterId", "exampleId");
+
       // Sending the username to the client so he can know that he is log on
       res.status(200).send(user.participant_twitter_username);
     }
@@ -51,4 +54,8 @@ router.post("/login", async (req, res, next) => {
       console.log(e)
       res.sendStatus(500)
     }*/
+});
+
+router.get("/getCookies", async (req, res, next) => {
+  res.send(req.cookies.userTwitterId)
 });
