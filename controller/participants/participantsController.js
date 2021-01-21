@@ -7,23 +7,20 @@ const database = require("../../business_logic/db/DBCommunicator.js")
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
   is there's a problem, respond with code 401 */
-// router.use(async function (req, res, next) {
-//   if(!(req.session &&  req.session.id)){
-//     req.session.id = 9999
-//   }
-//   if (req.session &&  req.session.id) {
-//     const id = req.session.id;
-//     const user = await checkIdOnDb(id);
+router.use(async function (req, res, next) {
+  if (req.session &&  req.session.id) {
+    const id = req.session.id;
+    const user = await checkIdOnDb(id);
 
-//     if (user) {
-//         req.user = user; //every method has the user now
-//         next(); //go to the request
-//     }
-//   }
-//   else {
-//       res.sendStatus(401); //user authentication failed, responde with unautorized
-//   }
-// });
+    if (user) {
+        req.user = user; //every method has the user now
+        next(); //go to the request
+    }
+  }
+  else {
+      res.sendStatus(401); //user authentication failed, responde with unautorized
+  }
+});
 
 
 router.get("/getFeed", async (req, res, next) => {
