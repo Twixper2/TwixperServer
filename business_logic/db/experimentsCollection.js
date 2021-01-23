@@ -2,7 +2,7 @@ var makeDb = require("./DBConnector.js").makeDb
 
 
 //delete the last experiment and insert the new one
-async function insertExperiment(experiment) {
+function insertExperiment(experiment) {
   const db = await makeDb()
   let result = null
   try{

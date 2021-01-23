@@ -29,16 +29,14 @@ app.use(function (req, res, next) {
 
 
 app.use(logger("dev")); //logger
-//app.use(express.json()); // parse application/json
 //parse application/x-www-form-urlencoded   
 app.use(bodyParser.urlencoded({ extended:true}));
-//parse application/json
+//parse json
 app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 //#endregion
 const guestController = require("./controller/participants/guestsController");

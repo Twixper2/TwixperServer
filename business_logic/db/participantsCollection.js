@@ -17,7 +17,7 @@ async function insertParticipant(participant) {
 }
 
 /**
- * 
+ * TODO we need method like this by teittwr token and by id
  * @param {user twiiter id} id 
  */
 async function getParticipant(id) {
@@ -25,7 +25,7 @@ async function getParticipant(id) {
     let result = null
     try{
         let collection = db.collection("Participants")
-        result = await collection.find({participant_twitter_id: id})
+        result = await collection.findOne({participant_twitter_id: id})
         result = result.toArray()
         result = result[0]
     }

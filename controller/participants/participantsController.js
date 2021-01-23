@@ -10,7 +10,8 @@ const database = require("../../business_logic/db/DBCommunicator.js")
 router.use(async function (req, res, next) {
   if (req.cookies &&  req.cookies.userTwitterId) {
     const id = req.cookies.userTwitterId;
-    const user = await checkIdOnDb(id);
+    //TODO doesnt work- db needs to be fixed- we need 2 functions to search users!!!
+    const user = await database.getParticipant(id);
 
     if (user) {
         req.user = user; //every method has the user now
@@ -177,10 +178,5 @@ router.get("/getUserLikes", async (req, res, next) => {
     res.sendStatus(500)
   }
 });
-
-async function checkIdOnDb(id) {
-  //should give id and username
-  return await database.getParticipant(id); 
-}
 
 module.exports = router;
