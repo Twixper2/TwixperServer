@@ -8,7 +8,7 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   and append user data from db to req
   is there's a problem, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.cookies &&  req.cookies.userTwitterId) {
+  if (req.cookies &&  req.cookies.userTwitterToken) {
     const id = req.cookies.userTwitterToken;
     //TODO doesnt work- db needs to be fixed so we can search user by id
     const user = await database.getParticipant(id);
