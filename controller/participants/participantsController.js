@@ -9,9 +9,9 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   is there's a problem, respond with code 401 */
 router.use(async function (req, res, next) {
   if (req.cookies &&  req.cookies.userTwitterToken) {
-    const id = req.cookies.userTwitterToken;
-    //TODO doesnt work- db needs to be fixed so we can search user by id
-    const user = await database.getParticipant(id);
+    const token = req.cookies.userTwitterToken;
+    //TODO doesnt work- db needs to be fixed so we can search user by TOKEN
+    const user = await database.getParticipant(token);
 
     if (user) {
         req.user = user; //every method has the user now
