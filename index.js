@@ -29,11 +29,8 @@ app.use(function (req, res, next) {
 
 
 app.use(logger("dev")); //logger
-//parse application/x-www-form-urlencoded   
-app.use(bodyParser.urlencoded({ extended:true}));
-//parse json
-app.use(bodyParser.json());
-
+app.use(bodyParser.urlencoded({ extended:true})); //parse application/x-www-form-urlencoded   
+app.use(bodyParser.json()); //parse json
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -47,12 +44,13 @@ app.get("/", (req, res) => res.send("welcome"));
 
 app.use("/participants", participantController);
 app.use("/researchers", researcherController);
+app.use(guestController);  //auth
+
 
 app.get("/alive", (req, res) => {
   res.send("I'm alive");
 });
 
-app.use(guestController);
 
 app.use((req,res) => {
   res.sendStatus(404);

@@ -4,17 +4,23 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
-module.exports = router;
 
 // TODO if { twitter_user_found : "true", user_registered_to_experiment : "true" }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
 // if { twitter_user_found : "true", user_registered_to_experiment : "false" } give cookies 
 // if { twitter_user_found : "false" } do nothing, respond code 40x
 // make sure checking by id_str and in case 1 changing the cookie - (GET account/verify_credentials) (first check exits in twitter, than registered to us
 // only this method handles cookies
-router.post("/checkUserByCredentials") 
+router.post("/checkUserByCredentials", async (req, res, next) => {
+  const oauthToken = req.body.oauth_token
+  const oauthTokenSecret = req.body.oauth_token_secret
+
+  
+}); 
 
 // expCode provided, regiser participant, first make sure he exists and is not registered already, responde accordingly 
-router.post("/registerToExperiment")
+router.post("/registerToExperiment", async (req, res, next) => {
+  
+});
 
 
 // When user trying to log in (new user or client side asked him to login again), we go here
@@ -70,5 +76,8 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.get("/getCookies", async (req, res, next) => {
-  res.send(req.cookies.userTwitterId)
+  res.send(req.cookies)
 });
+
+
+module.exports = router;
