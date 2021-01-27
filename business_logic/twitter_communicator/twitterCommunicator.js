@@ -30,10 +30,7 @@ if(returnStaticData){ // Require them only when we need to.
 /* End of static data */
 
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
-    if(returnStaticData){
-        return peopleJSON
-    }
-    //Else, call and return relevant function from the modules
+    return;
 }
 
 // Possibly add more fields such as "max_id" and "count"

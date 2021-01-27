@@ -3,6 +3,19 @@ const manipulator = require("../../business_logic/manipulator/manipulator.js")
 const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
 
+/**
+ * return user twitter id if found, else null
+ * @param {*} userTwitterToken 
+ * @param {*} userTwitterTokenSecret 
+ */
+async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) {
+    let userData =  await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
+    if (!userData || !userData.id_str) {
+        return null
+    }
+    let twitter_id_str = userData.id_str
+    return twitter_id_str
+}
 
 async function getFeed(user){
     /* Check the req, if there are required paramaters missing, throw error.
