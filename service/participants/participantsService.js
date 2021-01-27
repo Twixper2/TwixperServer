@@ -115,9 +115,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expId) {
     let user = {
         "exp_id": expId,
         "group_id": group.group_id,
-        "participant_twitter_id" : 99999,
+        "participant_twitter_id_str" : "99999",
         "user_twitter_token" : userTwitterToken,
-        "participant_twitter_username": username,
         "group_manipulations": group.group_manipulations
     }
     
