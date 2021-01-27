@@ -86,7 +86,7 @@ async function getUserLikes(username){
  * @param {*} userTwitterToken 
  * @param {*} expId 
  */
-async function registerParticipant(userTwitterToken, expId) {
+async function registerParticipant(oauthToken, oauthTokenSecret, expId) {
     const experiment = await database.getExperimentById(expId);
     const expGroups = experiment.exp_groups;
     // raffle group for user, after hackathon do it using another file 
@@ -111,6 +111,7 @@ async function registerParticipant(userTwitterToken, expId) {
         return obj.group_id == groupId
     })[0]
 
+    // TODO lets put this logic in a user file that has method to create user
     let user = {
         "exp_id": expId,
         "group_id": group.group_id,
