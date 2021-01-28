@@ -50,10 +50,13 @@ async function insertAction(action){
     await actionsCollection.insertAction(action);
 }
 
-async function getParticipant(pId){
-    return await participantsCollection.getParticipant(pId);
+async function getParticipantByTwitterId(tId){
+    return await participantsCollection.getParticipantByTwitterId(tId);
 }
 
+async function getParticipantByToken(token){
+    return await participantsCollection.getParticipantByToken(token);
+}
 
 // For Hackathon, remove after it finishes.
 // Returns all the experiments in the db.

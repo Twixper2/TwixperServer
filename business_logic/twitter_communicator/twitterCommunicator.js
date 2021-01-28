@@ -29,6 +29,11 @@ if(returnStaticData){ // Require them only when we need to.
 }
 /* End of static data */
 
+/**
+ * returns full user data
+ * @param {*} userTwitterToken 
+ * @param {*} userTwitterTokenSecret 
+ */
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
     return;
 }

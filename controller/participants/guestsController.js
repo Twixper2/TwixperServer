@@ -5,75 +5,101 @@ const { data } = require("../../business_logic/twitter_communicator/static_twitt
 const participantsService = require("../../service/participants/participantsService.js");
 
 
-// TODO if { twitter_user_found : "true", user_registered_to_experiment : "true" }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
-// if { twitter_user_found : "true", user_registered_to_experiment : "false" } give cookies 
-// if { twitter_user_found : "false" } do nothing, respond code 40x
-// make sure checking by id_str and in case 1 changing the cookie - (GET account/verify_credentials) (first check exits in twitter, than registered to us
-// only this method handles cookies
+// if { twitter_user_found : "true", user_registered_to_experiment : "true" }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
+// if { twitter_user_found : "true", user_registered_to_experiment : "false" } give cookies (regular new user registration)
+// if { twitter_user_found : "false" } do nothing, respond code 400
 router.post("/checkUserByCredentials", async (req, res, next) => {
-  const oauthToken = req.body.oauth_token
-  const oauthTokenSecret = req.body.oauth_token_secret
-
-  
-}); 
-
-// expCode provided, regiser participant, first make sure he exists and is not registered already, responde accordingly 
-router.post("/registerToExperiment", async (req, res, next) => {
-  
-});
-
-
-// When user trying to log in (new user or client side asked him to login again), we go here
-// The client will give us the userId from the oauth
-// TODO change from this implemintation 
-router.post("/login", async (req, res, next) => {
-    const expCode = req.body.exp_code 
+  try {
     const oauthToken = req.body.oauth_token
     const oauthTokenSecret = req.body.oauth_token_secret
-
-    // checking user on db
-    // TODO doesnt work- db needs to be fixed
-    /* TODO small problem: we don't really know if no such user OR database operation just failed.... so in db failure we create duplicate user
-     ...we need to somehow distinguish. For now, we treat null as not found. a solution might be
-     ...to some how check this in db layer, and treat differnetly to the 2 cases (throwing error vs return null) */
-    let user = await database.getParticipant(oauthToken);
-
-    //if no such user, creating the user
-    if (!user) { 
-      let exp = await database.getExperimentByCode(expCode); 
-      if(exp == null){
-        //no such experiment, bad request
-        res.status(400).send("No such Experiment.")
-        return;
-      }
-      let expId = exp.exp_id
-      if (expId == null) { 
-        res.status(400).send("No such Experiment.")
-      }
-      // TODO fix this in participant service - note that fields should be different now- oauth_token, oauth_token_secret added instead of participant_twiitter_id, user_twitter_token
-      user = await participantsService.registerParticipant(oauthToken, oauthTokenSecret, expId)
+    if (!oauth_token || !oauth_token_secret) {
+      res.status(400).send("Not all params from oauth supllied.")
     }
 
-    //giving the user (new or just re logged-in) a cookie and responding with 200 and twitter username
-    if (user != null) {
-      let participantTwitterToken = user.oauth_token;
-      res.cookie("userTwitterToken", participantTwitterToken)
-      // Sending the username to the client so he can know that he is log on
-      res.status(200).send(user.participant_twitter_username)
+    const twitter_id_str = await participantsService.getTwitterIdFromTokens(oauthToken, oauthTokenSecret)
+
+    // no such user in twitter
+    if (!twitter_id_str) {
+      res.status(400).json({
+        twitter_user_found : "false",
+        user_registered_to_experiment : "false"
+      });
     }
+
+    // deleting old cookies if they are differnt
+    if (req.cookies &&  req.cookies.userTwitterToken && req.cookies.userTwitterToken!=oauthToken) {
+      res.clearCookie('userTwitterToken'); 
+    }
+    if (req.cookies &&  req.cookies.userTwitterTokenSecret && req.cookies.userTwitterTokenSecret!=oauthTokenSecret) {
+      res.clearCookie('userTwitterTokenSecret'); 
+    }
+    // giving user cookies if there aren't 
+    if (!req.cookies ||  !req.cookies.userTwitterToken) {
+      res.cookie("userTwitterToken", oauthToken)
+    }
+    if (!req.cookies ||  !req.cookies.userTwitterTokenSecret) {
+      res.cookie("userTwitterTokenSecret", oauthTokenSecret)
+    }
+
+    // checking if user already registered to an experiment
+    let user = await database.getParticipantByTwitterId(twitter_id_str)
+    // user already registered to an experiment
+    if (user) {
+      res.status(200).json({
+        twitter_user_found : "true",
+        user_registered_to_experiment : "true"
+      });
+    }
+    // user is not registered to experiment already
     else {
+      res.status(200).json({
+        twitter_user_found : "true",
+        user_registered_to_experiment : "false"
+      });
+    }
+  } // end try
+  catch(e) {
+    console.log(e)
+    res.sendStatus(500);
+  }
+}); 
+
+
+router.post("/registerToExperiment", async (req, res, next) => {
+  try {
+    // validate request params and cookies
+    const expCode = req.body.exp_code
+    if (!expCode) {
+      res.status(400).send("No experiment code provided.")
+    }
+    if (!req.cookies || !req.cookies.userTwitterToken || !req.cookies.userTwitterTokenSecret) {
+      res.status(401).send("Login with twitter first.");
+    }
+    const oauthToken = req.cookies.userTwitterToken
+    const oauthTokenSecret = req.cookies.userTwitterTokenSecret    
+   
+    // trying registering user
+    try {
+      user = await participantsService.registerParticipant(oauthToken, oauthTokenSecret, expCode)
+    }
+    catch (e) {
+      // if it is an error with message, we respond with the eror object containing "name" and "message" keys
+      if (e.message) { 
+        res.status(400).json(e);
+      }
+      throw e
+    }
+    if (!user) { //registration failed
       res.sendStatus(500);
     }
-
-    /*try{
-      const tweetsSearchResults = participantsService.searchTweets(q)
-      res.send(tweetsSearchResults)
-    }
-    catch(e){
-      console.log(e)
-      res.sendStatus(500)
-    }*/
+    res.sendStatus(200) //success
+  } // end try
+  catch(e) {
+    console.log(e)
+    res.sendStatus(500);
+  }
 });
+
 
 router.get("/getCookies", async (req, res, next) => {
   res.send(req.cookies)
