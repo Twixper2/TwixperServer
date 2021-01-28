@@ -22,12 +22,12 @@ async function getExperimentById(expId) {
   let result = null
   try{
     let collection = db.collection("Experiments")
-    result = await collection.find({ exp_id: expId })
-    result = await result.toArray()
-    result = result[0]
+    result = await collection.findOne({ exp_id: expId })
+    // result = await result.toArray()
+    // result = result[0]
   }
   catch(e){
-    return null
+    throw e
   }
   return result
 }
@@ -42,7 +42,7 @@ async function getExperiments() {
     result = await collection.find({}).toArray()
   }
   catch(e){
-    return null
+    throw e
   }
   return result
 }
@@ -52,17 +52,17 @@ async function getExperimentByCode(expCode) {
   let result = null
   try{
     let collection = db.collection("Experiments")
-    result = await collection.find({ exp_code: expCode })
-    result = await result.toArray() //, { exp_id: 1, _id: 0 }
-    result = result[0]
+    result = await collection.findOne({ exp_code: expCode })
+    // result = await result.toArray() //, { exp_id: 1, _id: 0 }
+    // result = result[0]
   }
   catch(e){
-    return null
+    throw e
   }
   return result
 }
 
-
+//TODO we need ti change this hackathon spam?
 async function insertParticipantToExp(expId, participant) {
   let username = participant.participant_twitter_username;
   let groupId = participant.group_id;
@@ -96,7 +96,7 @@ async function insertParticipantToExp(expId, participant) {
   return false
 }
 
-//remove after hackhton
+// TODO remove after hackhton
 async function deleteAllExperiments() {
   const db = await makeDb()
   let result = null

@@ -67,8 +67,9 @@ async function deleteParticipants() {
 }
 
 module.exports = {
-    insertParticipant: insertParticipant,
-    getParticipant: getParticipant,
+    insertParticipant : insertParticipant,
+    getParticipantByTwitterId : getParticipantByTwitterId,
+    getParticipantByToken : getParticipantByToken,
     deleteParticipants: deleteParticipants
 
 }
