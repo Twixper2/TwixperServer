@@ -35,12 +35,12 @@ async function getParticipantByTwitterId(id) {
     return result
 }
 
-async function getParticipantByToken(id) {
+async function getParticipantByToken(token) {
     const db = await makeDb()
     let result = null
     try{
         let collection = db.collection("Participants")
-        result = await collection.findOne({user_twitter_token: id})
+        result = await collection.findOne({user_twitter_token: token})
         // result = await result.toArray()
         // result = result[0]
     }
