@@ -3,8 +3,9 @@ require("dotenv").config();
 var express = require("express");
 var path = require("path");
 var logger = require("morgan");
-const session = require("client-sessions");
 const cors = require("cors");
+const bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
 
 
@@ -28,33 +29,11 @@ app.use(function (req, res, next) {
 
 
 app.use(logger("dev")); //logger
-app.use(express.json()); // parse application/json
-app.use(
-  session({
-    cookieName: "session", // the cookie key name
-    secret: process.env.COOKIE_SECRET, // the encryption key
-    duration: 100 * 60 * 1000, // expired after 30 minutes
-    activeDuration: 100 * 60 * 1000, // if expiresIn < activeDuration,
-    cookie:{
-      httpOnly: false
-    }
-    //the session will be extended by
-  })
-);
-
-// app.use(function(req, res, next) {
-//   if (req.session.id) {
-//     res.setHeader('X-Seen-You', 'true');
-//   } else {
-//     // setting a property will automatically cause a Set-Cookie response
-//     // to be sent
-//     req.session.id = true;
-//     res.setHeader('X-Seen-You', 'false');
-//   }
-// });
-
-app.use(express.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended:true})); //parse application/x-www-form-urlencoded   
+app.use(bodyParser.json()); //parse json
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
+
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 //#endregion
 const guestController = require("./controller/participants/guestsController");
@@ -65,12 +44,13 @@ app.get("/", (req, res) => res.send("welcome"));
 
 app.use("/participants", participantController);
 app.use("/researchers", researcherController);
+app.use(guestController);  //auth
+
 
 app.get("/alive", (req, res) => {
   res.send("I'm alive");
 });
 
-app.use(guestController);
 
 app.use((req,res) => {
   res.sendStatus(404);

@@ -3,6 +3,19 @@ const manipulator = require("../../business_logic/manipulator/manipulator.js")
 const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
 
+/**
+ * return user twitter id if found, else null
+ * @param {*} userTwitterToken 
+ * @param {*} userTwitterTokenSecret 
+ */
+async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) {
+    let userData =  await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
+    if (!userData || !userData.id_str) {
+        return null
+    }
+    let twitter_id_str = userData.id_str
+    return twitter_id_str
+}
 
 async function getFeed(user){
     /* Check the req, if there are required paramaters missing, throw error.
@@ -86,37 +99,44 @@ async function getUserLikes(username){
  * @param {*} userTwitterToken 
  * @param {*} expId 
  */
-async function registerParticipant(userTwitterToken, expId) {
-    const experiment = await database.getExperimentById(expId);
-    const expGroups = experiment.exp_groups;
-    // raffle group for user, after hackathon do it using another file 
-    let groupId = -1
-    let username = ""
-    if (userTwitterToken == "123"){
-        groupId = 11
-        username = "Nir"
+async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
+    //checking auth info
+    const twitterIdStr = await getTwitterIdFromTokens(oauthToken, oauthTokenSecret)
+    if (!twitterIdStr) {
+        throw {
+            name: "InvalidAuthInfo",
+            message: "Not a twitter user."
+        }
     }
-    else if (userTwitterToken == "456"){
-        groupId = 12
-        username = "Tal"
-
+    //checking experiment
+    const exp = await database.getExperimentByCode(expCode); 
+    if(!exp || !exp.exp_id){  //no such experiment
+      throw {
+          name: "NoSuchExperiment",
+          message: "No such experiment."
+        }
     }
-    else{
-        groupId = 12
-        username = "Dekel"
+    // verifying not already registered
+    let userFromDB = await database.getParticipant(twitterIdStr)
+    if (userFromDB) {
+        throw {
+            name: "UserAlreadyRegistered",
+            message: "User already registered."
+        }
     }
 
-    // find exp group by groupId within experiment 
-    const group = expGroups.filter(obj => {
-        return obj.group_id == groupId
-    })[0]
 
+    // raffle group for user
+    const expGroups = exp.exp_groups;
+    const group = groupSelector.selectGroup(expGroups) 
+
+    // creating user to add
     let user = {
-        "exp_id": expId,
+        "exp_id": exp.exp_id,
         "group_id": group.group_id,
-        "participant_twitter_id" : 99999,
-        "user_twitter_token" : userTwitterToken,
-        "participant_twitter_username": username,
+        "participant_twitter_id_str" : twitterIdStr,
+        "user_twitter_token" : oauthToken,
+        "user_twitter_token_secret" : oauthTokenSecret,
         "group_manipulations": group.group_manipulations
     }
     
@@ -128,7 +148,7 @@ async function registerParticipant(userTwitterToken, expId) {
 
 }
 
-
+exports.getTwitterIdFromTokens = getTwitterIdFromTokens
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
 exports.searchUsers = searchUsers
@@ -138,5 +158,4 @@ exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
 exports.getUserLikes = getUserLikes
-
 exports.registerParticipant = registerParticipant

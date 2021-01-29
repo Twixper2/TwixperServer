@@ -26,7 +26,7 @@ async function getExpActions(expId) {
         result = await collection.find({ exp_id: expId },{ _id:0, exp_id: 0 }).toArray()
     }
     catch(e){
-        return null
+        throw e
     }
     return result
 }

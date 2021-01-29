@@ -16,18 +16,36 @@ async function insertParticipant(participant) {
     return false
 }
 
-
-async function getParticipant(id) {
+/**
+ * this method returns user by twitter_id_str
+ * @param {user twitter id str} id 
+*/
+async function getParticipantByTwitterId(id) {
     const db = await makeDb()
     let result = null
     try{
         let collection = db.collection("Participants")
-        result = await collection.find({participant_twitter_id: id})
-        result = result.toArray()
-        result = result[0]
+        result = await collection.findOne({participant_twitter_id_str: id})
+        // result = await result.toArray()
+        // result = result[0]
     }
     catch(e){
-        return null
+        throw(e)
+    }
+    return result
+}
+
+async function getParticipantByToken(token) {
+    const db = await makeDb()
+    let result = null
+    try{
+        let collection = db.collection("Participants")
+        result = await collection.findOne({user_twitter_token: token})
+        // result = await result.toArray()
+        // result = result[0]
+    }
+    catch(e){
+        throw(e)
     }
     return result
 }
@@ -49,8 +67,9 @@ async function deleteParticipants() {
 }
 
 module.exports = {
-    insertParticipant: insertParticipant,
-    getParticipant: getParticipant,
+    insertParticipant : insertParticipant,
+    getParticipantByTwitterId : getParticipantByTwitterId,
+    getParticipantByToken : getParticipantByToken,
     deleteParticipants: deleteParticipants
 
 }

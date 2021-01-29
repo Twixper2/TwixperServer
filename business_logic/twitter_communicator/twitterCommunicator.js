@@ -29,6 +29,15 @@ if(returnStaticData){ // Require them only when we need to.
 }
 /* End of static data */
 
+/**
+ * returns full user data
+ * @param {*} userTwitterToken 
+ * @param {*} userTwitterTokenSecret 
+ */
+async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
+    return;
+}
+
 // Possibly add more fields such as "max_id" and "count"
 async function getFeed(){ 
     if(returnStaticData){
@@ -95,6 +104,7 @@ async function getUserLikes(username){
     //Else, call and return relevant function from the modules
 }
 
+exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
 exports.searchUsers = searchUsers
