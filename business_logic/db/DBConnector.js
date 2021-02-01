@@ -6,6 +6,7 @@ const client = new MongoClient(uri,{useNewUrlParser: true, useUnifiedTopology: t
 
 
 async function makeDb () {
+  console.log("entered")
     if (!client.isConnected()) {
       await client.connect()
     }

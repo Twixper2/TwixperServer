@@ -100,7 +100,9 @@ router.post("/registerToExperiment", async (req, res, next) => {
   }
 });
 
-
+/**
+ * For debugging Nir don't delete this
+ */
 router.get("/getCookies", async (req, res, next) => {
   res.send(req.cookies)
 });
