@@ -3,7 +3,10 @@ var router = express.Router();
 const participantsService = require("../../service/participants/participantsService.js");
 const database = require("../../business_logic/db/DBCommunicator.js")
 
-
+/**
+ * TODO: every function needs to pass the user to service layer, so manipulations can be applied.
+ * All functions in all layers should be fixed accordinglly
+ */
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
   is there's a problem, respond with code 401 */
@@ -27,26 +30,16 @@ router.use(async function (req, res, next) {
 
 
 router.get("/getFeed", async (req, res, next) => {
-  /* Check the req, if there are required paramaters missing, throw error.
+  /*
      For feed, check for additional parameters like "max_id" and "count"
   */
- const user = {
-    "exp_id": "1546515611",
-    "group_id": 12,
-    "participant_twitter_id": 99999,
-    "user_twitter_token": "456",
-    "participant_twitter_username": "Nir",
-    "group_manipulations": [
-      {
-          "type":'mute',
-          "users": ['realDonaldTrump']
-      }
-    ]
-  }
+  const user = req.user
+
   try{
     const feedTweets = await participantsService.getFeed(user)
     res.send(feedTweets)
   }
+
   catch(e){
     // Decide for error statuses by the error type.
     // For example: quota ran out, or internal error
@@ -56,15 +49,14 @@ router.get("/getFeed", async (req, res, next) => {
 });
 
 router.get("/searchTweets", async (req, res, next) => {
-  /* Check the req, if there are required paramaters missing, send err status */
-  // const user = 
-
   const q = req.query.q
-  console.log("Seacrch Tweets query is "+ q)
-  // if q == null....
+  const user = req.user
+  if (!q || q=="") {
+    res.status(400).send("search query not provided")
+  }
 
   try{
-    const tweetsSearchResults = await participantsService.searchTweets(q)
+    const tweetsSearchResults = await participantsService.searchTweets(q, user)
     res.send(tweetsSearchResults)
   }
   catch(e){
@@ -76,10 +68,14 @@ router.get("/searchTweets", async (req, res, next) => {
 router.get("/searchUsers", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, send err status */
   const q = req.query.q
-  // if q == null....
+  const user = req.user
+
+  if (!q || q=="") {
+    res.status(400).send("search query not provided")
+  }
 
   try{
-    const usersSearchResults = await participantsService.searchUsers(q)
+    const usersSearchResults = await participantsService.searchUsers(q, user)
     res.send(usersSearchResults)
   }
   catch(e){
