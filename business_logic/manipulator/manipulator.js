@@ -1,10 +1,22 @@
+/*
+    __  ______    _   __________  __  ____    ___  __________  ____ 
+   /  |/  /   |  / | / /  _/ __ \/ / / / /   /   |/_  __/ __ \/ __ \  TM
+  / /|_/ / /| | /  |/ // // /_/ / / / / /   / /| | / / / / / / /_/ /
+ / /  / / ___ |/ /|  // // ____/ /_/ / /___/ ___ |/ / / /_/ / _, _/ 
+/_/  /_/_/  |_/_/ |_/___/_/    \____/_____/_/  |_/_/  \____/_/ |_|  
+
+                            By Twixper
+ */
+
+
+
+
 function manipulateTweets(manipulations, tweets){
     let manipulatedTweets = tweets
     const muteManipulation = manipulations.find(man => man.type == "mute") 
     if (muteManipulation!= null){
         manipulatedTweets = muteTweets(muteManipulation, manipulatedTweets)
     }
-
     return manipulatedTweets
 }
 

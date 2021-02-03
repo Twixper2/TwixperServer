@@ -84,6 +84,9 @@ router.get("/searchUsers", async (req, res, next) => {
   }
 });
 
+
+
+
 router.get("/getUser", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
