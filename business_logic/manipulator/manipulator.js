@@ -9,8 +9,6 @@
  */
 
 
-
-
 function manipulateTweets(manipulations, tweets){
     let manipulatedTweets = tweets
     const muteManipulation = manipulations.find(man => man.type == "mute") 

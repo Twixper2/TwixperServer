@@ -1,7 +1,7 @@
 const twitterComm = require("../twitter_communicator/twitterCommunicator")
 const manipulator = require("../manipulator/manipulator.js")
 const database = require("../db/DBCommunicator.js");
-const { data } = require("../twitter_communicator/static_twitter_data/FeedJSON");
+
 
 
 async function getFeed(user){

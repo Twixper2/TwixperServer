@@ -1,7 +1,5 @@
 const twitterComm = require("../twitter_communicator/twitterCommunicator")
-const manipulator = require("../manipulator/manipulator.js")
 const database = require("../db/DBCommunicator.js");
-const { data } = require("../twitter_communicator/static_twitter_data/FeedJSON");
 
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
