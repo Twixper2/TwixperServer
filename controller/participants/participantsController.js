@@ -13,10 +13,10 @@ const database = require("../../business_logic/db/DBCommunicator.js")
 router.use(async function (req, res, next) {
   if (req.cookies &&  req.cookies.userTwitterToken) {
     const token = req.cookies.userTwitterToken;
-    const user = await database.getParticipantByToken(token);
+    const participant = await database.getParticipantByToken(token);
 
-    if (user) {
-        req.user = user; //every method has the user now
+    if (participant) {
+        req.participant = participant; //every method has the user now
         next(); //go to the request
     }
     else {
@@ -33,10 +33,10 @@ router.get("/getFeed", async (req, res, next) => {
   /*
      For feed, check for additional parameters like "max_id" and "count"
   */
-  const user = req.user
+  const participant = req.participant
 
   try{
-    const feedTweets = await participantsService.getFeed(user)
+    const feedTweets = await participantsService.getFeed(participant)
     res.send(feedTweets)
   }
 
@@ -50,13 +50,13 @@ router.get("/getFeed", async (req, res, next) => {
 
 router.get("/searchTweets", async (req, res, next) => {
   const q = req.query.q
-  const user = req.user
+  const participant = req.participant
   if (!q || q=="") {
     res.status(400).send("search query not provided")
   }
 
   try{
-    const tweetsSearchResults = await participantsService.searchTweets(q, user)
+    const tweetsSearchResults = await participantsService.searchTweets(q, participant)
     res.send(tweetsSearchResults)
   }
   catch(e){
@@ -68,14 +68,14 @@ router.get("/searchTweets", async (req, res, next) => {
 router.get("/searchUsers", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, send err status */
   const q = req.query.q
-  const user = req.user
+  const participant = req.participant
 
   if (!q || q=="") {
     res.status(400).send("search query not provided")
   }
 
   try{
-    const usersSearchResults = await participantsService.searchUsers(q, user)
+    const usersSearchResults = await participantsService.searchUsers(q, participant)
     res.send(usersSearchResults)
   }
   catch(e){
