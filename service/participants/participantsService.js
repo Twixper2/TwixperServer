@@ -28,6 +28,7 @@ async function getFeed(participant){
     return output
 }
 
+/* TODO add participant as input */
 async function getUser(username){
     let output = await participantSpecifiedTwitterData.getUser(username)
     return output
@@ -82,7 +83,7 @@ async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) 
 }
 
 /** ______ Participant actions handlers ______ **/
-async function saveParticipantAction(action, user) {
+async function handleLike() {
 
 }
 
