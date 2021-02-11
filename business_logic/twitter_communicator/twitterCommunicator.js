@@ -35,11 +35,11 @@ if(returnStaticData){ // Require them only when we need to.
  * @param {*} userTwitterTokenSecret 
  */
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
-    return;
+    return;  
 }
 
 // Possibly add more fields such as "max_id" and "count"
-async function getFeed(){ 
+async function getFeed(participant  ){ 
     if(returnStaticData){
         return feedJSON
     }

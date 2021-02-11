@@ -1,17 +1,12 @@
-const twitterComm = require("../../business_logic/twitter_communicator/twitterCommunicator")
-const manipulator = require("../../business_logic/manipulator/manipulator.js")
-const database = require("../../business_logic/db/DBCommunicator.js");
-const participantSearchInTwitter = require("../../business_logic/twitter_data_for_participant/participantSearchInTwitter");
-const participantGetTwitterData = require("../../business_logic/twitter_data_for_participant/participantGetTwitterData");
+const participantSearchInTwitter = require("../../business_logic/participant_manipulated_data/participantSearchInTwitter");
+const participantSpecifiedTwitterData = require("../../business_logic/participant_manipulated_data/participantSpecifiedTwitterData");
 const participantAuthUtils = require("../../business_logic/participant_auth_utils/participantAuthUtils");
-
-const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
-
+const participantFeed =  require("../../business_logic/participant_manipulated_data/participantFeed");
 
 /** ______Search for participant_____ **/
 
 async function searchTweets(q){
-    let output = await participantSearchInTwitter.searchTweets(q)
+    let output = await participantSearchInTwitter.searchTweets(q, participant)
     return output
 }
 
@@ -28,38 +23,38 @@ async function searchUsers(q){
  * feed for authenticated user
  * @param {*} user 
  */
-async function getFeed(user){
-    let output = await participantGetTwitterData.getFeed(user)
+async function getFeed(participant){
+    let output = await participantFeed.getFeed(participant)
     return output
 }
 
 async function getUser(username){
-    let output = await participantGetTwitterData.getUser(username)
+    let output = await participantSpecifiedTwitterData.getUser(username)
     return output
 }
 
 async function getTweet(tweetId){
-    let output = await participantGetTwitterData.getTweet(tweetId)
+    let output = await participantSpecifiedTwitterData.getTweet(tweetId)
     return output
 }
 
 async function getUserFriends(username){
-    let output = await participantGetTwitterData.getUserFriends(username)
+    let output = await participantSpecifiedTwitterData.getUserFriends(username)
     return output
 }
 
 async function getUserFollowers(username){
-    let output = await participantGetTwitterData.getUserFollowers(username)
+    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
     return output
 }
 
 async function getUserTimeline(username){
-    let output = await participantGetTwitterData.getUserFollowers(username)
+    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
     return output
 }
 
 async function getUserLikes(username){
-    let output = await participantGetTwitterData.getUserLikes(username)
+    let output = await participantSpecifiedTwitterData.getUserLikes(username)
     return output
 }
 
@@ -86,7 +81,7 @@ async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) 
     return output
 }
 
-/** ______ Report participant action ______ **/
+/** ______ Participant actions handlers ______ **/
 async function saveParticipantAction(action, user) {
 
 }

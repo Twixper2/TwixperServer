@@ -9,7 +9,7 @@ const database = require("../../business_logic/db/DBCommunicator.js")
  */
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
-  is there's a problem, respond with code 401 */
+  is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   if (req.cookies &&  req.cookies.userTwitterToken) {
     const token = req.cookies.userTwitterToken;
