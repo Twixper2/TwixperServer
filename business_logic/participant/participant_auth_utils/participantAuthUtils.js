@@ -24,8 +24,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         }
     }
     // verifying not already registered
-    let userFromDB = await database.getParticipant(twitterIdStr)
-    if (userFromDB) {
+    let praticipant = await database.getParticipant(twitterIdStr)
+    if (praticipant) {
         throw {
             name: "UserAlreadyRegistered",
             message: "User already registered."
@@ -33,12 +33,12 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
     }
 
 
-    // raffle group for user. currnetly only naive raffle supported
+    // raffle group for praticipant. currnetly only naive raffle supported
     const expGroups = exp.exp_groups;
     const group = groupSelector.selectGroup(expGroups) 
 
-    // creating user to add
-    let user = {
+    // creating praticipant to add
+    let praticipant = {
         "exp_id": exp.exp_id,
         "group_id": group.group_id,
         "participant_twitter_id_str" : twitterIdStr,
@@ -47,9 +47,9 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         "group_manipulations": group.group_manipulations
     }
     
-    const successRegister = await database.insertParticipant(user)
+    const successRegister = await database.insertParticipant(praticipant)
     if(successRegister){
-        return user
+        return praticipant
     }
     return null
 }
