@@ -24,8 +24,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         }
     }
     // verifying not already registered
-    let praticipant = await database.getParticipant(twitterIdStr)
-    if (praticipant) {
+    let praticipantFromDb = await database.getParticipant(twitterIdStr)
+    if (praticipantFromDb) {
         throw {
             name: "UserAlreadyRegistered",
             message: "User already registered."
