@@ -1,7 +1,7 @@
-const participantSearchInTwitter = require("../../business_logic/participant_manipulated_data/participantSearchInTwitter");
-const participantSpecifiedTwitterData = require("../../business_logic/participant_manipulated_data/participantSpecifiedTwitterData");
-const participantAuthUtils = require("../../business_logic/participant_auth_utils/participantAuthUtils");
-const participantFeed =  require("../../business_logic/participant_manipulated_data/participantFeed");
+const participantSearchInTwitter = require("../../business_logic/participant/participant_manipulated_data/participantSearchInTwitter");
+const participantSpecifiedTwitterData = require("../../business_logic/participant/participant_manipulated_data/participantSpecifiedTwitterData");
+const participantAuthUtils = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils");
+const participantFeed =  require("../../business_logic/participant/participant_manipulated_data/participantFeed");
 
 /** ______Search for participant_____ **/
 
@@ -101,4 +101,3 @@ exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
 exports.getUserLikes = getUserLikes
 exports.registerParticipant = registerParticipant
-exports.saveParticipantAction = saveParticipantAction

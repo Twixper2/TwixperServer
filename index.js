@@ -5,8 +5,8 @@ var path = require("path");
 var logger = require("morgan");
 const cors = require("cors");
 const bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-
+// var cookieParser = require('cookie-parser');
+const session = require("client-sessions");
 
 
 var app = express();
@@ -33,7 +33,19 @@ app.use(bodyParser.urlencoded({ extended:true})); //parse application/x-www-form
 app.use(bodyParser.json()); //parse json
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 
-app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(
+  session({
+    cookieName: "session", // the cookie key name
+    secret: process.env.COOKIE_SECRET, // the encryption key
+    duration: 1000 * 60 * 60 * 24 * 365, // expired after 365 days
+    // activeDuration: 5 * 60 * 1000, // if expiresIn < activeDuration,
+    cookie: {
+      // sameSite: 'none',
+      // secure: true,
+      httpOnly: false,
+    }
+  })
+);
 
 //#endregion
 const guestController = require("./controller/participants/guestsController");

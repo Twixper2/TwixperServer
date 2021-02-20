@@ -1,6 +1,6 @@
-const twitterComm = require("../twitter_communicator/twitterCommunicator")
+const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const manipulator = require("../manipulator/manipulator.js")
-const database = require("../db/DBCommunicator.js");
+const database = require("../../db/DBCommunicator.js");
 
 
 
