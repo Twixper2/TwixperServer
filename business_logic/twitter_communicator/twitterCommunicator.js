@@ -4,6 +4,8 @@
     and calls their functions to return the data.
 */
 
+// TODO: Require twit here and define it here.
+
 const returnStaticData = true
 
 /* For static data */
@@ -35,7 +37,7 @@ if(returnStaticData){ // Require them only when we need to.
  * @param {*} userTwitterTokenSecret 
  */
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
-    return {id_str: "123456789"}
+    return {id_str: "123456789", screen_name: "nirdz"}
     // return null;  
 }
 
@@ -44,7 +46,7 @@ async function getFeed(participant  ){
     if(returnStaticData){
         return feedJSON
     }
-    //Else, call and return relevant function from the modules 
+    //Else, set T w/ the credentials, call and return relevant function from the modules 
 }
 
 // Possibly add more fields
@@ -102,7 +104,7 @@ async function getUserLikes(username){
     if(returnStaticData){
         return userLikesJSON
     }
-    //Else, call and return relevant function from the modules
+    //Else, set T w/ the credentials, call and return relevant function from the modules
 }
 
 exports.verifyCredentials = verifyCredentials

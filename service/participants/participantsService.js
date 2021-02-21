@@ -77,8 +77,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
  * @param {*} userTwitterToken 
  * @param {*} userTwitterTokenSecret 
  */
-async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) {
-    let output = await participantAuthUtils.getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret)
+async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret) {
+    let output = await participantAuthUtils.getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret)
     return output
 }
 
@@ -90,7 +90,7 @@ async function handleLike() {
 
 
 
-exports.getTwitterIdFromTokens = getTwitterIdFromTokens
+exports.getTwitterUserFromTokens = getTwitterUserFromTokens
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
 exports.searchUsers = searchUsers

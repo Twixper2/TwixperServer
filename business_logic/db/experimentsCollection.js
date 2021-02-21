@@ -62,7 +62,6 @@ async function getExperimentByCode(expCode) {
   return result
 }
 
-//TODO we need ti change this hackathon spam?
 async function insertParticipantToExp(expId, participant) {
   let username = participant.participant_twitter_username;
   let p_id_str = participant.participant_twitter_id_str
@@ -87,7 +86,7 @@ async function insertParticipantToExp(expId, participant) {
 
   const db = await makeDb()
   let result = null
-  // TODO: Update instead of insert and delete
+  // TODO DEKEL: Update instead of insert and delete
   try{
     let collection = db.collection("Experiments")
     await collection.deleteOne({ exp_id: expId })
