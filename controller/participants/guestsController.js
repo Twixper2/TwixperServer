@@ -4,9 +4,9 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
-// if { twitter_user_found : "true", user_registered_to_experiment : "true" }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
-// if { twitter_user_found : "true", user_registered_to_experiment : "false" } give cookies (regular new user registration)
-// if { twitter_user_found : "false" } do nothing, respond code 400
+// if { twitter_user_found : true, user_registered_to_experiment : true }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
+// if { twitter_user_found : true, user_registered_to_experiment : false } give cookies (regular new user registration)
+// if { twitter_user_found : false } do nothing, respond code 400
 router.post("/checkUserByCredentials", async (req, res, next) => {
   try {
     const oauthToken = req.body.oauth_token
@@ -21,8 +21,8 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     // no such user in twitter
     if (!twitter_id_str) {
       res.status(400).json({
-        twitter_user_found : "false",
-        user_registered_to_experiment : "false"
+        twitter_user_found : false,
+        user_registered_to_experiment : false
       });
       return;
     }
@@ -53,15 +53,15 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     // user already registered to an experiment
     if (user) {
       res.status(200).json({
-        twitter_user_found : "true",
-        user_registered_to_experiment : "true"
+        twitter_user_found : true,
+        user_registered_to_experiment : true
       });
     }
     // user is not registered to experiment already
     else {
       res.status(200).json({
-        twitter_user_found : "true",
-        user_registered_to_experiment : "false"
+        twitter_user_found : true,
+        user_registered_to_experiment : false
       });
     }
   } // end try
@@ -97,11 +97,13 @@ router.post("/registerToExperiment", async (req, res, next) => {
       // if it is an error with message, we respond with the eror object containing "name" and "message" keys
       if (e.message) { 
         res.status(400).json(e);
+        return;
       }
       throw e
     }
     if (!user) { //registration failed
       res.sendStatus(500);
+      return;
     }
     res.sendStatus(200) //success
   } // end try

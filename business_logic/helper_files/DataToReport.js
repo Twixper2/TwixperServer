@@ -52,8 +52,8 @@ exports.experiment = {
             "group_num_of_participants": "",
             "group_size_in_percentage": "", //גודל הקבוצה באחוזים כפי שהחוקר הגדיר בצור ניסוי
             "group_participants": [ // array of objects
-                {"participant_twitter_username": ""}, // possibly more fields like "last action time"
-                {"participant_twitter_username": ""}
+                {"participant_twitter_username": "", "participant_twitter_id_str": ""}, // possibly more fields like "last action time"
+                {"participant_twitter_username": "", "participant_twitter_id_str": ""}
             ],
             "group_manipulations":[ // array of objects
                 {},

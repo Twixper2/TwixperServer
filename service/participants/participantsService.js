@@ -50,7 +50,7 @@ async function getUserFollowers(username){
 }
 
 async function getUserTimeline(username){
-    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
+    let output = await participantSpecifiedTwitterData.getUserTimeline(username)
     return output
 }
 
