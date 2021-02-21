@@ -1,8 +1,10 @@
 /*
     All twitter api request should go to here.
     Requires the modules in folders "twitter_api_get" and "twitter_api_post",
-    and calling their functions to return the data.
+    and calls their functions to return the data.
 */
+
+// TODO: Require twit here and define it here.
 
 const returnStaticData = true
 
@@ -35,15 +37,16 @@ if(returnStaticData){ // Require them only when we need to.
  * @param {*} userTwitterTokenSecret 
  */
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
-    return;
+    return {id_str: "123456789", screen_name: "nirdz"}
+    // return null;  
 }
 
 // Possibly add more fields such as "max_id" and "count"
-async function getFeed(){ 
+async function getFeed(participant  ){ 
     if(returnStaticData){
         return feedJSON
     }
-    //Else, call and return relevant function from the modules 
+    //Else, set T w/ the credentials, call and return relevant function from the modules 
 }
 
 // Possibly add more fields
@@ -101,7 +104,7 @@ async function getUserLikes(username){
     if(returnStaticData){
         return userLikesJSON
     }
-    //Else, call and return relevant function from the modules
+    //Else, set T w/ the credentials, call and return relevant function from the modules
 }
 
 exports.verifyCredentials = verifyCredentials

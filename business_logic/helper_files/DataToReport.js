@@ -52,8 +52,8 @@ exports.experiment = {
             "group_num_of_participants": "",
             "group_size_in_percentage": "", //גודל הקבוצה באחוזים כפי שהחוקר הגדיר בצור ניסוי
             "group_participants": [ // array of objects
-                {"participant_twitter_username": ""}, // possibly more fields like "last action time"
-                {"participant_twitter_username": ""}
+                {"participant_twitter_username": "", "participant_twitter_id_str": ""}, // possibly more fields like "last action time"
+                {"participant_twitter_username": "", "participant_twitter_id_str": ""}
             ],
             "group_manipulations":[ // array of objects
                 {},
@@ -65,7 +65,7 @@ exports.experiment = {
 
 exports.activeParticipant = {
     "exp_id": "",
-    "group_id": "",
+    "group_id": "", 
     "participant_twitter_id_str" : "99999",
     "user_twitter_token": "sdgsdfg65565s6",
     "user_twitter_token_secret" : "",
@@ -79,7 +79,7 @@ exports.action = { // Fields that are included in all actions
     "exp_id": "",
     "action_type" : "",
     "action_date": "",
-    "participant_twitter_username" : "",
+    "participant_twitter_username" : "", // probably needs to be removed, if not, save username in users collection
     "participant_group_id": ""
 }
 

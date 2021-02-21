@@ -1,98 +1,66 @@
-const twitterComm = require("../../business_logic/twitter_communicator/twitterCommunicator")
-const manipulator = require("../../business_logic/manipulator/manipulator.js")
-const database = require("../../business_logic/db/DBCommunicator.js");
-const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON");
+const participantSearchInTwitter = require("../../business_logic/participant/participant_manipulated_data/participantSearchInTwitter");
+const participantSpecifiedTwitterData = require("../../business_logic/participant/participant_manipulated_data/participantSpecifiedTwitterData");
+const participantAuthUtils = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils");
+const participantFeed =  require("../../business_logic/participant/participant_manipulated_data/participantFeed");
 
-/**
- * return user twitter id if found, else null
- * @param {*} userTwitterToken 
- * @param {*} userTwitterTokenSecret 
- */
-async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) {
-    let userData =  await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
-    if (!userData || !userData.id_str) {
-        return null
-    }
-    let twitter_id_str = userData.id_str
-    return twitter_id_str
-}
-
-async function getFeed(user){
-    /* Check the req, if there are required paramaters missing, throw error.
-       For feed, check for additional parameters like "max_id" and "count",
-       and send them to twitterComm 
-    */
-
-    // Get the feed from Twitter
-    let twitterFeedTweets = await twitterComm.getFeed()
-    /* TODO: Apply manipulations */
-    twitterFeedTweets = manipulator.manipulateTweets(user.group_manipulations, twitterFeedTweets)
-    return twitterFeedTweets
-}
+/** ______Search for participant_____ **/
 
 async function searchTweets(q){
-    
-    const twitterSearchTweets = await twitterComm.searchTweets(q)
-    /* TODO: Apply manipulations */
-    
-    return twitterSearchTweets
+    let output = await participantSearchInTwitter.searchTweets(q, participant)
+    return output
 }
 
 async function searchUsers(q){    
-    
-    const twitterSearchUsers = await twitterComm.searchUsers(q)
-    /* TODO: Apply manipulations */
-    
-    return twitterSearchUsers
+    let output = await participantSearchInTwitter.searchUsers(q)
+    return output
 }
 
-async function getUser(username){
 
-    const twitterGetUser = await twitterComm.getUser(username)
-    /* TODO: Apply manipulations */
-    
-    return twitterGetUser
+
+/**_______ Get data from twitter ______ **/
+
+/**
+ * feed for authenticated user
+ * @param {*} user 
+ */
+async function getFeed(participant){
+    let output = await participantFeed.getFeed(participant)
+    return output
+}
+
+/* TODO add participant as input */
+async function getUser(username){
+    let output = await participantSpecifiedTwitterData.getUser(username)
+    return output
 }
 
 async function getTweet(tweetId){
-    
-    const twitterGetTweet = await twitterComm.getTweet(tweetId)
-    /* TODO: Apply manipulations */
-    
-    return twitterGetTweet
+    let output = await participantSpecifiedTwitterData.getTweet(tweetId)
+    return output
 }
 
 async function getUserFriends(username){
-
-    const twitterGetUserFriends = await twitterComm.getUserFriends(username)
-    /* TODO: Apply manipulations */
-    
-    return twitterGetUserFriends
+    let output = await participantSpecifiedTwitterData.getUserFriends(username)
+    return output
 }
 
 async function getUserFollowers(username){
-    
-    const twitterGetUserFollowers = await twitterComm.getUserFollowers(username)
-    /* TODO: Apply manipulations */
-    
-    return twitterGetUserFollowers
+    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
+    return output
 }
 
 async function getUserTimeline(username){
-
-    const twitterGetUserTimeline = await twitterComm.getUserTimeline(username)
-    /* TODO: Apply manipulations */
-    
-    return twitterGetUserTimeline
+    let output = await participantSpecifiedTwitterData.getUserTimeline(username)
+    return output
 }
 
 async function getUserLikes(username){
-   
-    const twitterGetUserLikes = await twitterComm.getUserLikes(username)
-    /* TODO: Apply manipulations */
-    
-    return twitterGetUserLikes
+    let output = await participantSpecifiedTwitterData.getUserLikes(username)
+    return output
 }
+
+
+/**_____ Participants auth ______ **/
 
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
@@ -100,55 +68,29 @@ async function getUserLikes(username){
  * @param {*} expId 
  */
 async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
-    //checking auth info
-    const twitterIdStr = await getTwitterIdFromTokens(oauthToken, oauthTokenSecret)
-    if (!twitterIdStr) {
-        throw {
-            name: "InvalidAuthInfo",
-            message: "Not a twitter user."
-        }
-    }
-    //checking experiment
-    const exp = await database.getExperimentByCode(expCode); 
-    if(!exp || !exp.exp_id){  //no such experiment
-      throw {
-          name: "NoSuchExperiment",
-          message: "No such experiment."
-        }
-    }
-    // verifying not already registered
-    let userFromDB = await database.getParticipant(twitterIdStr)
-    if (userFromDB) {
-        throw {
-            name: "UserAlreadyRegistered",
-            message: "User already registered."
-        }
-    }
+    let output = await participantAuthUtils.registerParticipant(oauthToken, oauthTokenSecret, expCode)
+    return output
+}
 
+/**
+ * return user twitter id if found, else null
+ * @param {*} userTwitterToken 
+ * @param {*} userTwitterTokenSecret 
+ */
+async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret) {
+    let output = await participantAuthUtils.getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret)
+    return output
+}
 
-    // raffle group for user
-    const expGroups = exp.exp_groups;
-    const group = groupSelector.selectGroup(expGroups) 
-
-    // creating user to add
-    let user = {
-        "exp_id": exp.exp_id,
-        "group_id": group.group_id,
-        "participant_twitter_id_str" : twitterIdStr,
-        "user_twitter_token" : oauthToken,
-        "user_twitter_token_secret" : oauthTokenSecret,
-        "group_manipulations": group.group_manipulations
-    }
-    
-    const successRegister = await database.insertParticipant(user)
-    if(successRegister){
-        return user
-    }
-    return null
+/** ______ Participant actions handlers ______ **/
+async function handleLike() {
 
 }
 
-exports.getTwitterIdFromTokens = getTwitterIdFromTokens
+
+
+
+exports.getTwitterUserFromTokens = getTwitterUserFromTokens
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
 exports.searchUsers = searchUsers

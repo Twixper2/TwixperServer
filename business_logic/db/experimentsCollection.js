@@ -62,25 +62,31 @@ async function getExperimentByCode(expCode) {
   return result
 }
 
-//TODO we need ti change this hackathon spam?
 async function insertParticipantToExp(expId, participant) {
   let username = participant.participant_twitter_username;
+  let p_id_str = participant.participant_twitter_id_str
   let groupId = participant.group_id;
   
-  const exp = await getExperimentById(expId)
+  let exp = await getExperimentById(expId)
   if (exp == null) { return false; }
 
+  exp.num_of_participants ++
   let groups = exp.exp_groups;
   for (let i = 0; i < groups.length; i++) {
     const group = groups[i]
     if (group.group_id == groupId) {
-      group.group_participants.push(username);
+      group.group_participants.push(
+        {
+          "participant_twitter_username": username,
+          "participant_twitter_id_str": p_id_str,
+        });
+      group.group_num_of_participants ++;
     }
   }
 
   const db = await makeDb()
   let result = null
-  // TODO: Update instead of insert and delete
+  // TODO DEKEL: Update instead of insert and delete
   try{
     let collection = db.collection("Experiments")
     await collection.deleteOne({ exp_id: expId })

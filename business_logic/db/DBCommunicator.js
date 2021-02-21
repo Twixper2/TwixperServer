@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 var experimentsCollection = require("./experimentsCollection")
 var participantsCollection = require("./participantsCollection")
 var researchersCollection = require("./researchersCollection")
@@ -5,9 +7,9 @@ var tweetsCollection = require("./tweetsCollection")
 var actionsCollection = require("./actionsCollection")
 
 
-//TO BE CHANGED AFTER HACKHATON!!
 async function insertExperiment (experiment){
-    // wipe the whole db
+
+    /** wipe the whole db- for testing */
     await actionsCollection.deleteActions();
     await participantsCollection.deleteParticipants();
     // await researchersCollection.deleteResearchers();
@@ -76,12 +78,12 @@ async function getResearcherExperiments(researcherId){
 
 }
 
-// TODO: exports
 
 module.exports = {
     getExperimentByCode : getExperimentByCode,
     insertParticipant: insertParticipant,
-    getParticipant: getParticipant,
+    getParticipantByTwitterId: getParticipantByTwitterId,
+    getParticipantByToken:getParticipantByToken,
     insertAction: insertAction,
     insertExperiment : insertExperiment,
     getExperiments: getExperiments,
@@ -89,6 +91,5 @@ module.exports = {
     getResearcherExperiments: getResearcherExperiments,
     getExperimentById: getExperimentById,
     isExperimentExists: isExperimentExists
-
 }
 
