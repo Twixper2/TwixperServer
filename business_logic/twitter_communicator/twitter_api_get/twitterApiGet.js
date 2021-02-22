@@ -4,7 +4,7 @@
     {
         message:      '...',  // error message
         statusCode:   '...',  // statusCode from Twitter
-        code:         '...',  // error code from Twitter
+        code:         '...',  // error code from Twitter (for example 88 is "Rate limit exceeded")
         twitterReply: '...',  // raw response data from Twitter
         allErrors:    '...'   // array of errors returned from Twitter
     }
