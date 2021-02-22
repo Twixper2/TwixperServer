@@ -43,8 +43,14 @@ router.get("/getFeed", async (req, res, next) => {
   catch(e){
     // Decide for error statuses by the error type.
     // For example: quota ran out, or internal error
+    console.log("** Error in /participant/getFeed **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(e.statusCode).json(e);
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
