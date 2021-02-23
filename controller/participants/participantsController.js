@@ -46,7 +46,12 @@ router.get("/getFeed", async (req, res, next) => {
     console.log("** Error in /participant/getFeed **")
     console.log(e)
     if(e.message){ // error thrown from the api
-      res.status(e.statusCode).json(e);
+      res.status(502).json(e);
+      /* 
+      502 – The server while acting as a gateway or a proxy, 
+            received an invalid response from the upstream server it accessed
+            in attempting to fulfill the request.
+      */
     }
     else{ // Internal error
       res.sendStatus(500)
@@ -89,9 +94,6 @@ router.get("/searchUsers", async (req, res, next) => {
     res.sendStatus(500)
   }
 });
-
-
-
 
 router.get("/getUser", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
