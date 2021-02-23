@@ -253,4 +253,40 @@ router.post("/unlikeTweet", async (req, res, next) => {
   }
 });
 
+// For new tweets and comments
+router.post("/publishTweet", async (req, res, next) => {
+  /* 
+    The tweetParams should be in the same form as in the Twiiter API.
+    See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update 
+    ***** Tweet which is a comment should have the property in_reply_to_status_id
+          AND include "@usernameMentioned" at the status text. *****
+  */
+  const tweetParams = req.body
+  if (!tweetParams.status) {
+    res.status(400).send("No text provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const publishTweetSuccess = await participantsService.publishTweet(participant, tweetParams)
+    if(publishTweetSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/publishTweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      /* pay attention to e.code == 186: "Tweet needs to be a bit shorter." */
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
 module.exports = router;

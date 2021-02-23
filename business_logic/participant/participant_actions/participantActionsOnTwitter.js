@@ -18,5 +18,14 @@ async function unlikeTweet(participant, tweetId){
     return likeSuccess
 }
 
+async function publishTweet(participant, tweetParams){    
+    let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
+    
+    // TODO: Call for logger to log the action
+
+    return publishTweetSuccess
+}
+
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.publishTweet = publishTweet

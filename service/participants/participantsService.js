@@ -74,6 +74,10 @@ async function unlikeTweet(participant, tweetId) {
     return output
 }
 
+async function publishTweet(participant, tweetParams) {
+    let output = await participantActionsOnTwitter.publishTweet(participant, tweetParams)
+    return output
+}
 
 
 /**_____ Participants auth ______ **/
@@ -117,3 +121,4 @@ exports.registerParticipant = registerParticipant
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.publishTweet = publishTweet

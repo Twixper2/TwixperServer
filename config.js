@@ -6,5 +6,6 @@ config.returnStaticData = true
 config.returnStaticFeed = false
 // Post
 config.makeActionsInTwitter = true
+config.publishPostInTwitter = true
 
 module.exports = config;

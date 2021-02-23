@@ -33,7 +33,6 @@ function sendPostRequestsWrapper(T, apiEndpoint, params){
 async function likeTweet(T, tweetId){ 
     const params = {
         id: tweetId,
-        include_entities: false
     }
     return await sendPostRequestsWrapper(T, "favorites/create", params)
 }
@@ -41,10 +40,14 @@ async function likeTweet(T, tweetId){
 async function unlikeTweet(T, tweetId){ 
     const params = {
         id: tweetId,
-        include_entities: false
     }
     return await sendPostRequestsWrapper(T, "favorites/destroy", params)
 }
 
+async function publishTweet(T, tweetParams){ 
+    return await sendPostRequestsWrapper(T, "statuses/update", tweetParams)
+}
+
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.publishTweet = publishTweet

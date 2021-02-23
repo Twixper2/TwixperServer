@@ -163,6 +163,16 @@ async function unlikeTweet(participant, tweetId){
     return twitterApiPost.unlikeTweet(T, tweetId)
 }  
 
+async function publishTweet(participant, tweetParams){ 
+    if(!config.publishPostInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.publishTweet(T, tweetParams)
+}  
+
 exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
@@ -176,3 +186,4 @@ exports.getUserLikes = getUserLikes
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.publishTweet = publishTweet
