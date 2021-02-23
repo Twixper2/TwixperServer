@@ -2,6 +2,7 @@ const participantSearchInTwitter = require("../../business_logic/participant/par
 const participantSpecifiedTwitterData = require("../../business_logic/participant/participant_manipulated_data/participantSpecifiedTwitterData");
 const participantAuthUtils = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils");
 const participantFeed =  require("../../business_logic/participant/participant_manipulated_data/participantFeed");
+const participantActionsOnTwitter =  require("../../business_logic/participant/participant_actions/participantActionsOnTwitter");
 
 /** ______Search for participant_____ **/
 
@@ -60,6 +61,21 @@ async function getUserLikes(username){
 }
 
 
+
+/** ______ Participant actions handlers ______ **/
+
+async function likeTweet(participant, tweetId) {
+    let output = await participantActionsOnTwitter.likeTweet(participant, tweetId)
+    return output
+}
+
+async function unlikeTweet(participant, tweetId) {
+    let output = await participantActionsOnTwitter.unlikeTweet(participant, tweetId)
+    return output
+}
+
+
+
 /**_____ Participants auth ______ **/
 
 /**
@@ -82,10 +98,7 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
     return output
 }
 
-/** ______ Participant actions handlers ______ **/
-async function handleLike() {
 
-}
 
 
 
@@ -101,3 +114,6 @@ exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
 exports.getUserLikes = getUserLikes
 exports.registerParticipant = registerParticipant
+
+exports.likeTweet = likeTweet
+exports.unlikeTweet = unlikeTweet

@@ -29,6 +29,10 @@ router.use(async function (req, res, next) {
 });
 
 
+/* ----------------------------------------
+    Routes for asking for data from Twitter
+   ---------------------------------------- */
+
 router.get("/getFeed", async (req, res, next) => {
   /*
      For feed, check for additional parameters like "max_id" and "count"
@@ -182,6 +186,70 @@ router.get("/getUserLikes", async (req, res, next) => {
   catch(e){
     console.log(e)
     res.sendStatus(500)
+  }
+});
+
+
+/* ----------------------------------------
+    Routes for making active actions in Twitter
+   ---------------------------------------- */
+
+router.post("/likeTweet", async (req, res, next) => {
+  const tweetId = req.query.tweetId
+  if (!tweetId) {
+    res.status(400).send("No tweet id provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const likeSuccess = await participantsService.likeTweet(participant, tweetId)
+    if(likeSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/likeTweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      // pay attention to e.code == 139: "You have already favorited this status".
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
+router.post("/unlikeTweet", async (req, res, next) => {
+  const tweetId = req.query.tweetId
+  if (!tweetId) {
+    res.status(400).send("No tweet id provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const unlikeSuccess = await participantsService.unlikeTweet(participant, tweetId)
+    if(unlikeSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/unlikeTweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      /* pay attention to e.code == 144: "No status found with that ID".
+         That error code returns when the tweet is already unliked. */
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
