@@ -262,7 +262,7 @@ router.post("/publishTweet", async (req, res, next) => {
           AND include "@usernameMentioned" at the status text. *****
   */
   const tweetParams = req.body
-  if (!tweetParams.status) {
+  if (!tweetParams || !tweetParams.status) {
     res.status(400).send("No text provided.")
     return;
   }

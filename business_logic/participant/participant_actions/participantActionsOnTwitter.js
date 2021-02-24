@@ -11,11 +11,11 @@ async function likeTweet(participant, tweetId){
 }
 
 async function unlikeTweet(participant, tweetId){    
-    let likeSuccess = await twitterComm.unlikeTweet(participant, tweetId)
+    let unlikeSuccess = await twitterComm.unlikeTweet(participant, tweetId)
     
     // TODO: Call for logger to log the action
 
-    return likeSuccess
+    return unlikeSuccess
 }
 
 async function publishTweet(participant, tweetParams){    
