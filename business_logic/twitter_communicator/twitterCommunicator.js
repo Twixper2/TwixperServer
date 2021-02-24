@@ -4,6 +4,7 @@
     and calls their functions to return the data.
 */
 const twitterApiGet = require("./twitter_api_get/twitterApiGet");
+const twitterApiPost = require("./twitter_api_post/twitterApiPost");
 
 // var config = require.main.require('./config.js')
 const config = require('../../config.js')
@@ -60,6 +61,12 @@ async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
     return {id_str: "123456789", screen_name: "nirdz"}
     // return null;  
 }
+
+
+
+/* ----------------------------------------
+    Asking data from Twitter
+   ---------------------------------------- */
 
 // Possibly add more fields such as "max_id" and "count"
 async function getFeed(participant  ){ 
@@ -130,6 +137,42 @@ async function getUserLikes(username){
     //Else, set T w/ the credentials, call and return relevant function from the modules
 }
 
+
+
+/* ----------------------------------------
+    Make active actions in Twitter
+   ---------------------------------------- */
+
+async function likeTweet(participant, tweetId){ 
+    if(!config.makeActionsInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.likeTweet(T, tweetId)
+}   
+
+async function unlikeTweet(participant, tweetId){ 
+    if(!config.makeActionsInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.unlikeTweet(T, tweetId)
+}  
+
+async function publishTweet(participant, tweetParams){ 
+    if(!config.publishPostInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.publishTweet(T, tweetParams)
+}  
+
 exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
@@ -140,3 +183,7 @@ exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
 exports.getUserLikes = getUserLikes
+
+exports.likeTweet = likeTweet
+exports.unlikeTweet = unlikeTweet
+exports.publishTweet = publishTweet
