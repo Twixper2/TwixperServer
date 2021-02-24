@@ -3,10 +3,30 @@
     Requires the modules in folders "twitter_api_get" and "twitter_api_post",
     and calls their functions to return the data.
 */
+const twitterApiGet = require("./twitter_api_get/twitterApiGet");
 
-// TODO: Require twit here and define it here.
+// var config = require.main.require('./config.js')
+const config = require('../../config.js')
 
-const returnStaticData = true
+/* T Object*/
+var Twit = require('twit')
+var T = new Twit({
+  consumer_key:         process.env.API_KEY,
+  consumer_secret:      process.env.API_SECRET_KEY,
+  access_token:         '...',
+  access_token_secret:  '...',
+  timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
+//   strictSSL:            true,     // optional - requires SSL certificates to be valid.
+})
+function setTAuth(token, tokenSecret){
+    T.setAuth({
+        access_token: token,
+        access_token_secret: tokenSecret
+    })
+}
+
+/* Configurations */
+const returnStaticData = config.returnStaticData
 
 /* For static data */
 var feedJSON = []
@@ -43,10 +63,13 @@ async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
 
 // Possibly add more fields such as "max_id" and "count"
 async function getFeed(participant  ){ 
-    if(returnStaticData){
+    if(config.returnStaticFeed){
         return feedJSON
     }
-    //Else, set T w/ the credentials, call and return relevant function from the modules 
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiGet.getFeed(T)
 }
 
 // Possibly add more fields
@@ -67,14 +90,14 @@ async function searchUsers(query){
 
 async function getUser(username){
     if(returnStaticData){
-        return userPageJSON
+        return userJSON
     }
     //Else, call and return relevant function from the modules
 }
 
 async function getTweet(tweetId){
     if(returnStaticData){
-        return tweetPageJSON
+        return tweetJSON
     }
     //Else, call and return relevant function from the modules
 }

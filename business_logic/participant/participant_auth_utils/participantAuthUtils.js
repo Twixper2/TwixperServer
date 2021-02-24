@@ -35,7 +35,7 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
 
     // raffle group for praticipant. currnetly only naive raffle supported
     const expGroups = exp.exp_groups;
-    const group = groupSelector.selectGroup(expGroups) 
+    const group = groupSelector.selectGroup(expGroups, exp.num_of_participants) 
 
     // creating praticipant to add
     let praticipant = {

@@ -128,7 +128,7 @@ exports.report = {
             ]
         }
     ],
-    // The main part
+    // The main part, make it in a seperate file.
     "actions_log": [ // Array of objects
         // Each object represents an action by any of the participants
 
