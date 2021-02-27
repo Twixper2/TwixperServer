@@ -16,7 +16,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         const researcherId = await verifyGoogleUser(id_token) //store this id as key in user record
     }
     catch (e) { //verify failed
-        console.log(e)
+        res.sendStatus(401)
     }
 });
 
