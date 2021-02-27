@@ -36,7 +36,8 @@ app.use(express.static(path.join(__dirname, "public"))); //To serve static files
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 //#endregion
-const guestController = require("./controller/participants/guestsController");
+const participantsAuthController = require("./controller/participants/participantsAuthController");
+const researchersAuthController = require("./controller/researchers/researchersAuthController");
 const participantController  = require("./controller/participants/participantsController");
 const researcherController = require("./controller/researchers/researchersController");
 
@@ -44,7 +45,8 @@ app.get("/", (req, res) => res.send("welcome"));
 
 app.use("/participants", participantController);
 app.use("/researchers", researcherController);
-app.use(guestController);  //auth
+app.use(participantsAuthController);  //participant auth
+app.use(researchersAuthController);  //participant auth
 
 
 app.get("/alive", (req, res) => {
