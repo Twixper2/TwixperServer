@@ -62,39 +62,6 @@ function muteTweets(muteManipulation, tweets, participantUsername){
         }
     }
     return filteredTweets
-
-    /*let filteredTweets = []
-    for (let i = 0; i < tweets.length; i++) {
-        const tweet = tweets[i];
-        let isSafeTweet = true
-        const user = tweet.user
-        if(!usersToMute.includes(user.screen_name)){ // Tweet is safe so far
-            // Check if it is a retweet
-            if(tweet.retweeted_status && tweet.retweeted_status){ 
-                const original = tweet.retweeted_status
-                const original_user = original.user
-                if(usersToMute.includes(original_user.screen_name)){ // Tweet not safe
-                    isSafeTweet = false
-                }
-            }
-            // Check if it is a quote (if the tweet is safe so far)
-            if(isSafeTweet && tweet.is_quote_status === true && tweet.quoted_status){
-                const quoted_tweet = tweet.quoted_status
-                const quoted_user = quoted_tweet.user
-                if(usersToMute.includes(quoted_user.screen_name)){ // Tweet not safe
-                    isSafeTweet = false
-                }
-            }
-        }
-        else{
-            isSafeTweet = false
-        }
-
-        if(isSafeTweet){
-            filteredTweets.push(tweet)
-        }
-    }
-    return filteredTweets*/
 }
 
 /*
