@@ -43,6 +43,7 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         "group_id": group.group_id,
         "participant_twitter_id_str": twitterUser.id_str,
         "participant_twitter_username": twitterUser.screen_name,
+        "participant_email": twitterUser.email,
         "user_twitter_token" : oauthToken,
         "user_twitter_token_secret" : oauthTokenSecret,
         "group_manipulations": group.group_manipulations
@@ -61,7 +62,14 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
  * @param {*} userTwitterTokenSecret 
  */
 async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret) {
-    let userData =  await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
+    let userData = null
+    try{
+        userData = await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
+    } 
+    catch(e){
+        userData = null
+    }
+    
     if (!userData || !userData.id_str) {
         return null
     }

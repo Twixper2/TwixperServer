@@ -2,10 +2,11 @@ var config = new Object()
 
 /* For twitterCommunicator */
 // Get
-config.returnStaticData = true
-config.returnStaticFeed = false
+config.realVerifyCredentials = true // real mode: true
+config.returnStaticData = true // Real mode: false
+config.returnStaticFeed = false // Real mode: false
 // Post
-config.makeActionsInTwitter = true
-config.publishPostInTwitter = true
+config.makeActionsInTwitter = true // Real mode: true
+config.publishPostInTwitter = true // Real mode: true
 
 module.exports = config;

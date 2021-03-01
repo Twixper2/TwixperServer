@@ -6,7 +6,8 @@ const { data } = require("../../twitter_communicator/static_twitter_data/FeedJSO
 async function searchTweets(q, participant){
     let results = await twitterComm.searchTweets(q)
     if (results) {
-        results.statuses = manipulator.manipulateTweets(participant.group_manipulations, results.statuses)
+        /** Not manipulating search results */
+        // results.statuses = manipulator.manipulateTweets(participant.group_manipulations, results.statuses)
         return results
     }
     return null
