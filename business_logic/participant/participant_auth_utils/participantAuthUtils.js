@@ -1,5 +1,5 @@
-const twitterComm = require("../twitter_communicator/twitterCommunicator")
-const database = require("../db/DBCommunicator.js");
+const twitterComm = require("../../twitter_communicator/twitterCommunicator")
+const database = require("../../db/DBCommunicator.js");
 const groupSelector = require("../participant_auth_utils/groupSelector")
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
@@ -8,8 +8,8 @@ const groupSelector = require("../participant_auth_utils/groupSelector")
  */
 async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
     //checking auth info
-    const twitterIdStr = await getTwitterIdFromTokens(oauthToken, oauthTokenSecret)
-    if (!twitterIdStr) {
+    const twitterUser = await getTwitterUserFromTokens(oauthToken, oauthTokenSecret)
+    if (!twitterUser) {
         throw {
             name: "InvalidAuthInfo",
             message: "Not a twitter user."
@@ -24,8 +24,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         }
     }
     // verifying not already registered
-    let userFromDB = await database.getParticipant(twitterIdStr)
-    if (userFromDB) {
+    let praticipantFromDb = await database.getParticipantByTwitterId(twitterUser.id_str)
+    if (praticipantFromDb) {
         throw {
             name: "UserAlreadyRegistered",
             message: "User already registered."
@@ -33,23 +33,25 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
     }
 
 
-    // raffle group for user. currnetly only naive raffle supported
+    // raffle group for praticipant. currnetly only naive raffle supported
     const expGroups = exp.exp_groups;
-    const group = groupSelector.selectGroup(expGroups) 
+    const group = groupSelector.selectGroup(expGroups, exp.num_of_participants) 
 
-    // creating user to add
-    let user = {
+    // creating praticipant to add
+    let praticipant = {
         "exp_id": exp.exp_id,
         "group_id": group.group_id,
-        "participant_twitter_id_str" : twitterIdStr,
+        "participant_twitter_id_str": twitterUser.id_str,
+        "participant_twitter_username": twitterUser.screen_name,
+        "participant_email": twitterUser.email,
         "user_twitter_token" : oauthToken,
         "user_twitter_token_secret" : oauthTokenSecret,
         "group_manipulations": group.group_manipulations
     }
     
-    const successRegister = await database.insertParticipant(user)
+    const successRegister = await database.insertParticipant(praticipant)
     if(successRegister){
-        return user
+        return praticipant
     }
     return null
 }
@@ -59,14 +61,22 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
  * @param {*} userTwitterToken 
  * @param {*} userTwitterTokenSecret 
  */
-async function getTwitterIdFromTokens(userTwitterToken, userTwitterTokenSecret) {
-    let userData =  await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
+async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret) {
+    let userData = null
+    try{
+        userData = await twitterComm.verifyCredentials(userTwitterToken,userTwitterTokenSecret)
+    } 
+    catch(e){
+        userData = null
+    }
+    
     if (!userData || !userData.id_str) {
         return null
     }
-    let twitter_id_str = userData.id_str
-    return twitter_id_str
+    // let twitter_id_str = userData.id_str
+    // return twitter_id_str
+    return userData
 }
 
 exports.registerParticipant = registerParticipant
-exports.getTwitterIdFromTokens = getTwitterIdFromTokens
+exports.getTwitterUserFromTokens = getTwitterUserFromTokens

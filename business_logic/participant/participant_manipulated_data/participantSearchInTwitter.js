@@ -1,12 +1,13 @@
-const twitterComm = require("../twitter_communicator/twitterCommunicator")
+const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const manipulator = require("../manipulator/manipulator.js")
-const database = require("../db/DBCommunicator.js");
-const { data } = require("../twitter_communicator/static_twitter_data/FeedJSON");
+const database = require("../../db/DBCommunicator.js");
+const { data } = require("../../twitter_communicator/static_twitter_data/FeedJSON");
 
 async function searchTweets(q, participant){
     let results = await twitterComm.searchTweets(q)
     if (results) {
-        results = manipulator.manipulateTweets(participant.group_manipulations, twitterFeedTweets)
+        /** Not manipulating search results */
+        // results.statuses = manipulator.manipulateTweets(participant.group_manipulations, results.statuses)
         return results
     }
     return null

@@ -9,8 +9,9 @@ const manipulations = [
 ]
 
 const tweets = require("./dataForTests").tweets
+const participantUsername = "twixperApp"
 
-const manTweets = manipulator.manipulateTweets(manipulations, tweets)
+const manTweets = manipulator.manipulateTweets(manipulations, tweets, participantUsername)
 manTweets.forEach(tweet => {
     console.log(tweet.id_str)
 });

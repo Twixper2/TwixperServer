@@ -1,5 +1,3 @@
-const dbComm = require("../../business_logic/db/DBCommunicator")
-const experimentsCollection = require("../../business_logic/db/experimentsCollection")
 const reportCreator = require("../../business_logic/researchers/experiments/experimentReportCreator")
 const experiments = require('../../business_logic/researchers/experiments/researcherExperiments')
 

@@ -1,5 +1,5 @@
 # TwixperServer
-Ripository for our system's server & DB communicator.
+Repository for our system's server & DB communicator.
 
 ## Project setup
 ```

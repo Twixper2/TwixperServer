@@ -52,8 +52,8 @@ exports.experiment = {
             "group_num_of_participants": "",
             "group_size_in_percentage": "", //גודל הקבוצה באחוזים כפי שהחוקר הגדיר בצור ניסוי
             "group_participants": [ // array of objects
-                {"participant_twitter_username": ""}, // possibly more fields like "last action time"
-                {"participant_twitter_username": ""}
+                {"participant_twitter_username": "", "participant_twitter_id_str": ""}, // possibly more fields like "last action time"
+                {"participant_twitter_username": "", "participant_twitter_id_str": ""}
             ],
             "group_manipulations":[ // array of objects
                 {},
@@ -67,6 +67,8 @@ exports.activeParticipant = {
     "exp_id": "",
     "group_id": "", 
     "participant_twitter_id_str" : "99999",
+    "participant_twitter_username": "twixperApp",
+    "participant_email": "abc@gmail.com", // Can be null
     "user_twitter_token": "sdgsdfg65565s6",
     "user_twitter_token_secret" : "",
     "group_manipulations":[ // array of objects
@@ -128,7 +130,7 @@ exports.report = {
             ]
         }
     ],
-    // The main part
+    // The main part, make it in a seperate file.
     "actions_log": [ // Array of objects
         // Each object represents an action by any of the participants
 

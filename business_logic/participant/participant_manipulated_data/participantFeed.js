@@ -1,6 +1,6 @@
-const twitterComm = require("../twitter_communicator/twitterCommunicator")
+const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const manipulator = require("../manipulator/manipulator.js")
-const database = require("../db/DBCommunicator.js");
+const database = require("../../db/DBCommunicator.js");
 
 
 
@@ -12,7 +12,8 @@ async function getFeed(participant){
     // Get the feed from Twitter
     let twitterFeedTweets = await twitterComm.getFeed(participant)
     if (twitterFeedTweets) {
-        twitterFeedTweets = manipulator.manipulateTweets(participant.group_manipulations, twitterFeedTweets)
+        twitterFeedTweets = manipulator.manipulateTweets(participant.group_manipulations, 
+            twitterFeedTweets, participant.participant_twitter_username)
         return twitterFeedTweets
     }
     return null

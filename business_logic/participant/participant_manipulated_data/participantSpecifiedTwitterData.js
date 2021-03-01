@@ -1,8 +1,8 @@
-const twitterComm = require("../twitter_communicator/twitterCommunicator")
+const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const manipulator = require("../manipulator/manipulator.js")
-const database = require("../db/DBCommunicator.js");
+const database = require("../../db/DBCommunicator.js");
 
-async function getUser(username){
+async function getUser(username){ // Later we will also send "praticipant" obj for manipulations.
 
     const twitterGetUser = await twitterComm.getUser(username)
     /* TODO: Apply manipulations */
@@ -51,7 +51,6 @@ async function getUserLikes(username){
 }
 
 
-exports.getFeed = getFeed
 exports.getUser = getUser
 exports.getTweet = getTweet
 exports.getUserFriends = getUserFriends

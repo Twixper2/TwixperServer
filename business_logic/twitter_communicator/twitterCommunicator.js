@@ -1,10 +1,33 @@
 /*
     All twitter api request should go to here.
     Requires the modules in folders "twitter_api_get" and "twitter_api_post",
-    and calling their functions to return the data.
+    and calls their functions to return the data.
 */
+const twitterApiGet = require("./twitter_api_get/twitterApiGet");
+const twitterApiPost = require("./twitter_api_post/twitterApiPost");
 
-const returnStaticData = true
+// var config = require.main.require('./config.js')
+const config = require('../../config.js')
+
+/* T Object*/
+var Twit = require('twit')
+var T = new Twit({
+  consumer_key:         process.env.API_KEY,
+  consumer_secret:      process.env.API_SECRET_KEY,
+  access_token:         '...',
+  access_token_secret:  '...',
+  timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
+//   strictSSL:            true,     // optional - requires SSL certificates to be valid.
+})
+function setTAuth(token, tokenSecret){
+    T.setAuth({
+        access_token: token,
+        access_token_secret: tokenSecret
+    })
+}
+
+/* Configurations */
+const returnStaticData = config.returnStaticData
 
 /* For static data */
 var feedJSON = []
@@ -35,15 +58,30 @@ if(returnStaticData){ // Require them only when we need to.
  * @param {*} userTwitterTokenSecret 
  */
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
-    return;  
+    if(!config.realVerifyCredentials){
+        return {id_str: "123456789", screen_name: "nirdz"}
+    }
+    // Set T w/ the credentials
+    setTAuth(userTwitterToken, userTwitterTokenSecret)
+    // Call and return relevant function from the modules 
+    return twitterApiGet.verifyCredentials(T)
 }
+
+
+
+/* ----------------------------------------
+    Asking data from Twitter
+   ---------------------------------------- */
 
 // Possibly add more fields such as "max_id" and "count"
 async function getFeed(participant  ){ 
-    if(returnStaticData){
+    if(config.returnStaticFeed){
         return feedJSON
     }
-    //Else, call and return relevant function from the modules 
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiGet.getFeed(T)
 }
 
 // Possibly add more fields
@@ -64,14 +102,14 @@ async function searchUsers(query){
 
 async function getUser(username){
     if(returnStaticData){
-        return userPageJSON
+        return userJSON
     }
     //Else, call and return relevant function from the modules
 }
 
 async function getTweet(tweetId){
     if(returnStaticData){
-        return tweetPageJSON
+        return tweetJSON
     }
     //Else, call and return relevant function from the modules
 }
@@ -101,8 +139,44 @@ async function getUserLikes(username){
     if(returnStaticData){
         return userLikesJSON
     }
-    //Else, call and return relevant function from the modules
+    //Else, set T w/ the credentials, call and return relevant function from the modules
 }
+
+
+
+/* ----------------------------------------
+    Make active actions in Twitter
+   ---------------------------------------- */
+
+async function likeTweet(participant, tweetId){ 
+    if(!config.makeActionsInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.likeTweet(T, tweetId)
+}   
+
+async function unlikeTweet(participant, tweetId){ 
+    if(!config.makeActionsInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.unlikeTweet(T, tweetId)
+}  
+
+async function publishTweet(participant, tweetParams){ 
+    if(!config.publishPostInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.publishTweet(T, tweetParams)
+}  
 
 exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
@@ -114,3 +188,7 @@ exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
 exports.getUserLikes = getUserLikes
+
+exports.likeTweet = likeTweet
+exports.unlikeTweet = unlikeTweet
+exports.publishTweet = publishTweet
