@@ -14,6 +14,8 @@ async function activateNewExperiment(reqExpObj){
         groupObj.group_num_of_participants = 0
         groupObj.group_participants = []
         groupIdIndex += 1
+        /* 
+        // Lowercasing the keywords
         let groupManip = groupObj.group_manipulations
         groupManip.forEach((manip)=>{
             let manipKeywords = manip.keywords
@@ -22,7 +24,7 @@ async function activateNewExperiment(reqExpObj){
                 let keyword = manipKeywords[i];
                 manipKeywords[i] = keyword.toLowerCase()
             }
-        })
+        })*/
     })
     // TODO: call for library to decide exp code and id
     expObj.exp_id = "1546515611"
