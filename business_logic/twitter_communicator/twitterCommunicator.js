@@ -58,8 +58,13 @@ if(returnStaticData){ // Require them only when we need to.
  * @param {*} userTwitterTokenSecret 
  */
 async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
-    return {id_str: "123456789", screen_name: "nirdz"}
-    // return null;  
+    if(!config.realVerifyCredentials){
+        return {id_str: "123456789", screen_name: "nirdz"}
+    }
+    // Set T w/ the credentials
+    setTAuth(userTwitterToken, userTwitterTokenSecret)
+    // Call and return relevant function from the modules 
+    return twitterApiGet.verifyCredentials(T)
 }
 
 

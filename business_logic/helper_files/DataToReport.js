@@ -67,6 +67,8 @@ exports.activeParticipant = {
     "exp_id": "",
     "group_id": "", 
     "participant_twitter_id_str" : "99999",
+    "participant_twitter_username": "twixperApp",
+    "participant_email": "abc@gmail.com", // Can be null
     "user_twitter_token": "sdgsdfg65565s6",
     "user_twitter_token_secret" : "",
     "group_manipulations":[ // array of objects
