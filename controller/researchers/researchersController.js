@@ -1,27 +1,30 @@
-var express = require("express");
-var router = express.Router();
-const researchersService = require("../../service/researchers/researchersService.js");
+var express = require("express")
+var router = express.Router()
+const researchersService = require("../../service/researchers/researchersService.js")
+const database = require("../../business_logic/db/DBCommunicator.js")
+
 
 // access control , checking google auth.
+/* Make sure user is authenticated by checking id provided in the cookie
+  and append user data from db to req
+  is not authorized, respond with code 401 */
+router.use(async function (req, res, next) {
+  if (req.session.id_token) {
+    const token = req.session.id_token;
+    const researcher = await database.getResearcher(token);
 
-// router.use(function (req, res, next) {
-    // Check for authentication from Twitter, 
-    // and check that this user is in active experiment.
-
-    /*if (req.session && req.session.user_id) {
-      DButils.execQuery("SELECT user_id FROM users")
-        .then((users) => {
-          if (users.find((x) => x.user_id === req.session.user_id)) {
-            req.user_id = req.session.user_id;
-            next();
-          }
-          else throw { status: 401, message: "unauthorized" };
-        })
-        .catch((error) => res.send(error));
-    } else {
-      res.sendStatus(401);
-    }*/
-// });
+    if (researcher) {
+        req.researcher = researcher; //every method has the user now
+        next(); //go to the request
+    }
+    else {
+      res.sendStatus(401); //user authentication failed, responde with unautorized
+    }
+  }
+  else {
+      res.sendStatus(401); //user authentication failed, responde with unautorized
+  }
+});
 
 // Post and activate new experiment
 router.post("/activateNewExperiment", async (req, res, next) => {
@@ -43,9 +46,10 @@ router.post("/activateNewExperiment", async (req, res, next) => {
 
 // Get all the researcher's experiments 
 router.get("/myExperiments", async (req, res, next) => {
-  // TODO: pass the user's cookie to the service
+  const researcher = req.researcher
+  const experiments = researcher.experiments_ids
   try{
-    const experiments = await researchersService.getExperiments()
+    const experiments = await researchersService.getExperiments(experiments) //TODO is this a good idea to implement? (sending list of all exps)
     res.send(experiments)
   }
   catch(e){

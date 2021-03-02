@@ -39,9 +39,14 @@ async function activateNewExperiment(reqExpObj){
     // return expObj.exp_code
 }
 
-// TODO: Send the user's cookie as a parameter
-async function getExperiments(){
-    const experiments = dbComm.getExperiments()
+async function getExperiments(experiments_ids){
+    experiments = []
+    experiments_ids.forEach(function(exp_id) {
+        experiment = dbComm.getExperimentById(exp_id)
+        if (experiment) {
+            experiments.push(experiment)
+        }
+    });
     if(experiments != null){
         return experiments
     }
