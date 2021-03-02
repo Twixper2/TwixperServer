@@ -42,7 +42,7 @@ async function activateNewExperiment(reqExpObj){
 async function getExperiments(experiments_ids){
     experiments = []
     experiments_ids.forEach(function(exp_id) {
-        experiment = dbComm.getExperimentById(exp_id)
+        experiment = await dbComm.getExperimentById(exp_id)
         if (experiment) {
             experiments.push(experiment)
         }
