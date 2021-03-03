@@ -2,6 +2,7 @@ exports.researcher = {
     // Details we get from google sign in, such as email and maybe full name.
     // "email": "",
     // "full_name": "",
+    "researcher_id" : "ABCD1234-1234",
     "experiments_ids": [235989, 65983, 569895, 878452]
 }
 

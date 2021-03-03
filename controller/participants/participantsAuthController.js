@@ -50,9 +50,10 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     }
 
     // checking if user already registered to an experiment
-    let user = await database.getParticipantByTwitterId(twitter_id_str)
-    // user already registered to an experiment
-    if (user) {
+    let participant = await database.getParticipantByTwitterId(twitter_id_str)
+    // participant already registered to an experiment
+    if (participant) {
+      await database.updateParticipantTokens(twitter_id_str, oauthToken, oauthTokenSecret)
       res.status(200).json({
         twitter_user_found : true,
         user_registered_to_experiment : true

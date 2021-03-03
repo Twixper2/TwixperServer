@@ -7,6 +7,63 @@ var tweetsCollection = require("./tweetsCollection")
 var actionsCollection = require("./actionsCollection")
 
 
+
+/*
+    _____ PARTICIPANTS _____
+*/
+async function insertParticipant(participant) {
+    let expId = participant.exp_id; 
+    await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
+    await participantsCollection.insertParticipant(participant);
+    return true
+}
+
+async function getParticipantByTwitterId(tId){
+    return await participantsCollection.getParticipantByTwitterId(tId);
+}
+
+async function getParticipantByToken(token){
+    return await participantsCollection.getParticipantByToken(token);
+}
+
+async function updateParticipantTokens(tId, token, token_secret){
+    // TODO
+}
+
+
+/*
+    _____ ACTIONS _____
+*/
+async function insertAction(action){
+    await actionsCollection.insertAction(action); //TODO
+}
+
+
+/*
+    _____ Researchers _____
+*/
+// For Hackathon, remove after it finishes.
+// Returns all the experiments in the db.
+async function getExperiments(){
+    return await experimentsCollection.getExperiments();
+}
+
+async function getActionsOfExperiment(expId){
+    return await actionsCollection.getExpActions(expId);
+}
+
+async function getResearcher(id) {
+    //TODO
+}
+
+async function addResearcher(id) {
+    //TODO
+}
+
+async function getResearcherExperiments(researcherId){
+    //TODO
+}
+
 async function insertExperiment (experiment){
 
     /** wipe the whole db- for testing */
@@ -41,43 +98,6 @@ async function getExperimentById(expId){
 
 }
 
-async function insertParticipant(participant) {
-    let expId = participant.exp_id; 
-    await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
-    await participantsCollection.insertParticipant(participant);
-    return true
-}
-
-async function insertAction(action){
-    await actionsCollection.insertAction(action);
-}
-
-async function getParticipantByTwitterId(tId){
-    return await participantsCollection.getParticipantByTwitterId(tId);
-}
-
-async function getParticipantByToken(token){
-    return await participantsCollection.getParticipantByToken(token);
-}
-
-// For Hackathon, remove after it finishes.
-// Returns all the experiments in the db.
-async function getExperiments(){
-    return await experimentsCollection.getExperiments();
-}
-
-
-
-async function getActionsOfExperiment(expId){
-    return await actionsCollection.getExpActions(expId);
-}
-
-
-// After Hackathon finishes:
-async function getResearcherExperiments(researcherId){
-
-}
-
 
 module.exports = {
     getExperimentByCode : getExperimentByCode,
@@ -90,6 +110,8 @@ module.exports = {
     getActionsOfExperiment: getActionsOfExperiment,
     getResearcherExperiments: getResearcherExperiments,
     getExperimentById: getExperimentById,
-    isExperimentExists: isExperimentExists
+    isExperimentExists: isExperimentExists,
+    getResearcher : getResearcher,
+    addResearcher : addResearcher
 }
 
