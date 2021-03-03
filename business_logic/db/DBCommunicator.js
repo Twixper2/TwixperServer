@@ -18,10 +18,6 @@ async function insertParticipant(participant) {
     return true
 }
 
-async function insertAction(action){
-    await actionsCollection.insertAction(action);
-}
-
 async function getParticipantByTwitterId(tId){
     return await participantsCollection.getParticipantByTwitterId(tId);
 }
@@ -29,6 +25,19 @@ async function getParticipantByTwitterId(tId){
 async function getParticipantByToken(token){
     return await participantsCollection.getParticipantByToken(token);
 }
+
+async function updateParticipantTokens(tId, token, token_secret){
+    // TODO
+}
+
+
+/*
+    _____ ACTIONS _____
+*/
+async function insertAction(action){
+    await actionsCollection.insertAction(action); //TODO
+}
+
 
 /*
     _____ Researchers _____
@@ -51,9 +60,8 @@ async function addResearcher(id) {
     //TODO
 }
 
-// After Hackathon finishes:
 async function getResearcherExperiments(researcherId){
-
+    //TODO
 }
 
 async function insertExperiment (experiment){

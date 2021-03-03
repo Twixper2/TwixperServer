@@ -7,9 +7,10 @@ const database = require("../../db/DBCommunicator");
  */
 async function registerResearcher(id) {
     let researcher = { 
-        "researcher_id" : id
+        "researcher_id" : id,
+        "experiments_ids": [],
     }
-    database.addResearcher(researcher)
+    await database.addResearcher(researcher)
 }
 
 module.exports = {

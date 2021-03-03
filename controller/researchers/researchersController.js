@@ -49,7 +49,7 @@ router.get("/myExperiments", async (req, res, next) => {
   const researcher = req.researcher
   const experiments = researcher.experiments_ids
   try{
-    const experiments = await researchersService.getExperiments(experiments) //TODO is this a good idea to implement? (sending list of all exps)
+    const experiments = await researchersService.getExperiments(experiments) 
     res.send(experiments)
   }
   catch(e){
