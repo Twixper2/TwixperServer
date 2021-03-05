@@ -1,8 +1,7 @@
 const dbComm = require("../../db/DBCommunicator")
 const idGenerator = require("../../utils/UUIDGenerator") 
 
-async function activateNewExperiment(reqExpObj){
-    let expObj = reqExpObj
+async function activateNewExperiment(expObj){
     // Add more fields
     expObj.status = "active"
     expObj.start_date = new Date()
