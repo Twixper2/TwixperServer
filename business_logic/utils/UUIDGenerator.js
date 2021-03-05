@@ -6,5 +6,5 @@ function generateUUID() {
 }
 
 module.exports = {
-    generateUUID,
+    generateUUID : generateUUID
 }

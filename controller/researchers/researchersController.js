@@ -30,7 +30,7 @@ router.use(async function (req, res, next) {
 router.post("/activateNewExperiment", async (req, res, next) => {
   // Checking for required fields
   const reqBody = req.body
-  if(!validateExpFields(reqBody)){
+  if(!researchersService.validateExpFields(reqBody)){
     res.sendStatus(400); // Bad request
   }
   try{
@@ -80,42 +80,6 @@ router.post("/createExperimentReport", async (req, res, next) => {
 });
 
 const legalManipulationTypes = ["mute", "inject", "pixel_media", "remove_media"]
-function validateExpFields(reqBody){
-  const title = reqBody.title
-  const description = reqBody.description
-  // Later also add researcherDetails
-  const expGroups = reqBody.exp_groups
-  if(title == null || description == null || expGroups == null){
-    return false
-  }
-  if(!Array.isArray(expGroups)){
-    return false
-  }
-  if(expGroups.length < 1){
-    return false
-  }
-  expGroups.forEach((groupObj) => {
-    const groupName = groupObj.group_name
-    const groupSizePercentage = groupObj.group_size_in_percentage
-    const groupManipulations = groupObj.group_manipulations
-    if(groupName == null || groupSizePercentage == null || groupManipulations == null 
-        || !Array.isArray(groupManipulations)){
-      return false
-    }
-    groupManipulations.forEach((manipulation) => {
-      const type = manipulation.type
-      const users = manipulation.users
-      const keywords = manipulation.keywords
-      if(users == null && keywords == null){
-        return false
-      }
-      if(type == null || !legalManipulationTypes.includes(type)){
-        return false
-      }
-    })
-  })
-  return true
-}
 
 module.exports = router;
   
