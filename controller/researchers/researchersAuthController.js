@@ -21,9 +21,9 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         }
 
         // checking if already registered, if yes, give cookie and thats it
-        let researcher = await researcherService.getResearcher(id_token)
+        let researcher = await researcherService.getResearcher(researcherId)
         if (researcher) {
-            req.session.id_token = id_token
+            req.session.researcherId = researcherId
             res.sendStatus(200)
             return
         }
@@ -31,7 +31,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         // new user, register him and give cookie
         let addedResearcher = await researcherService.registerResearcher(researcherId)
         if (addedResearcher) {
-            req.session.id_token = id_token
+            req.session.researcherId = researcherId
             res.sendStatus(200)
             return
         }
