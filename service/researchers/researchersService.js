@@ -15,8 +15,8 @@ function validateExpFields(experimentObj) {
  * make experiment active
  * @param {} reqExpObj 
  */
-async function activateNewExperiment(reqExpObj){
-    return await experiments.activateNewExperiment(reqExpObj)
+async function activateNewExperiment(ExpObj){
+    return await experiments.activateNewExperiment(ExpObj)
 }
 
 /**
