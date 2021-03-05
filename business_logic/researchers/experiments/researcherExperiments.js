@@ -43,6 +43,9 @@ async function getExperiments(experiments_ids){
     }
 }
 
+const legalManipulationTypes = ["mute", "inject", "pixel_media", "remove_media"]
+
+
 function validateExpFields(experimentObj) {
     if (!typeof experimentObj === 'object') {     // not an obj
         return false

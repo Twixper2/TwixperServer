@@ -79,7 +79,6 @@ router.post("/createExperimentReport", async (req, res, next) => {
   }
 });
 
-const legalManipulationTypes = ["mute", "inject", "pixel_media", "remove_media"]
 
 module.exports = router;
   
