@@ -15,9 +15,11 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
     try {
         
         //verify real google user
-        const researcherId = await verifyGoogleUser(id_token) //store this id as key in user record
-        if (!researcherId) {
-            res.sendStatus(401); // not a google user
+        const idTokenData = await verifyGoogleUser(id_token)
+        const researcherId = idTokenData.userId  //store this id as key in user record
+        const appKey = idTokenData.appClientId
+        if (!researcherId || appKey != process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB ) {
+            res.sendStatus(401); // not a google user or id token not for our app
         }
 
         // checking if already registered, if yes, give cookie and thats it
@@ -52,8 +54,12 @@ async function verifyGoogleUser(token) {
         audience: process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB,  // Specify the CLIENT_ID of the app that accesses the backend
     });
     const payload = ticket.getPayload();
-    const userid = payload['sub']; //this is the key we will be using to identify the researcher
-    return userid
+    const userId = payload['sub']; //this is the key we will be using to identify the researcher
+    const appClientId = payload['aud'] // this should be our app key
+    return {
+            "userId" : userId,
+            "appClientId" : appClientId
+        }
 }
 
 module.exports = router;

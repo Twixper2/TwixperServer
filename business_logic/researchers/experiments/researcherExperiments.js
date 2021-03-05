@@ -14,6 +14,17 @@ async function activateNewExperiment(reqExpObj){
         groupObj.group_num_of_participants = 0
         groupObj.group_participants = []
         groupIdIndex += 1
+        /* 
+        // Lowercasing the keywords
+        let groupManip = groupObj.group_manipulations
+        groupManip.forEach((manip)=>{
+            let manipKeywords = manip.keywords
+            // Lowercasing the keywords
+            for (let i = 0; i < manipKeywords.length; i++) {
+                let keyword = manipKeywords[i];
+                manipKeywords[i] = keyword.toLowerCase()
+            }
+        })*/
     })
     expObj.exp_id = idGenerator.generateUUID()
     expObj.exp_code = idGenerator.generateUUID()
