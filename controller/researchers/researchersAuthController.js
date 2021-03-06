@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const {OAuth2Client} = require('google-auth-library');
-const client = new OAuth2Client(CLIENT_ID);
+const client = new OAuth2Client(process.env.CLIENT_ID);
 
 /**
  * Verify the id_token, check if the researcher already in database. If so, give him cookie.
