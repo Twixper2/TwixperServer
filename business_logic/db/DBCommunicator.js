@@ -27,7 +27,7 @@ async function getParticipantByToken(token){
 }
 
 async function updateParticipantTokens(tId, token, token_secret){
-    // TODO
+    return await participantsCollection.updateParticipantTokens(tId,token,token_secret);
 }
 
 
@@ -53,15 +53,15 @@ async function getActionsOfExperiment(expId){
 }
 
 async function getResearcher(id) {
-    //TODO
-}
+    return await researchersCollection.getResearcher(id);
+  }
 
 async function addResearcher(id) {
-    //TODO
+    return await researchersCollection.addResearcher(id);
 }
 
 async function getResearcherExperiments(researcherId){
-    //TODO
+    return await researchersCollection.getResearcherExperiments(researcherId);
 }
 
 async function insertExperiment (experiment){
@@ -112,6 +112,7 @@ module.exports = {
     getExperimentById: getExperimentById,
     isExperimentExists: isExperimentExists,
     getResearcher : getResearcher,
-    addResearcher : addResearcher
+    addResearcher : addResearcher,
+    updateParticipantTokens: updateParticipantTokens
 }
 

@@ -50,6 +50,24 @@ async function getParticipantByToken(token) {
     return result
 }
 
+async function updateParticipantTokens(tId,token,token_secret) {
+    const db = await makeDb()
+    let result = null
+    try{
+        let collection = db.collection("Participants")
+        result = await collection.findOneAndUpdate({participant_twitter_id_str: tId}, {$set: {user_twitter_token: token,user_twitter_token_secret :token_secret}}, {upsert: true}, function(err,doc) {
+            if (err) { throw err; }
+            else { console.log("Updated"); }
+          });  
+        // result = await result.toArray()
+        // result = result[0]
+    }
+    catch(e){
+        throw(e)
+    }
+    return result
+}
+
 async function deleteParticipants() {
     const db = await makeDb()
     let result = null
@@ -70,6 +88,7 @@ module.exports = {
     insertParticipant : insertParticipant,
     getParticipantByTwitterId : getParticipantByTwitterId,
     getParticipantByToken : getParticipantByToken,
-    deleteParticipants: deleteParticipants
+    deleteParticipants: deleteParticipants,
+    updateParticipantTokens: updateParticipantTokens    
 
 }
