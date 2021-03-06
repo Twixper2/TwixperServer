@@ -3,13 +3,20 @@ const experiments = require('../../business_logic/researchers/experiments/resear
 const database = require("../../business_logic/db/DBCommunicator.js");
 const researcherAuthUtils = require("../../business_logic/researchers/auth/researcherAuthUtils")
 
+/**
+ * validates experiment obj is legal and can be added to db
+ * @param {object to validate} experimentObj 
+ */
+function validateExpFields(experimentObj) {
+    return experiments.validateExpFields(experimentObj)
+}
 
 /**
  * make experiment active
  * @param {} reqExpObj 
  */
-async function activateNewExperiment(reqExpObj){
-    return await experiments.activateNewExperiment(reqExpObj)
+async function activateNewExperiment(ExpObj){
+    return await experiments.activateNewExperiment(ExpObj)
 }
 
 /**
@@ -47,3 +54,4 @@ exports.getExperimentsByIds = getExperimentsByIds
 exports.createExperimentReport = createExperimentReport
 exports.getResearcher = getResearcher
 exports.registerResearcher = registerResearcher
+exports.validateExpFields = validateExpFields

@@ -14,7 +14,7 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     if (!oauthToken || !oauthTokenSecret) {
       res.status(400).send("Not all params from oauth supllied.")
       return;
-    }
+    } 
     
     const twitterUser = await participantsService.getTwitterUserFromTokens(oauthToken, oauthTokenSecret)
     const twitter_id_str = twitterUser.id_str
