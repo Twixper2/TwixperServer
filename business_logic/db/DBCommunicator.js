@@ -42,10 +42,10 @@ async function insertAction(action){
 /*
     _____ Researchers _____
 */
-// For Hackathon, remove after it finishes.
-// Returns all the experiments in the db.
-async function getExperiments(){
-    return await experimentsCollection.getExperiments();
+
+// Returns the experiments in the db by ids.
+async function getExperimentsByIds(experimentIds){
+    return await experimentsCollection.getExperimentsByIds(experimentIds);
 }
 
 async function getActionsOfExperiment(expId){
@@ -56,8 +56,12 @@ async function getResearcher(id) {
     return await researchersCollection.getResearcher(id);
   }
 
-async function addResearcher(id) {
-    return await researchersCollection.addResearcher(id);
+async function addResearcher(researcher) {
+    return await researchersCollection.addResearcher(researcher);
+}
+
+async function addExperimentIdToResearcher(expId){
+    return await researchersCollection.addExperimentId(expId);
 }
 
 async function getResearcherExperiments(researcherId){
@@ -106,9 +110,10 @@ module.exports = {
     getParticipantByToken:getParticipantByToken,
     insertAction: insertAction,
     insertExperiment : insertExperiment,
-    getExperiments: getExperiments,
+    getExperimentsByIds: getExperimentsByIds,
     getActionsOfExperiment: getActionsOfExperiment,
     getResearcherExperiments: getResearcherExperiments,
+    addExperimentIdToResearcher: addExperimentIdToResearcher,
     getExperimentById: getExperimentById,
     isExperimentExists: isExperimentExists,
     getResearcher : getResearcher,

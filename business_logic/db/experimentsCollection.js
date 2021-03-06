@@ -1,7 +1,7 @@
 var makeDb = require("./DBConnector.js").makeDb
 
 
-//delete the last experiment and insert the new one
+// Insert new experiment
 async function insertExperiment(experiment) {
   const db = await makeDb()
   let result = null
@@ -16,6 +16,20 @@ async function insertExperiment(experiment) {
     return true
   }
 }
+
+//TODO: return experiments by list of ids
+async function getExperimentsByIds(expsIds) {
+  const db = await makeDb()
+  let result = null
+  try {
+    
+  }
+  catch (e) {
+    throw e
+  }
+  return result
+}
+
 
 async function getExperimentById(expId) {
   const db = await makeDb()
@@ -135,7 +149,7 @@ module.exports = {
   insertExperiment: insertExperiment,
   insertParticipantToExp: insertParticipantToExp,
   getExperimentById: getExperimentById,
-  getExperiments: getExperiments,
+  getExperimentsByIds: getExperimentsByIds,
   getExperimentByCode: getExperimentByCode,
   deleteAllExperiments: deleteAllExperiments
 }

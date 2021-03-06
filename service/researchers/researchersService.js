@@ -15,9 +15,8 @@ async function activateNewExperiment(reqExpObj){
 /**
  * get all researcher's experiments
  */
-// TODO: Send the user's cookie as a parameter
-async function getExperiments(){
-    return await experiments.getExperiments(experiments_ids)
+async function getExperimentsByIds(experimentsIds){
+    return await experiments.getExperiments(experimentsIds)
 }
 
 /**
@@ -44,7 +43,7 @@ async function createExperimentReport(expId){
 }
 
 exports.activateNewExperiment = activateNewExperiment
-exports.getExperiments = getExperiments
+exports.getExperimentsByIds = getExperimentsByIds
 exports.createExperimentReport = createExperimentReport
 exports.getResearcher = getResearcher
 exports.registerResearcher = registerResearcher

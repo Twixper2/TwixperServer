@@ -1,12 +1,16 @@
 var makeDb = require("./DBConnector.js").makeDb
 
-async function addResearcher(id) {
+//TODO: add experiment ID to the list of exp's in researcher
+async function addExperimentId(expId){
+
+}
+
+async function addResearcher(researcher) {
     const db = await makeDb()
     let result = null
     try {
       let collection = db.collection("Researchers")
-      const doc = { researcher_id: id };
-      result = await collection.insertOne(doc);
+      result = await collection.insertOne(researcher);
     }
     catch (e) {
       throw e
@@ -30,6 +34,7 @@ async function getResearcher(id) {
     return result
   }
 
+  //return the experiments id's of the researcher
   async function getResearcherExperiments(id) {
     const db = await makeDb()
     let result = null
@@ -51,6 +56,7 @@ async function getResearcher(id) {
 module.exports = {
     getResearcher: getResearcher,
     getResearcherExperiments: getResearcherExperiments,
-    addResearcher: addResearcher
+    addResearcher: addResearcher,
+    addExperimentId: addExperimentId
 
 }
