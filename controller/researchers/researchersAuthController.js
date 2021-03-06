@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
+const researcherService = require('../../service/researchers/researchersService')
 
 /**
  * Verify the id_token, check if the researcher already in database. If so, give him cookie.
@@ -15,15 +16,17 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
     try {
         
         //verify real google user
-        const researcherId = await verifyGoogleUser(id_token) //store this id as key in user record
-        if (!researcherId) {
-            res.sendStatus(401); // not a google user
+        const idTokenData = await verifyGoogleUser(id_token)
+        const researcherId = idTokenData.userId  //store this id as key in user record
+        const appKey = idTokenData.appClientId
+        if (!researcherId || appKey != process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB ) {
+            res.sendStatus(401); // not a google user or id token not for our app
         }
 
         // checking if already registered, if yes, give cookie and thats it
-        let researcher = await researcherService.getResearcher(id_token)
+        let researcher = await researcherService.getResearcher(researcherId)
         if (researcher) {
-            req.session.id_token = id_token
+            req.session.researcherId = researcherId
             res.sendStatus(200)
             return
         }
@@ -31,7 +34,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         // new user, register him and give cookie
         let addedResearcher = await researcherService.registerResearcher(researcherId)
         if (addedResearcher) {
-            req.session.id_token = id_token
+            req.session.researcherId = researcherId
             res.sendStatus(200)
             return
         }
@@ -52,8 +55,12 @@ async function verifyGoogleUser(token) {
         audience: process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB,  // Specify the CLIENT_ID of the app that accesses the backend
     });
     const payload = ticket.getPayload();
-    const userid = payload['sub']; //this is the key we will be using to identify the researcher
-    return userid
+    const userId = payload['sub']; //this is the key we will be using to identify the researcher
+    const appClientId = payload['aud'] // this should be our app key
+    return {
+            "userId" : userId,
+            "appClientId" : appClientId
+        }
 }
 
 module.exports = router;
