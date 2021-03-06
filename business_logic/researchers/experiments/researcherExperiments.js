@@ -2,7 +2,7 @@ const dbComm = require("../../db/DBCommunicator")
 const idGenerator = require("../../utils/UUIDGenerator") 
 
 async function activateNewExperiment(expObj){
-    // Add more fields
+    // Add more fields - add researchers fields to exp and exp fields to researchers (this is with function that adds expid to researcher)
     expObj.status = "active"
     expObj.start_date = new Date()
     expObj.num_of_participants = 0

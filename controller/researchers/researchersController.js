@@ -10,8 +10,8 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   if (req.session.id_token) {
-    const token = req.session.id_token;
-    const researcher = await database.getResearcher(token);
+    const researcherId = req.session.researcherId;
+    const researcher = await database.getResearcher(researcherId);
 
     if (researcher) {
         req.researcher = researcher; //every method has the user now
@@ -35,7 +35,7 @@ router.post("/activateNewExperiment", async (req, res, next) => {
     res.sendStatus(400); // Bad request
   }
   try{
-    const expCode = await researchersService.activateNewExperiment(experiment)
+    const expCode = await researchersService.activateNewExperiment(experiment, req.researcher)
     res.status(201).send({exp_code: expCode})
   }
   catch(e){
