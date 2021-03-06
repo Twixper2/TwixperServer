@@ -9,7 +9,7 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   and append user data from db to req
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.session.id_token) {
+  if (req.session.researcherId) {
     const researcherId = req.session.researcherId;
     const researcher = await database.getResearcher(researcherId);
 
