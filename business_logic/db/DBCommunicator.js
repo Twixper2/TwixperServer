@@ -27,7 +27,7 @@ async function getParticipantByToken(token){
 }
 
 async function updateParticipantTokens(tId, token, token_secret){
-    // TODO
+    return await participantsCollection.updateParticipantTokens(tId,token,token_secret);
 }
 
 
@@ -42,10 +42,10 @@ async function insertAction(action){
 /*
     _____ Researchers _____
 */
-// For Hackathon, remove after it finishes.
-// Returns all the experiments in the db.
-async function getExperiments(){
-    return await experimentsCollection.getExperiments();
+
+// Returns the experiments in the db by ids.
+async function getExperimentsByIds(experimentIds){
+    return await experimentsCollection.getExperimentsByIds(experimentIds);
 }
 
 async function getActionsOfExperiment(expId){
@@ -53,25 +53,29 @@ async function getActionsOfExperiment(expId){
 }
 
 async function getResearcher(id) {
-    //TODO
+    return await researchersCollection.getResearcher(id);
+  }
+
+async function addResearcher(researcher) {
+    return await researchersCollection.addResearcher(researcher);
 }
 
-async function addResearcher(id) {
-    //TODO
+async function addExperimentIdToResearcher(resId, expId){
+    return await researchersCollection.addExperimentId(resId, expId);
 }
 
 async function getResearcherExperiments(researcherId){
-    //TODO
+    return await researchersCollection.getResearcherExperiments(researcherId);
 }
 
 async function insertExperiment (experiment){
 
-    /** wipe the whole db- for testing */
-    await actionsCollection.deleteActions();
-    await participantsCollection.deleteParticipants();
-    // await researchersCollection.deleteResearchers();
-    // await tweetsCollection.deleteTweets();
-    await experimentsCollection.deleteAllExperiments()
+    // /** wipe the whole db- for testing */
+    // await actionsCollection.deleteActions();
+    // await participantsCollection.deleteParticipants();
+    // // await researchersCollection.deleteResearchers();
+    // // await tweetsCollection.deleteTweets();
+    // await experimentsCollection.deleteAllExperiments()
 
     return await experimentsCollection.insertExperiment(experiment);
     
@@ -106,12 +110,14 @@ module.exports = {
     getParticipantByToken:getParticipantByToken,
     insertAction: insertAction,
     insertExperiment : insertExperiment,
-    getExperiments: getExperiments,
+    getExperimentsByIds: getExperimentsByIds,
     getActionsOfExperiment: getActionsOfExperiment,
     getResearcherExperiments: getResearcherExperiments,
+    addExperimentIdToResearcher: addExperimentIdToResearcher,
     getExperimentById: getExperimentById,
     isExperimentExists: isExperimentExists,
     getResearcher : getResearcher,
-    addResearcher : addResearcher
+    addResearcher : addResearcher,
+    updateParticipantTokens: updateParticipantTokens
 }
 
