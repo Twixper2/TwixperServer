@@ -60,8 +60,8 @@ async function addResearcher(researcher) {
     return await researchersCollection.addResearcher(researcher);
 }
 
-async function addExperimentIdToResearcher(expId){
-    return await researchersCollection.addExperimentId(expId);
+async function addExperimentIdToResearcher(resId, expId){
+    return await researchersCollection.addExperimentId(resId, expId);
 }
 
 async function getResearcherExperiments(researcherId){

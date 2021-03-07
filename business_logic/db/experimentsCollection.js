@@ -17,12 +17,12 @@ async function insertExperiment(experiment) {
   }
 }
 
-//TODO: return experiments by list of ids
 async function getExperimentsByIds(expsIds) {
   const db = await makeDb()
   let result = null
   try {
-    
+    let collection = db.collection("Experiments")
+    result = await collection.find( { exp_id: { $in:expsIds} } )
   }
   catch (e) {
     throw e
@@ -37,8 +37,6 @@ async function getExperimentById(expId) {
   try {
     let collection = db.collection("Experiments")
     result = await collection.findOne({ exp_id: expId })
-    // result = await result.toArray()
-    // result = result[0]
   }
   catch (e) {
     throw e
@@ -81,41 +79,34 @@ async function insertParticipantToExp(expId, participant) {
   let p_id_str = participant.participant_twitter_id_str
   let groupId = participant.group_id;
 
-  let exp = await getExperimentById(expId)
-  if (exp == null) { return false; }
-
-  exp.num_of_participants++
-  let groups = exp.exp_groups;
-  for (let i = 0; i < groups.length; i++) {
-    const group = groups[i]
-    if (group.group_id == groupId) {
-      group.group_participants.push(
-        {
-          "participant_twitter_username": username,
-          "participant_twitter_id_str": p_id_str,
-        });
-      group.group_num_of_participants++;
-    }
-  }
-
-  var jsonData = {};
-  jsonData["participant_twitter_username"] = username;
-  jsonData["participant_twitter_id_str"] = p_id_str;
-  console.log(jsonData)
-  const db = makeDb()
-  let result = null
-  // TODO DEKEL: Update instead of insert and delete
   try{
+    const db = makeDb()
+    let result = null
     let collection = db.collection("Experiments")
-    console.log(collection.exp_groups)
-    result =  collection.insertOne(
-      { exp_id: expId},
-      { $set:
+    var jsonData = {
+      "participant_twitter_username": username,
+      "participant_twitter_id_str": p_id_str
+    }
+    result = collection.updateOne(
+      { exp_id: expId },
+      { $inc: { num_of_participants: 1, } }
+    )
+    //we might do this update and the last update in one update but i dont want to take the risk
+    result = collection.updateOne(
+      { exp_id: expId, "exp_groups.group_id": groupId },
+      { $inc: { "exp_groups.$.group_num_of_participants": 1 } }
+    )
+    let resulte = null
+
+    resulte = collection.updateOne(
+      { exp_id: "1546515611", "exp_groups.group_id": groupId },
+      {
+        "$push":
         {
-          "exp_groups.group_participants": jsonData
+          "exp_groups.$.group_participants": jsonData
         }
       }
-   )
+    )
   }
   catch (e) {
     console.log(e)
