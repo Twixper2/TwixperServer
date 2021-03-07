@@ -4,15 +4,16 @@ const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB);
 const researcherService = require('../../service/researchers/researchersService')
 
-router.post("/rCheckSession", async (req, res, next) => {
+router.post("/researcherValidateSession", async (req, res, next) => {
     if (req.session && req.session.researcherId) {
         const researcherId = req.session.researcherId;
         const researcher = await database.getResearcher(researcherId);
         if (researcher) {
-            return true
+            res.json( { "hasSession" : true } );
+            return
         }
     }
-    return false
+    res.json( { "hasSession" : false } );
 });
 
 /**
