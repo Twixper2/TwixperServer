@@ -21,7 +21,7 @@ router.use(async function (req, res, next) {
     }
   }
   else {
-      res.sendStatus(401); //user authentication failed, responde with unautorized
+    res.sendStatus(401); //user authentication failed, responde with unautorized
   }
 });
 

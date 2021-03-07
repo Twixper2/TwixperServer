@@ -65,7 +65,10 @@ async function updateParticipantTokens(tId,token,token_secret) {
     catch(e){
         throw(e)
     }
-    return result
+    if(result != null){
+        return true
+    }
+    return false
 }
 
 async function deleteParticipants() {

@@ -111,6 +111,7 @@ router.post("/registerToExperiment", async (req, res, next) => {
     }
     catch (e) {
       // if it is an error with message, we respond with the eror object containing "name" and "message" keys
+      console.log(e)
       if (e.message) { 
         res.status(400).json(e);
         return;

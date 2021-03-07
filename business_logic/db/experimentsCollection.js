@@ -10,11 +10,12 @@ async function insertExperiment(experiment) {
     result = await collection.insertOne(experiment);
   }
   catch (e) {
-    return false
+    throw e
   }
   if (result) {
     return true
   }
+  return false
 }
 
 async function getExperimentsByIds(expsIds) {
@@ -22,7 +23,7 @@ async function getExperimentsByIds(expsIds) {
   let result = null
   try {
     let collection = db.collection("Experiments")
-    result = await collection.find( { exp_id: { $in:expsIds} } )
+    result = await collection.find( { exp_id: { $in:expsIds} } ).toArray()
   }
   catch (e) {
     throw e
@@ -79,9 +80,9 @@ async function insertParticipantToExp(expId, participant) {
   let p_id_str = participant.participant_twitter_id_str
   let groupId = participant.group_id;
 
+  let result = null
   try{
-    const db = makeDb()
-    let result = null
+    const db = await makeDb()
     let collection = db.collection("Experiments")
     var jsonData = {
       "participant_twitter_username": username,

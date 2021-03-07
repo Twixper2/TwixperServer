@@ -34,7 +34,7 @@ async function activateNewExperiment(expObj, researcherId){
     // adding exp to db and adding expId to researcher
     const isSuccessfulInsert = await dbComm.insertExperiment(expObj)
     if(isSuccessfulInsert === true){
-        const isExperimentAdded = await dbComm.addExperimentIdToResearcher(expObj.exp_id, researcherId) // TODO make sure the correct order of inputs 
+        const isExperimentAdded = await dbComm.addExperimentIdToResearcher(researcherId, expObj.exp_id) // TODO make sure the correct order of inputs 
         if (isExperimentAdded === true) {
             return expObj.exp_code
         }
@@ -47,6 +47,9 @@ async function activateNewExperiment(expObj, researcherId){
 }
 
 async function getExperiments(experimentsIds){
+    if(experimentsIds.length == 0){
+        return []
+    }
     experiments = []
     experiments = dbComm.getExperimentsByIds(experimentsIds)
     if(experiments != null){

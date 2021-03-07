@@ -55,6 +55,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         }
     }
     catch (e) { //network failed somewhere
+        console.log(e)
         res.sendStatus(500)
     }
 });
