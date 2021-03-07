@@ -87,19 +87,17 @@ async function insertParticipantToExp(expId, participant) {
       "participant_twitter_username": username,
       "participant_twitter_id_str": p_id_str
     }
-    result = collection.updateOne(
+    result = await collection.updateOne(
       { exp_id: expId },
       { $inc: { num_of_participants: 1, } }
     )
     //we might do this update and the last update in one update but i dont want to take the risk
-    result = collection.updateOne(
+    result = await collection.updateOne(
       { exp_id: expId, "exp_groups.group_id": groupId },
       { $inc: { "exp_groups.$.group_num_of_participants": 1 } }
     )
-    let resulte = null
-
-    resulte = collection.updateOne(
-      { exp_id: "1546515611", "exp_groups.group_id": groupId },
+    result = await collection.updateOne(
+      { exp_id: expId, "exp_groups.group_id": groupId },
       {
         "$push":
         {
