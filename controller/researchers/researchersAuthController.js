@@ -4,6 +4,18 @@ const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB);
 const researcherService = require('../../service/researchers/researchersService')
 
+router.post("/researcherValidateSession", async (req, res, next) => {
+    if (req.session && req.session.researcherId) {
+        const researcherId = req.session.researcherId;
+        const researcher = await database.getResearcher(researcherId);
+        if (researcher) {
+            res.json( { "hasSession" : true } );
+            return
+        }
+    }
+    res.json( { "hasSession" : false } );
+});
+
 /**
  * Verify the id_token, check if the researcher already in database. If so, give him cookie.
  * If not, create new researcher and give him cookie
