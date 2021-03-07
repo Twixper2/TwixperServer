@@ -4,14 +4,13 @@ const researchersService = require("../../service/researchers/researchersService
 const database = require("../../business_logic/db/DBCommunicator.js")
 
 
-// access control , checking google auth.
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.session.id_token) {
-    const token = req.session.id_token;
-    const researcher = await database.getResearcher(token);
+  if (req.session && req.session.researcherId) {
+    const researcherId = req.session.researcherId;
+    const researcher = await database.getResearcher(researcherId);
 
     if (researcher) {
         req.researcher = researcher; //every method has the user now
@@ -30,12 +29,13 @@ router.use(async function (req, res, next) {
 router.post("/activateNewExperiment", async (req, res, next) => {
   // Checking for required fields
   let reqBody = req.body
+  let researcherId = req.researcher.researcher_id
   let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
   if(!researchersService.validateExpFields(experiment)){
     res.sendStatus(400); // Bad request
   }
   try{
-    const expCode = await researchersService.activateNewExperiment(experiment)
+    const expCode = await researchersService.activateNewExperiment(experiment, researcherId)
     res.status(201).send({exp_code: expCode})
   }
   catch(e){
@@ -48,9 +48,9 @@ router.post("/activateNewExperiment", async (req, res, next) => {
 // Get all the researcher's experiments 
 router.get("/myExperiments", async (req, res, next) => {
   const researcher = req.researcher
-  const experiments = researcher.experiments_ids
+  const experimentsIds = researcher.experiments_ids
   try{
-    const experiments = await researchersService.getExperiments(experiments) 
+    const experiments = await researchersService.getExperimentsByIds(experimentsIds) 
     res.send(experiments)
   }
   catch(e){

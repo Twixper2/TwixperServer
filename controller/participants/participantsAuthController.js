@@ -4,6 +4,20 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
+
+router.post("/participantValidateSession", async (req, res, next) => {
+  if (req.session && req.session.userTwitterToken) {
+    const token = req.session.userTwitterToken;
+    const participant = await database.getParticipantByToken(token);
+    if (participant) {
+      res.json( { "hasSession" : true } );
+      return
+    }
+  }
+  res.json( { "hasSession" : false } );
+});
+
+
 // if { twitter_user_found : true, user_registered_to_experiment : true }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
 // if { twitter_user_found : true, user_registered_to_experiment : false } give cookies (regular new user registration)
 // if { twitter_user_found : false } do nothing, respond code 400
