@@ -70,12 +70,12 @@ async function getResearcherExperiments(researcherId){
 
 async function insertExperiment (experiment){
 
-    /** wipe the whole db- for testing */
-    await actionsCollection.deleteActions();
-    await participantsCollection.deleteParticipants();
-    // await researchersCollection.deleteResearchers();
-    // await tweetsCollection.deleteTweets();
-    await experimentsCollection.deleteAllExperiments()
+    // /** wipe the whole db- for testing */
+    // await actionsCollection.deleteActions();
+    // await participantsCollection.deleteParticipants();
+    // // await researchersCollection.deleteResearchers();
+    // // await tweetsCollection.deleteTweets();
+    // await experimentsCollection.deleteAllExperiments()
 
     return await experimentsCollection.insertExperiment(experiment);
     
