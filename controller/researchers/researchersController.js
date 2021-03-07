@@ -48,9 +48,9 @@ router.post("/activateNewExperiment", async (req, res, next) => {
 // Get all the researcher's experiments 
 router.get("/myExperiments", async (req, res, next) => {
   const researcher = req.researcher
-  const experiments = researcher.experiments_ids
+  const experimentsIds = researcher.experiments_ids
   try{
-    const experiments = await researchersService.getExperiments(experiments) 
+    const experiments = await researchersService.getExperimentsByIds(experimentsIds) 
     res.send(experiments)
   }
   catch(e){
