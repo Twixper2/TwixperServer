@@ -8,13 +8,21 @@ const participantsService = require("../../service/participants/participantsServ
 router.post("/participantValidateSession", async (req, res, next) => {
   if (req.session && req.session.userTwitterToken) {
     const token = req.session.userTwitterToken;
-    const participant = await database.getParticipantByToken(token);
-    if (participant) {
-      res.json( { "hasSession" : true } );
-      return
+    try{
+      const participant = await database.getParticipantByToken(token);
+      if (participant) {
+        res.json( { "hasSession" : true } );
+        return
+      }
+    }
+    catch(e) {
+      console.log(e)
+      res.sendStatus(500);
     }
   }
-  res.json( { "hasSession" : false } );
+  else{
+    res.json( { "hasSession" : false } );  
+  }
 });
 
 
