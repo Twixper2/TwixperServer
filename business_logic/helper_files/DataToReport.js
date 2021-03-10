@@ -145,7 +145,7 @@ exports.report = {
         // The other fields varies for each action type.
         // The possible action types:
         [
-            //"first_login",
+            "registered to experiment",
             "login",
             "logout",
             "view tweet", // Passively saw a tweet, in feed or in other tab (for example in public user's timleine) 

@@ -1,6 +1,8 @@
 const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const database = require("../../db/DBCommunicator.js");
 const groupSelector = require("../participant_auth_utils/groupSelector")
+const participantActionsOnTwitter =  require("../participant_actions/participantActionsOnTwitter");
+
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
  * @param {*} userTwitterToken 
@@ -51,6 +53,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
     
     const successRegister = await database.insertParticipant(praticipant)
     if(successRegister){
+        // Log the registration to actions log of the experiment
+        participantActionsOnTwitter.logRegisteredToExperiment(praticipant)
         return praticipant
     }
     return null
