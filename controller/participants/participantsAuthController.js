@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
-const { data } = require("../../business_logic/twitter_communicator/static_twitter_data/FeedJSON.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
 
@@ -12,6 +11,10 @@ router.post("/participantValidateSession", async (req, res, next) => {
       const participant = await database.getParticipantByToken(token);
       if (participant) {
         res.json( { "hasSession" : true } );
+        return
+      }
+      else{
+        res.json( { "hasSession" : false } );  
         return
       }
     }

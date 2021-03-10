@@ -3,6 +3,8 @@ var router = express.Router();
 const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID_RESEARCHER_WEB);
 const researcherService = require('../../service/researchers/researchersService')
+const database = require("../../business_logic/db/DBCommunicator.js");
+
 
 router.post("/researcherValidateSession", async (req, res, next) => {
     if (req.session && req.session.researcherId) {
