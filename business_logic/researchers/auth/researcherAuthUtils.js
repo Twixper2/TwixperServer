@@ -10,7 +10,7 @@ async function registerResearcher(id) {
         "researcher_id" : id,
         "experiments_ids": [],
     }
-    await database.addResearcher(researcher)
+    return await database.addResearcher(researcher)
 }
 
 module.exports = {

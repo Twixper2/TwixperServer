@@ -2,6 +2,7 @@ var makeDb = require("./DBConnector.js").makeDb
 
 
 async function addExperimentId(resId, expId) {
+  const db = await makeDb()
   let result = null
   try {
     let collection = db.collection("Researchers")
@@ -12,7 +13,10 @@ async function addExperimentId(resId, expId) {
   catch (e) {
     throw e
   }
-  return result
+  if(result != null){
+    return true
+  }
+  return false
 }
 
 async function addResearcher(researcher) {
@@ -25,7 +29,10 @@ async function addResearcher(researcher) {
   catch (e) {
     throw e
   }
-  return result
+  if(result != null){
+    return true
+  }
+  return false
 }
 
 

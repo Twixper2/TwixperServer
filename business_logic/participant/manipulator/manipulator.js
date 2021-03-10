@@ -20,7 +20,7 @@ function manipulateTweets(manipulations, tweets, participantUsername){
 
 function muteTweets(muteManipulation, tweets, participantUsername){
     const usersToMute = muteManipulation.users
-    const keywordsToMute = muteManipulation.keywords
+    const keywordsToMute = prepareKeywords(muteManipulation.keywords)
     
     /*
     "entities":{
@@ -140,6 +140,17 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
     }
 
     return false
+}
+
+function prepareKeywords(keywords){
+    // Removes first '#' if exists
+    for (let i = 0; i < keywords.length; i++) {
+        const keyword = keywords[i];
+        if(keyword[0] == '#'){
+            keywords[i] = keyword.substring(1)
+        }
+    }
+    return keywords
 }
 
 function isUserMentioned(userMentioned, username){

@@ -8,13 +8,21 @@ const participantsService = require("../../service/participants/participantsServ
 router.post("/participantValidateSession", async (req, res, next) => {
   if (req.session && req.session.userTwitterToken) {
     const token = req.session.userTwitterToken;
-    const participant = await database.getParticipantByToken(token);
-    if (participant) {
-      res.json( { "hasSession" : true } );
-      return
+    try{
+      const participant = await database.getParticipantByToken(token);
+      if (participant) {
+        res.json( { "hasSession" : true } );
+        return
+      }
+    }
+    catch(e) {
+      console.log(e)
+      res.sendStatus(500);
     }
   }
-  res.json( { "hasSession" : false } );
+  else{
+    res.json( { "hasSession" : false } );  
+  }
 });
 
 
@@ -111,6 +119,7 @@ router.post("/registerToExperiment", async (req, res, next) => {
     }
     catch (e) {
       // if it is an error with message, we respond with the eror object containing "name" and "message" keys
+      console.log(e)
       if (e.message) { 
         res.status(400).json(e);
         return;

@@ -7,13 +7,21 @@ const researcherService = require('../../service/researchers/researchersService'
 router.post("/researcherValidateSession", async (req, res, next) => {
     if (req.session && req.session.researcherId) {
         const researcherId = req.session.researcherId;
-        const researcher = await database.getResearcher(researcherId);
-        if (researcher) {
-            res.json( { "hasSession" : true } );
-            return
+        try{
+            const researcher = await database.getResearcher(researcherId);
+            if (researcher) {
+                res.json( { "hasSession" : true } );
+                return
+            }
+        }
+        catch(e) {
+            console.log(e)
+            res.sendStatus(500);
         }
     }
-    res.json( { "hasSession" : false } );
+    else{
+        res.json( { "hasSession" : false } );
+    }
 });
 
 /**
@@ -55,6 +63,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         }
     }
     catch (e) { //network failed somewhere
+        console.log(e)
         res.sendStatus(500)
     }
 });
