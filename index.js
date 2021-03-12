@@ -7,6 +7,7 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 // var cookieParser = require('cookie-parser');
 const session = require("client-sessions");
+const localFileManager = require("./business_logic/db/local_files/localFileManager")
 
 
 var app = express();
@@ -74,5 +75,7 @@ const port = process.env.PORT;
 const hostname = process.env.HOSTNAME;
 
 const server = app.listen(port, hostname, () => {
+  // Setting up the file manager
+  localFileManager.setupFileManager()
   console.log(`Server running at http://${hostname}:${port}/`);
 });

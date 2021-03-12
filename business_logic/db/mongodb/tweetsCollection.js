@@ -1,3 +1,7 @@
+/* 
+    We don't need this file
+*/
+
 var makeDb = require("./DBConnector.js").makeDb
 
 // TODO DEKEL: Make a fucntion that receieves expId and array of tweets,

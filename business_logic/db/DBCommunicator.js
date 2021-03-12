@@ -1,11 +1,10 @@
 require("dotenv").config();
 
-var experimentsCollection = require("./experimentsCollection")
-var participantsCollection = require("./participantsCollection")
-var researchersCollection = require("./researchersCollection")
-var tweetsCollection = require("./tweetsCollection")
-var actionsCollection = require("./actionsCollection")
+var experimentsCollection = require("./mongodb/experimentsCollection")
+var participantsCollection = require("./mongodb/participantsCollection")
+var researchersCollection = require("./mongodb/researchersCollection")
 
+var localFileManager = require("./local_files/localFileManager")
 
 
 /*
@@ -35,7 +34,7 @@ async function updateParticipantTokens(tId, token, token_secret){
     _____ ACTIONS _____
 */
 async function insertAction(action){
-    await actionsCollection.insertAction(action); //TODO
+    await localFileManager.insertAction(action); //TODO
 }
 
 
