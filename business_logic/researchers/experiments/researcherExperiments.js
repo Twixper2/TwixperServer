@@ -1,10 +1,14 @@
 const dbComm = require("../../db/DBCommunicator")
 const idGenerator = require("../../utils/UUIDGenerator") 
+const config = require('../../../config')
+
+var moment = require('moment');
+const dateFormat = config.dateFormat
 
 async function activateNewExperiment(expObj, researcherId){
     // adding all fields to experiment object
     expObj.status = "active"
-    expObj.start_date = new Date()
+    expObj.start_date = moment().format(dateFormat);
     expObj.num_of_participants = 0
     let groupIdIndex = 11
     let expGroups = expObj.exp_groups

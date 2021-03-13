@@ -30,17 +30,6 @@ async function requestToken(oathCallback){
 async function accessToken(token, verifier){   
     const requestUrl = "https://api.twitter.com/oauth/access_token?oauth_token=" + token + "&oauth_verifier=" + verifier
     return await sendPostRequestReturnResponse(requestUrl, {}, {})
-
-    // const requestData = {
-    //     url: 'https://api.twitter.com/oauth/access_token',
-    //     method: 'POST',
-    //     data: { 
-    //         oauth_token: token,
-    //         oauth_verifier: verifier
-    //     },
-    // }
-    // const authHeader = oauth1Helper.getAuthHeaderForRequest(requestData);
-    // return await sendPostRequestReturnResponse(requestData.url, authHeader, {})
 }
 
 

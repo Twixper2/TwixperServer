@@ -42,10 +42,10 @@ function insertAction(expId, action){
     const folderPath = experimentsDataPath + "\\" + expId + "\\"
     const docName = Date.now() + ".json" // Current timestamp
     // Make a file that contains the action, and places it under the relevent exp's folder.
-    data = JSON.stringify(action, null, 4)
+    data = JSON.stringify(action, null, "\t")
     fs.writeFile(folderPath + docName, data, (err) => {
         if (err){
-            console.log(error)
+            console.log(err)
         }
     });
 }
@@ -57,7 +57,7 @@ function insertAction(expId, action){
 function insertActionsArray(expId, actionsArr){
     const folderPath = experimentsDataPath + "\\" + expId + "\\"
     const docName = "arr_" + Date.now() + ".json" // indicating that this is array of objects, and current timestamp
-    data = JSON.stringify(actionsArr, null, 4)
+    data = JSON.stringify(actionsArr, null, "\t")
     fs.writeFile(folderPath + docName, data, (err) => {
         if (err){
             console.log(error)

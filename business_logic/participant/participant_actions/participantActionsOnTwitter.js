@@ -1,5 +1,9 @@
 const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const database = require("../../db/DBCommunicator")
+const config = require('../../../config')
+
+var moment = require('moment');
+const dateFormat = config.dateFormat
 
 /* _____ Make and save every user action _____ */
 
@@ -7,7 +11,8 @@ async function likeTweet(participant, tweetId){
     let likeSuccess = await twitterComm.likeTweet(participant, tweetId) 
 
     //create the action obj and add to db for report
-    let action = createActionObj(participant, "like", new Date())
+    const actionDate = moment().format(dateFormat);
+    let action = createActionObj(participant, "like", actionDate)
     action['tweet_obj'] = JSON.stringify(likeSuccess) // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
@@ -19,7 +24,8 @@ async function unlikeTweet(participant, tweetId){
     let unlikeSuccess = await twitterComm.unlikeTweet(participant, tweetId)
 
     //create the action obj and add to db for report
-    let action = createActionObj(participant, "unlike", new Date())
+    const actionDate = moment().format(dateFormat);
+    let action = createActionObj(participant, "unlike", actionDate)
     action['tweet_obj'] = JSON.stringify(unlikeSuccess) // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
@@ -31,7 +37,8 @@ async function publishTweet(participant, tweetParams){
     let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
 
     //create the action obj and add to db for report
-    let action = createActionObj(participant, "tweeted", new Date())
+    const actionDate = moment().format(dateFormat);
+    let action = createActionObj(participant, "tweeted", actionDate)
     action['tweet_obj'] = JSON.stringify(publishTweetSuccess) // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
@@ -46,8 +53,9 @@ async function publishTweet(participant, tweetParams){
 
 async function logRegisteredToExperiment(participant){
     //create the action obj and add to db for report
-    let action = createActionObj(participant, "registered to experiment", new Date())
-    database.insertAction(action) // not await
+    const actionDate = moment().format(dateFormat);
+    let action = createActionObj(participant, "registered to experiment", actionDate)
+    database.insertAction(participant.exp_id, action) // not await
 }
 
 
