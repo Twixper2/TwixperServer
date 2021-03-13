@@ -4,7 +4,7 @@ var watch = require('watch')
 // https://github.com/mikeal/watch
 
 const rootPath = process.env.FS_ROOT_FOLDER
-const experimentsDataPath = process.env.EXPERIMENTS_DATA
+const experimentsDataPath = process.env.FS_EXPERIMENTS_DATA_FOLDER
 const reportsPath = process.env.FS_REPORTS_FOLDER
 const requestsPath = process.env.FS_REPORTS_REQUESTS_FOLDER
 const tempPath = process.env.FS_REPORTS_TEMP_FOLDER
@@ -24,24 +24,45 @@ function setupFileManager(){
     })
 }
 
+function createExperimentFolder(expId){
+    const folderPath = experimentsDataPath + "\\" + expId
+    fs.mkdir(folderPath, (err) => {
+        if (err){
+            console.log(error)
+            throw err;
+        }
+    });
+}
+
 /**
  * Creates a file that contains the action, and places it under the relevent exp's folder.
- * If the exp's folder not exists under "experimentsDataPath", creates it
  * @param {Object} action 
  */
-function insertAction(action){
-    const expId = action.exp_id
-    // TODO: make a file that contains the action, and places it under the relevent exp's folder.
-    // If the exp's folder not exists under "experimentsDataPath", create it.
+function insertAction(expId, action){
+    const folderPath = experimentsDataPath + "\\" + expId + "\\"
+    const docName = Date.now() + ".json" // Current timestamp
+    // Make a file that contains the action, and places it under the relevent exp's folder.
+    data = JSON.stringify(action, null, 4)
+    fs.writeFile(folderPath + docName, data, (err) => {
+        if (err){
+            console.log(error)
+        }
+    });
 }
 
 /**
  * Creates a file that contains the actions, and places it under the relevent exp's folder.
- * If the exp's folder not exists under "experimentsDataPath", creates it
  * @param {Array} actionsArr 
  */
-function insertActionsArray(actionsArr){
-    const expId = actionsArr[0].exp_id
+function insertActionsArray(expId, actionsArr){
+    const folderPath = experimentsDataPath + "\\" + expId + "\\"
+    const docName = "arr_" + Date.now() + ".json" // indicating that this is array of objects, and current timestamp
+    data = JSON.stringify(actionsArr, null, 4)
+    fs.writeFile(folderPath + docName, data, (err) => {
+        if (err){
+            console.log(error)
+        }
+    });
 }
 
 /**
@@ -77,6 +98,7 @@ function checkForReportOutput(expId){
 
 module.exports = {
     setupFileManager: setupFileManager,
+    createExperimentFolder: createExperimentFolder,
     insertAction, insertAction,
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,

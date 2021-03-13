@@ -3,6 +3,47 @@ var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
+router.post("/twitterAuthRequestToken", async (req, res, next) => {
+  const params = req.body
+  if(!params || !params.oauth_callback){
+    res.status(400).send("No params suplied.")
+    return
+  }
+  try{
+    const oauthTokens = await participantsService.getTwitterRequestToken(params.oauth_callback)
+    res.send(oauthTokens)
+  }
+  catch(e){
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+})
+
+router.post("/twitterAuthAccessToken", async (req, res, next) => {
+  const params = req.body
+  if(!params || !params.oauth_token || !params.oauth_verifier){
+    res.status(400).send("No params suplied.")
+    return
+  }
+  try{
+    const oauthTokens = await participantsService.getTwitterAccesssToken(params.oauth_token, params.oauth_verifier)
+    res.send(oauthTokens)
+  }
+  catch(e){
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+})
 
 router.post("/participantValidateSession", async (req, res, next) => {
   if (req.session && req.session.userTwitterToken) {

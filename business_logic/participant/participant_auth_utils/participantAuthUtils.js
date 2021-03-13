@@ -3,6 +3,16 @@ const database = require("../../db/DBCommunicator.js");
 const groupSelector = require("../participant_auth_utils/groupSelector")
 const participantActionsOnTwitter =  require("../participant_actions/participantActionsOnTwitter");
 
+async function getTwitterRequestToken(oathCallback){
+    const twitterResponse = await twitterComm.getTwitterRequestToken(oathCallback)
+    return twitterResponse.data
+}
+
+async function getTwitterAccesssToken(token, verifier){
+    const twitterResponse = await twitterComm.getTwitterAccesssToken(token, verifier)
+    return twitterResponse.data
+}
+
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
  * @param {*} userTwitterToken 
@@ -82,5 +92,7 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
     return userData
 }
 
+exports.getTwitterRequestToken = getTwitterRequestToken
+exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.registerParticipant = registerParticipant
 exports.getTwitterUserFromTokens = getTwitterUserFromTokens
