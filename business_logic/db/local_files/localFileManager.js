@@ -83,8 +83,17 @@ function handleCreatedReportRequest(file){
     console.log(file)
     const fileName = path.basename(file, ".txt")
     console.log(fileName)
-    // TODO: Merge the files under the experiment folder.
+
+    // TODO: Merge the files under the experiment folder. to "./temp"
+
+
     // TODO: Call for DBCommunicator to get the experiment's metadata.
+    // get relevant experiment from mongo (dbCommunicaotr), save it as json file 
+    // to "./temp", by name "expID_EMD"
+
+    // TODO: add two files to "./output" folder zipped
+
+
 }
 
 /**
