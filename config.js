@@ -9,4 +9,7 @@ config.returnStaticFeed = false // Real mode: false
 config.makeActionsInTwitter = true // Real mode: true
 config.publishPostInTwitter = true // Real mode: true
 
+// Date formats
+config.dateFormat = "MM/DD/YYYY HH:mm:ss"
+
 module.exports = config;

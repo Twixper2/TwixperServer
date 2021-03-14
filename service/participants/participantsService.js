@@ -82,6 +82,16 @@ async function publishTweet(participant, tweetParams) {
 
 /**_____ Participants auth ______ **/
 
+async function getTwitterRequestToken(oathCallback){
+    let output = await participantAuthUtils.getTwitterRequestToken(oathCallback)
+    return output
+}
+
+async function getTwitterAccesssToken(token, verifier){
+    let output = await participantAuthUtils.getTwitterAccesssToken(token, verifier)
+    return output
+}
+
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
  * @param {*} userTwitterToken 
@@ -105,8 +115,8 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
 
 
 
-
-
+exports.getTwitterRequestToken = getTwitterRequestToken
+exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.getTwitterUserFromTokens = getTwitterUserFromTokens
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets

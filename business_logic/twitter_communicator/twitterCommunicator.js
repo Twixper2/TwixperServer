@@ -5,6 +5,7 @@
 */
 const twitterApiGet = require("./twitter_api_get/twitterApiGet");
 const twitterApiPost = require("./twitter_api_post/twitterApiPost");
+const twitterAxiosRequests = require("./twitter_axios_requests/twitterAxiosRequests")
 
 // var config = require.main.require('./config.js')
 const config = require('../../config.js')
@@ -67,6 +68,19 @@ async function verifyCredentials(userTwitterToken, userTwitterTokenSecret){
     return twitterApiGet.verifyCredentials(T)
 }
 
+async function getTwitterRequestToken(oathCallback){
+    if(!config.realVerifyCredentials){
+        throw "can only work in real mode"
+    }
+    return twitterAxiosRequests.requestToken(oathCallback)
+}
+
+async function getTwitterAccesssToken(token, verifier){
+    if(!config.realVerifyCredentials){
+        throw "can only work in real mode"
+    }
+    return twitterAxiosRequests.accessToken(token, verifier)
+}
 
 
 /* ----------------------------------------
@@ -178,6 +192,8 @@ async function publishTweet(participant, tweetParams){
     return twitterApiPost.publishTweet(T, tweetParams)
 }  
 
+exports.getTwitterRequestToken = getTwitterRequestToken
+exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets

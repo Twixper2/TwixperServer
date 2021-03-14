@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/dekellevy93/TwixperServer#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "client-sessions": "^0.8.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -26,10 +27,13 @@
     "google-auth-library": "^7.0.2",
     "http": "0.0.1-security",
     "json": "^10.0.0",
+    "moment": "^2.29.1",
     "mongodb": "^3.6.2",
     "morgan": "^1.10.0",
+    "oauth-1.0a": "^2.2.6",
     "twit": "^2.2.11",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "watch": "^1.0.2"
   },
   "keywords": []
 }

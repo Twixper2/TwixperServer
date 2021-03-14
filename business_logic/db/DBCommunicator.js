@@ -1,11 +1,10 @@
 require("dotenv").config();
 
-var experimentsCollection = require("./experimentsCollection")
-var participantsCollection = require("./participantsCollection")
-var researchersCollection = require("./researchersCollection")
-var tweetsCollection = require("./tweetsCollection")
-var actionsCollection = require("./actionsCollection")
+var experimentsCollection = require("./mongodb/experimentsCollection")
+var participantsCollection = require("./mongodb/participantsCollection")
+var researchersCollection = require("./mongodb/researchersCollection")
 
+var localFileManager = require("./local_files/localFileManager")
 
 
 /*
@@ -34,8 +33,8 @@ async function updateParticipantTokens(tId, token, token_secret){
 /*
     _____ ACTIONS _____
 */
-async function insertAction(action){
-    await actionsCollection.insertAction(action); //TODO
+function insertAction(expId, action){
+    localFileManager.insertAction(expId, action); 
 }
 
 
@@ -77,8 +76,9 @@ async function insertExperiment (experiment){
     // // await tweetsCollection.deleteTweets();
     // await experimentsCollection.deleteAllExperiments()
 
-    return await experimentsCollection.insertExperiment(experiment);
-    
+    await experimentsCollection.insertExperiment(experiment);
+    await localFileManager.createExperimentFolder(experiment.exp_id);
+    return true
 }
 
 async function getExperimentByCode(expCode){
