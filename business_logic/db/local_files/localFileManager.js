@@ -1,9 +1,12 @@
-import mergeFiles from 'merge-files';
+//import mergeFiles from 'merge-files';
+var mergeFiles = require('merge-files')
+
 var fs = require("fs")
 var path = require("path");
 var watch = require('watch')
 var AdmZip = require('adm-zip');
-const util = require('util');
+const prependFile = require('prepend-file');
+
 
 // https://github.com/mikeal/watch
 
@@ -91,33 +94,55 @@ function createReportRequest(expId){
 /**
  * Creates the experiment report and moves it to Output folder.
  * Uses the "temp" folder for calculations.
+ * assumes all actions are legal jsons but with comma at the end of each action
  * @param {String} file the path to the newly created file in requests  
  */
 async function handleCreatedReportRequest(reportRequestFilePath){
-    console.log(reportRequestFilePath)
-    const fileName = path.basename(file, ".txt") 
+    const fileName = path.basename(reportRequestFilePath, ".txt") 
     const expId = fileName 
-    console.log(fileName)
+    console.log("Creating report for experiment: " + fileName)
     const actionsDirectoryPath = experimentsDataPath + "\\" + expId 
 
+    let actionFileNames = []
     // reading actions names
     // maybe needs to be changed to an implemintation who doesn't require
     // loading all file names to ram (instead, iterating one by one)
     try {
-        let actionFileNames = fs.readdirSync(actionsDirectoryPath)
+        actionFileNames = fs.readdirSync(actionsDirectoryPath)
+        actionFileNames = actionFileNames.map(file => experimentsDataPath + "\\" + expId + "\\" + file) // basenames to full path
     }
     catch (e) {
         console.log(e)
         return false
     }
 
-    // merging
-    const mergedFilePath = tempPath + "\\" + expId + "_A"
-    const mergeStatus = await mergeFiles(actionFileNames, mergedFilePath); // probably should be inside Promise.all with the db call
+    // creating merged file to temp
+    const mergedFilePath = tempPath + "\\" + expId + "_A.json" 
+    let mergeStatus = false
+    try {
+        mergeStatus = await mergeFiles(actionFileNames, mergedFilePath); // probably should be inside Promise.all with the db call
+    }
+    catch(e) {
+        console.log("merge throwed error")
+    }
     if (!mergeStatus) {
         console.log("Unable to merge files from " + actionsDirectoryPath + " to " + mergedFilePath )
         return false
     }
+    // making file a valid json
+    let appendToStart = "{ actions_log: ["
+    let appendToEnd = "] }"
+    try {
+        await prependFile(mergedFilePath, appendToStart)
+        fs.appendFileSync(mergedFilePath, appendToEnd)
+    }
+    catch (e) {
+        console.log("Problem appending/prepending to file")
+        return false
+    }
+
+    console.log("done")
+    
     
     // writing experiment metadata file
     // TODO: Call for DBCommunicator to get the experiment's metadata.
@@ -129,7 +154,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         let zipPath = outputPath + "\\" + expId + ".zip"
         let zip = new AdmZip();
         zip.addLocalFile(mergedFilePath) // adding merged file
-        zip.addLocalFile(tempPath + "\\" + expId + "_EMD") // adding experiment metadata file
+        //zip.addLocalFile(tempPath + "\\" + expId + "_EMD") // adding experiment metadata file
         fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
         try { deleteReportRequest(expId) } catch{console.log("deleting report request failed")} // deleting request
         return zipPath
@@ -137,8 +162,8 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     catch(e) {
         return null
     }
+    return null
 };
-
 
 /**
  * Checks if there is a completed zip report for the exp with the id "expId" under "outputPath".
