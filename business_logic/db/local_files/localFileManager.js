@@ -1,7 +1,13 @@
+import mergeFiles from 'merge-files';
 var fs = require("fs")
 var path = require("path");
 var watch = require('watch')
+var AdmZip = require('adm-zip');
+const util = require('util');
+
 // https://github.com/mikeal/watch
+
+
 
 const rootPath = process.env.FS_ROOT_FOLDER
 const experimentsDataPath = process.env.FS_EXPERIMENTS_DATA_FOLDER
@@ -12,16 +18,17 @@ const outputPath = process.env.FS_REPORTS_OUTPUT_FOLDER
 
 function setupFileManager(){
     // Listening to reports requests in the requests folder
-    const options = {
-        interval: 5
+    const requestPathOptions = {
+        interval: 5 // five seconds
     }
-    watch.createMonitor(requestsPath, options, function (monitor) {
+    watch.createMonitor(requestsPath, requestPathOptions, function (monitor) {
         monitor.on("created", function (file, stat) {
             // Handle new files
             handleCreatedReportRequest(file)
         })
         // monitor.stop(); // Stop watching
     })
+
 }
 
 function createExperimentFolder(expId){
@@ -71,30 +78,67 @@ function insertActionsArray(expId, actionsArr){
  * @param {String} expId 
  */
 function createReportRequest(expId){
-
+    try {
+        let filepath = requestsPath + "\\" + expId + "\\"
+        fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expid as name
+        return true
+    }
+    catch (e) {
+        return false
+    }
 }
 
 /**
  * Creates the experiment report and moves it to Output folder.
  * Uses the "temp" folder for calculations.
- * @param {String} file the path to the newly created file  
+ * @param {String} file the path to the newly created file in requests  
  */
-function handleCreatedReportRequest(file){
-    console.log(file)
-    const fileName = path.basename(file, ".txt")
+async function handleCreatedReportRequest(reportRequestFilePath){
+    console.log(reportRequestFilePath)
+    const fileName = path.basename(file, ".txt") 
+    const expId = fileName 
     console.log(fileName)
+    const actionsDirectoryPath = experimentsDataPath + "\\" + expId 
 
-    // TODO: Merge the files under the experiment folder. to "./temp"
+    // reading actions names
+    // maybe needs to be changed to an implemintation who doesn't require
+    // loading all file names to ram (instead, iterating one by one)
+    try {
+        let actionFileNames = fs.readdirSync(actionsDirectoryPath)
+    }
+    catch (e) {
+        console.log(e)
+        return false
+    }
 
-
+    // merging
+    const mergedFilePath = tempPath + "\\" + expId + "_A"
+    const mergeStatus = await mergeFiles(actionFileNames, mergedFilePath); // probably should be inside Promise.all with the db call
+    if (!mergeStatus) {
+        console.log("Unable to merge files from " + actionsDirectoryPath + " to " + mergedFilePath )
+        return false
+    }
+    
+    // writing experiment metadata file
     // TODO: Call for DBCommunicator to get the experiment's metadata.
     // get relevant experiment from mongo (dbCommunicaotr), save it as json file 
     // to "./temp", by name "expID_EMD"
+    
+    // writing to zip 
+    try {
+        let zipPath = outputPath + "\\" + expId + ".zip"
+        let zip = new AdmZip();
+        zip.addLocalFile(mergedFilePath) // adding merged file
+        zip.addLocalFile(tempPath + "\\" + expId + "_EMD") // adding experiment metadata file
+        fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
+        try { deleteReportRequest(expId) } catch{console.log("deleting report request failed")} // deleting request
+        return zipPath
+    }
+    catch(e) {
+        return null
+    }
+};
 
-    // TODO: add two files to "./output" folder zipped
-
-
-}
 
 /**
  * Checks if there is a completed zip report for the exp with the id "expId" under "outputPath".
@@ -102,6 +146,19 @@ function handleCreatedReportRequest(file){
  * @param {String} expId 
  */
 function checkForReportOutput(expId){
+    const filePath = outputPath + "\\" + expId + ".zip" + "\\"
+    try {
+        if (fs.existsSync(filePath)) {
+          return true
+        }
+    } 
+    catch(e) {}
+    finally {
+        return false
+    }
+}
+
+function deleteReportRequest(expId) {
 
 }
 
