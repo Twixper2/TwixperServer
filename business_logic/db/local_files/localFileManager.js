@@ -40,9 +40,13 @@ function createExperimentFolder(expId){
  */
 function insertAction(expId, action){
     const folderPath = experimentsDataPath + "\\" + expId + "\\"
-    const docName = Date.now() + ".json" // Current timestamp
+    const timestamp = process.hrtime()
+    const docName = action.action_type + " " + (timestamp[0] * 1000000000 + timestamp[1]) + ".txt" // Current timestamp
+    /*  TODO: The long doc name is only for comfortable debugging. 
+        Remove the action_type from the title in production.*/
+        
     // Make a file that contains the action, and places it under the relevent exp's folder.
-    data = JSON.stringify(action, null, "\t")
+    data = JSON.stringify(action, null, "\t") + "," // Last "," for appending multiple ations later.
     fs.writeFile(folderPath + docName, data, (err) => {
         if (err){
             console.log(err)
@@ -55,13 +59,16 @@ function insertAction(expId, action){
  * @param {Array} actionsArr 
  */
 function insertActionsArray(expId, actionsArr){
-    const folderPath = experimentsDataPath + "\\" + expId + "\\"
+    /*const folderPath = experimentsDataPath + "\\" + expId + "\\"
     const docName = "arr_" + Date.now() + ".json" // indicating that this is array of objects, and current timestamp
     data = JSON.stringify(actionsArr, null, "\t")
     fs.writeFile(folderPath + docName, data, (err) => {
         if (err){
             console.log(error)
         }
+    });*/
+    actionsArr.forEach(actionObj => {
+        insertAction(expId, actionObj)
     });
 }
 

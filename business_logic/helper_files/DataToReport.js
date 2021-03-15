@@ -142,18 +142,21 @@ exports.report = {
             "participant_group_id": "",
             "action_type" : ""
         },
+        // Actions that contains the relevent tweet object will contain the field "tweet_obj"
+
         // The other fields varies for each action type.
         // The possible action types:
         [
-            "registered to experiment",
-            "login",
-            "logout",
-            "view tweet", // Passively saw a tweet, in feed or in other tab (for example in public user's timleine) 
-            "like", // Can be like on a tweet or comment
+            "registered to experiment", // (done) 
+            "login", // (done) 
+            "logout", // (done)
+            "view tweet", // (done) Passively saw a tweet, in feed or in other tab (for example in public user's timleine) 
+            "like", // (done) Can be like on a tweet or comment
+            "unlike", // (done)
             "retweet",
             "comment",
             "quote",
-            "tweeted", // Posted new tweet
+            "tweeted", // (done) Posted new tweet
             "view tweet full", // Went to the tweet's full page
             "view user profile", // Went to a public user profile page
             "follow",
