@@ -163,7 +163,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
     }
     catch (e) {
-        console.log("Problem appending/prepending to file")
+        console.log(e)
         return false
     }
     
@@ -177,7 +177,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
             fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
         }
         catch(e) {
-            console.log("error during writing zip")
+            console.log("error during writing zip: " + e)
             return false
         }
         deleteFile(reportRequestFilePath) // async delete of request file, after it is done we can accept more requests
