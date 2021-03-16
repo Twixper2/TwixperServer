@@ -23,9 +23,16 @@ const fs = require('fs');
 async function getReportIfReady(expId, researcher){ 
     let exp = await dbComm.getExperimentById(expId)
     if (!exp || !(exp.researcher_details.researcher_id == researcher.researcher_id)) {
-        throw ({message: "Illegal experiment"})
+        throw ({message: "Illegal-experiment"})
     }
     let path = dbComm.getReportIfReady(expId)
+    if (!path) {
+        // checking if request really exists
+        const requestExists = dbComm.checkReportRequestExists(expId)
+        if (!requestExists) {
+            throw { message: "request-not-exists"}
+        }
+    }
     return path
 }
 

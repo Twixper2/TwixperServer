@@ -48,6 +48,9 @@ function insertActionsArray(expId, actionsArr){
     localFileManager.insertActionsArray(expId, actionsArr); 
 }
 
+function checkReportRequestExists(expId) {
+    localFileManager.checkReportRequestExists(expId)
+}
 
 /*
     _____ Researchers _____
@@ -132,6 +135,7 @@ module.exports = {
     addResearcher : addResearcher,
     updateParticipantTokens: updateParticipantTokens,
     createReportRequest: createReportRequest,
-    getReportIfReady : getReportIfReady
+    getReportIfReady : getReportIfReady,
+    checkReportRequestExists : checkReportRequestExists
 }
 

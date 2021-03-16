@@ -92,6 +92,14 @@ function insertActionsArray(expId, actionsArr){
 function createReportRequest(expId){
     try {
         let filepath = requestsPath + "\\" + expId + ".txt\\"
+        try {
+            if (fs.existsSync(filepath)) {
+                throw {message : "request-already-exists"}
+            }
+        }
+        catch(e) {
+            return false
+        }
         fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expId as name
         return true
     }
@@ -222,11 +230,24 @@ function getReportPath(expId) {
     }
 }
 
+function checkReportRequestExists(expId) {
+    let requestPath = requestsPath + "\\" + expId + ".txt" + "\\"
+    try {
+        return fs.existsSync(requestPath)
+      
+    }
+    catch(err) {
+        console.error(err)
+        return null
+    }
+}
+
 module.exports = {
     setupFileManager: setupFileManager,
     createExperimentFolder: createExperimentFolder,
     insertAction, insertAction,
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,
-    getReportPath : getReportPath
+    getReportPath : getReportPath,
+    checkReportRequestExists : checkReportRequestExists
 }

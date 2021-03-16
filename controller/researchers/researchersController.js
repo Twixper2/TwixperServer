@@ -74,7 +74,9 @@ router.post("/requestExperimentReport", async (req, res, next) => {
     }
   }
   catch(e){
-    // Decide for error statuses by the error type.
+    if (e.message == "request-already-exists") {
+      res.status(400).send(e.message)
+    }
     console.log(e)
     res.sendStatus(500)
   }
@@ -87,17 +89,22 @@ router.get("/getReportIfReady", async (req, res, next) => {
   try{
     const path = await researchersService.getReportIfReady(expId, researcher)
     if(path){
-      // if report ready, let user download it
+      // if report is ready, let user download it
       res.download(path, function(error){ 
-        console.log("Error in downloading: ", error) 
+        console.log("Error in downloading: " + error) 
       }); 
     }
     else{
-      res.sendStatus(404) // not found
+      res.sendStatus(102) // the server has accepted the complete request, but has not yet completed it.
     }
   }
   catch(e){
-    // Decide for error statuses by the error type.
+    if (e.message == "request-not-exists") {
+      res.status(400).send(e.message)
+    }
+    if (e.message =="Illegal-experiment") {
+      res.status(401).send(e.message)
+    }
     console.log(e)
     res.sendStatus(500)
   }
