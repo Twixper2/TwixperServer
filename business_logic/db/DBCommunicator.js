@@ -34,7 +34,7 @@ async function updateParticipantTokens(tId, token, token_secret){
     _____ ACTIONS _____
 */
 function insertAction(expId, action){
-    return localFileManager.insertAction(expId, action); 
+    localFileManager.insertAction(expId, action); 
 }
 
 function createReportRequest(expId) {
