@@ -7,7 +7,7 @@ const fs = require('fs');
  * @param {*} expId 
  */
  async function requestExperimentReport(expId, researcher){ 
-    let exp = dbComm.getExperimentById(expId)
+    let exp = await dbComm.getExperimentById(expId)
     if (!exp || !exp.researcher_details.researcher_id == researcher.researcher_id) {
         return false
     }
@@ -21,7 +21,7 @@ const fs = require('fs');
  * @param {*} expId 
  */
 async function getReportIfReady(expId, researcher){ 
-    let exp = dbComm.getExperimentById(expId)
+    let exp = await dbComm.getExperimentById(expId)
     if (!exp || !(exp.researcher_details.researcher_id == researcher.researcher_id)) {
         throw ({message: "Illegal experiment"})
     }
