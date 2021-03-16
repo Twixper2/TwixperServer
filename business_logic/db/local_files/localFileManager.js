@@ -23,10 +23,10 @@ const outputPath = process.env.FS_REPORTS_OUTPUT_FOLDER
 
 function setupFileManager(){
     // Listening to reports requests in the requests folder
-    const requestPathOptions = {
+    const options = {
         interval: 5 // five seconds
     }
-    watch.createMonitor(requestsPath, requestPathOptions, function (monitor) {
+    watch.createMonitor(requestsPath, options, function (monitor) {
         monitor.on("created", function (file, stat) {
             // Handle new files
             handleCreatedReportRequest(file)
