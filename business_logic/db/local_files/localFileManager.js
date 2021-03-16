@@ -82,7 +82,7 @@ function insertActionsArray(expId, actionsArr){
  */
 function createReportRequest(expId){
     try {
-        let filepath = requestsPath + "\\" + expId + "\\"
+        let filepath = requestsPath + "\\" + expId + ".txt\\"
         fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expid as name
         return true
     }

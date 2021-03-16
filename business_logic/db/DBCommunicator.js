@@ -34,9 +34,16 @@ async function updateParticipantTokens(tId, token, token_secret){
     _____ ACTIONS _____
 */
 function insertAction(expId, action){
-    localFileManager.insertAction(expId, action); 
+    return localFileManager.insertAction(expId, action); 
 }
 
+function createReportRequest(expId) {
+    return localFileManager.createReportRequest(expId)
+}
+
+function getReportIfReady(expId) {
+    return localFileManager.
+}
 
 /*
     _____ Researchers _____
@@ -118,6 +125,7 @@ module.exports = {
     isExperimentExists: isExperimentExists,
     getResearcher : getResearcher,
     addResearcher : addResearcher,
-    updateParticipantTokens: updateParticipantTokens
+    updateParticipantTokens: updateParticipantTokens,
+    createReportRequest: createReportRequest
 }
 

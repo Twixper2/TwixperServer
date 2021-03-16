@@ -63,8 +63,9 @@ router.get("/myExperiments", async (req, res, next) => {
 // Create experiment report, currently only locally in server side
 router.post("/requestExperimentReport", async (req, res, next) => {
   const expId = req.body.exp_id
+  const researcher = req.researcher
   try{
-    const requestSuccess = await researchersService.requestExperimentReport(expId)
+    const requestSuccess = await researchersService.requestExperimentReport(expId, researcher)
     if(requestSuccess){
       res.sendStatus(202)
     }
@@ -82,9 +83,10 @@ router.post("/requestExperimentReport", async (req, res, next) => {
 // Create experiment report, currently only locally in server side
 router.get("/getReportIfReady", async (req, res, next) => {
   const expId = req.query.expId
+  const researcher = req.researcher
   try{
-    const successfulReportCreation = await researchersService.requestExperimentReport(expId)
-    if(successfulReportCreation){
+    const success = await researchersService.getReportIfReady(expId, researcher)
+    if(success){
       // download
     }
     else{
