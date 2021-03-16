@@ -105,7 +105,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
 
     let actionFileNames = []
     // reading actions names
-    // maybe needs to be changed to an implemintation who doesn't require
+    // TODO maybe needs to be changed to an implemintation who doesn't require
     // loading all file names to ram (instead, iterating one by one)
     try {
         actionFileNames = fs.readdirSync(actionsDirectoryPath)
@@ -125,44 +125,54 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     catch(e) {
         console.log("merge throwed error")
     }
+    // checking merge success
     if (!mergeStatus) {
         console.log("Unable to merge files from " + actionsDirectoryPath + " to " + mergedFilePath )
         return false
     }
-    // making file a valid json
+
+    // TODO: replace action files with merged file for performance improvments
+
+    actionFileNames = null // freeing up RAM 
+    
+    // making the file a valid json
     let appendToStart = "{ actions_log: ["
     let appendToEnd = "] }"
     try {
-        await prependFile(mergedFilePath, appendToStart)
-        fs.appendFileSync(mergedFilePath, appendToEnd)
+        await prependFile(mergedFilePath, appendToStart) // append to start
+        fs.appendFileSync(mergedFilePath, appendToEnd) // append to end
     }
     catch (e) {
         console.log("Problem appending/prepending to file")
         return false
     }
-
-    console.log("done")
-    
     
     // writing experiment metadata file
     // TODO: Call for DBCommunicator to get the experiment's metadata.
     // get relevant experiment from mongo (dbCommunicaotr), save it as json file 
     // to "./temp", by name "expID_EMD"
     
-    // writing to zip 
+    // writing to zip and deleting request file and temp files
     try {
         let zipPath = outputPath + "\\" + expId + ".zip"
         let zip = new AdmZip();
         zip.addLocalFile(mergedFilePath) // adding merged file
         //zip.addLocalFile(tempPath + "\\" + expId + "_EMD") // adding experiment metadata file
-        fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
-        try { deleteReportRequest(expId) } catch{console.log("deleting report request failed")} // deleting request
+        try {
+            fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
+        }
+        catch(e) {
+            console.log("error during writing zip")
+            return false
+        }
+        deleteFile(reportRequestFilePath) // async delete of request file, after it is done we can accept more requests
+        deleteFile(mergedFilePath) // async delete of temp merged file
+        deleteFile(tempPath + "\\" + expId + "_EMD") 
         return zipPath
     }
     catch(e) {
-        return null
+        return false
     }
-    return null
 };
 
 /**
@@ -183,8 +193,10 @@ function checkForReportOutput(expId){
     }
 }
 
-function deleteReportRequest(expId) {
-
+function deleteFile(path) {
+    fs.unlink(reportRequestFilePath, (err) => { // async deleting request
+        if (err) console.log(err);
+    }); 
 }
 
 module.exports = {
