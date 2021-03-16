@@ -37,10 +37,20 @@ function insertAction(expId, action){
     localFileManager.insertAction(expId, action); 
 }
 
+function createReportRequest(expId) {
+    return localFileManager.createReportRequest(expId)
+}
+
+function getReportIfReady(expId) {
+    return localFileManager.getReportPath(expId)
+}
 function insertActionsArray(expId, actionsArr){
     localFileManager.insertActionsArray(expId, actionsArr); 
 }
 
+function checkReportRequestExists(expId) {
+    localFileManager.checkReportRequestExists(expId)
+}
 
 /*
     _____ Researchers _____
@@ -102,7 +112,7 @@ async function getExperimentById(expId){
 }
 
  //returns experiment ID if experiment with the code provided exists, else null
- async function isExperimentExists(reqExpCode) {
+async function isExperimentExists(reqExpCode) {
 
 }
 
@@ -123,6 +133,9 @@ module.exports = {
     isExperimentExists: isExperimentExists,
     getResearcher : getResearcher,
     addResearcher : addResearcher,
-    updateParticipantTokens: updateParticipantTokens
+    updateParticipantTokens: updateParticipantTokens,
+    createReportRequest: createReportRequest,
+    getReportIfReady : getReportIfReady,
+    checkReportRequestExists : checkReportRequestExists
 }
 

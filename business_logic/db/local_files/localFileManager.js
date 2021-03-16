@@ -1,7 +1,18 @@
+//import mergeFiles from 'merge-files';
+var mergeFiles = require('merge-files')
+
 var fs = require("fs")
 var path = require("path");
 var watch = require('watch')
+var AdmZip = require('adm-zip');
+const prependFile = require('prepend-file');
+var dbc= require('../../db/DBCommunicator')
+const { promisify } = require("util")
+const writeFile = promisify(fs.writeFile)
+
 // https://github.com/mikeal/watch
+
+
 
 const rootPath = process.env.FS_ROOT_FOLDER
 const experimentsDataPath = process.env.FS_EXPERIMENTS_DATA_FOLDER
@@ -13,7 +24,7 @@ const outputPath = process.env.FS_REPORTS_OUTPUT_FOLDER
 function setupFileManager(){
     // Listening to reports requests in the requests folder
     const options = {
-        interval: 5
+        interval: 5 // five seconds
     }
     watch.createMonitor(requestsPath, options, function (monitor) {
         monitor.on("created", function (file, stat) {
@@ -22,6 +33,7 @@ function setupFileManager(){
         })
         // monitor.stop(); // Stop watching
     })
+
 }
 
 function createExperimentFolder(expId){
@@ -78,38 +90,156 @@ function insertActionsArray(expId, actionsArr){
  * @param {String} expId 
  */
 function createReportRequest(expId){
-
+    try {
+        let filepath = requestsPath + "\\" + expId + ".txt\\"
+        try {
+            if (fs.existsSync(filepath)) {
+                throw {message : "request-already-exists"}
+            }
+        }
+        catch(e) {
+            return false
+        }
+        fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expId as name
+        return true
+    }
+    catch (e) {
+        console.log(e)
+        return false
+    }
 }
 
 /**
  * Creates the experiment report and moves it to Output folder.
  * Uses the "temp" folder for calculations.
- * @param {String} file the path to the newly created file  
+ * assumes all actions are legal jsons but with comma at the end of each action
+ * @param {String} file the path to the newly created file in requests  
  */
-function handleCreatedReportRequest(file){
-    console.log(file)
-    const fileName = path.basename(file, ".txt")
-    console.log(fileName)
+async function handleCreatedReportRequest(reportRequestFilePath){
+    // extracting expId and actions path
+    const fileName = path.basename(reportRequestFilePath, ".txt") 
+    const expId = fileName 
+    console.log("Creating report for experiment: " + fileName)
+    const actionsDirectoryPath = experimentsDataPath + "\\" + expId 
 
-    // TODO: Merge the files under the experiment folder. to "./temp"
+    // reading actions names
+    // TODO: maybe needs to be changed to an implemintation who doesn't require
+    // loading all file names to ram (instead, iterating one by one)
+    let actionFileNames = []
+    try {
+        actionFileNames = fs.readdirSync(actionsDirectoryPath)
+        actionFileNames = actionFileNames.map(file => experimentsDataPath + "\\" + expId + "\\" + file) // basenames to full path
+    }
+    catch (e) {
+        console.log(e)
+        return false
+    }
 
 
-    // TODO: Call for DBCommunicator to get the experiment's metadata.
-    // get relevant experiment from mongo (dbCommunicaotr), save it as json file 
-    // to "./temp", by name "expID_EMD"
+    // creating merged file to temp and getting experiment from db
+    const mergedFilePath = tempPath + "\\" + expId + "_A.json" 
+    let answers = []
+    try {
+        answers = await Promise.all([
+            mergeFiles(actionFileNames, mergedFilePath),
+            dbc.getExperimentById(expId) 
+        ])
+    }
+    catch(e) {
+        console.log("merge or db error")
+    }
+    console.log("experiment: " + answers[1])
+    
+    // checking merge success and experiment getting success
+    if (!answers[0] || !answers[1]) {
+        console.log("writing metadata or getting experiment from db actions failed")
+        return false
+    }
 
-    // TODO: add two files to "./output" folder zipped
+    // TODO: replace action files with merged file for performance improvments
+    
+    // making the file a valid json + writing experiment file
+    let appendToStart = "{ actions_log: ["
+    let appendToEnd = "] }"
+    let expMetaPath = tempPath + "\\" + expId + "_EMD"
+    let experiment = answers[1]
+    try {
+        await Promise.all([
+            prependFile(mergedFilePath, appendToStart), // append to start of actions log file
+            writeFile(expMetaPath, experiment) // write experiment file
+        ])
+        fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
+    }
+    catch (e) {
+        console.log(e)
+        return false
+    }
+    
+    // writing to zip and deleting request file and temp files
+    try {
+        let zipPath = outputPath + "\\" + expId + ".zip"
+        let zip = new AdmZip();
+        zip.addLocalFile(mergedFilePath) // adding merged file
+        zip.addLocalFile(expMetaPath) // adding experiment metadata file
+        try {
+            fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
+        }
+        catch(e) {
+            console.log("error during writing zip: " + e)
+            return false
+        }
+        deleteFile(reportRequestFilePath) // async delete of request file, after it is done we can accept more requests
+        deleteFile(mergedFilePath) // async delete of temp merged file
+        deleteFile(expMetaPath) // async delete of experiment metadata file
+        return true
+    }
+    catch(e) {
+        console.log(e)
+        return false
+    }
+};
 
-
+/**
+ * non-blocking delete of a file 
+ * @param {String} path 
+ */
+function deleteFile(path) {
+    fs.unlink(path, (err) => { // async deleting request
+        if (err) console.log(err);
+    }); 
 }
 
 /**
- * Checks if there is a completed zip report for the exp with the id "expId" under "outputPath".
- * If so, returns the path to the zip file. Else, returns null.
+ * 
  * @param {String} expId 
+ * @returns If report is ready, returns path to it. else null
  */
-function checkForReportOutput(expId){
+function getReportPath(expId) {
+    let zipPath = outputPath + "\\" + expId + ".zip"
+    try {
+        if (fs.existsSync(zipPath)) {
+            return zipPath
+        }
+        else {
+            return null
+        }
+    }
+    catch(err) {
+        console.error(err)
+        return null
+    }
+}
 
+function checkReportRequestExists(expId) {
+    let requestPath = requestsPath + "\\" + expId + ".txt" + "\\"
+    try {
+        return fs.existsSync(requestPath)
+      
+    }
+    catch(err) {
+        console.error(err)
+        return null
+    }
 }
 
 module.exports = {
@@ -118,5 +248,6 @@ module.exports = {
     insertAction, insertAction,
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,
-    checkForReportOutput: checkForReportOutput
+    getReportPath : getReportPath,
+    checkReportRequestExists : checkReportRequestExists
 }

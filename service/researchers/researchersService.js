@@ -1,4 +1,4 @@
-const reportCreator = require("../../business_logic/researchers/experiments/experimentReportCreator")
+const reportManager = require("../../business_logic/researchers/experiments/experimentReportManager")
 const experiments = require('../../business_logic/researchers/experiments/researcherExperiments')
 const database = require("../../business_logic/db/DBCommunicator.js");
 const researcherAuthUtils = require("../../business_logic/researchers/auth/researcherAuthUtils")
@@ -41,17 +41,27 @@ async function getResearcher(id) {
 async function registerResearcher(id) {
     return await researcherAuthUtils.registerResearcher(id)
 }
+
 /**
- * create report for experiment (two files)
+ * create report request for experiment (two files)
  * @param {*} expId 
  */
-async function createExperimentReport(expId){
-    return await reportCreator.createReport(expId)
+async function requestExperimentReport(expId, researcher){ 
+    return await reportManager.requestExperimentReport(expId, researcher)
+}
+
+/**
+ * return path to report file if exists, else null
+ * @param {*} expId 
+ */
+ async function getReportIfReady(expId, researcher){ 
+    return await reportManager.getReportIfReady(expId, researcher)
 }
 
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperimentsByIds = getExperimentsByIds
-exports.createExperimentReport = createExperimentReport
 exports.getResearcher = getResearcher
 exports.registerResearcher = registerResearcher
 exports.validateExpFields = validateExpFields
+exports.requestExperimentReport = requestExperimentReport
+exports.getReportIfReady = getReportIfReady
