@@ -51,11 +51,20 @@ async function publishTweet(participant, tweetParams){
     Log of other actions
    ---------------------------------------- */
 
-async function logRegisteredToExperiment(participant){
+function logRegisteredToExperiment(participant){
     //create the action obj and add to db for report
     const actionDate = moment().format(dateFormat);
     let action = createActionObj(participant, "registered to experiment", actionDate)
     database.insertAction(participant.exp_id, action) // not await
+}
+
+function logParticipantActions(participant, actions){
+    // Add fileds to each action
+    actions.forEach(actionObj => {
+        actionObj.participant_twitter_username = participant.participant_twitter_username
+        actionObj.participant_group_id = participant.group_id
+    });
+    database.insertActionsArray(participant.exp_id, actions) // not await
 }
 
 
@@ -68,7 +77,25 @@ function createActionObj (participant, action_type, action_date) {
     }
 }
 
+function validateActionsFields(actions){
+    if (!Array.isArray(actions)) {  // not an array
+        return false
+    }
+    actions.forEach((actionObj) => {
+        if (!typeof actionObj === 'object') {    // not an obj
+            return false
+        }
+        // Checking required fields
+        if(actionObj.action_type == null || actionObj.action_date == null){
+            return false
+        }
+    })
+    return true
+}
+
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
 exports.logRegisteredToExperiment = logRegisteredToExperiment
+exports.validateActionsFields = validateActionsFields
+exports.logParticipantActions = logParticipantActions

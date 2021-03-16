@@ -31,7 +31,7 @@ app.use(function (req, res, next) {
 
 app.use(logger("dev")); //logger
 app.use(bodyParser.urlencoded({ extended:true})); //parse application/x-www-form-urlencoded   
-app.use(bodyParser.json()); //parse json
+app.use(bodyParser.json({limit: '3mb'})); //parse json
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 
 app.use(
