@@ -113,6 +113,18 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
 }
 
 
+/* ----------------------------------------
+    Log of participant's actions
+   ---------------------------------------- */
+
+function validateActionsFields(actions){
+    return participantActionsOnTwitter.validateActionsFields(actions)
+}
+
+function logParticipantActions(participant, actions){
+    return participantActionsOnTwitter.logParticipantActions(participant, actions)
+}
+
 
 
 exports.getTwitterRequestToken = getTwitterRequestToken
@@ -132,3 +144,6 @@ exports.registerParticipant = registerParticipant
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
+
+exports.validateActionsFields = validateActionsFields
+exports.logParticipantActions = logParticipantActions

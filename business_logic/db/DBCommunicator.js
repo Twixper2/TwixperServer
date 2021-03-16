@@ -44,6 +44,10 @@ function createReportRequest(expId) {
 function getReportIfReady(expId) {
     return localFileManager.getReportPath(expId)
 }
+function insertActionsArray(expId, actionsArr){
+    localFileManager.insertActionsArray(expId, actionsArr); 
+}
+
 
 /*
     _____ Researchers _____
@@ -116,6 +120,7 @@ module.exports = {
     getParticipantByTwitterId: getParticipantByTwitterId,
     getParticipantByToken:getParticipantByToken,
     insertAction: insertAction,
+    insertActionsArray: insertActionsArray,
     insertExperiment : insertExperiment,
     getExperimentsByIds: getExperimentsByIds,
     getActionsOfExperiment: getActionsOfExperiment,

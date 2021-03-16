@@ -30,6 +30,24 @@ router.use(async function (req, res, next) {
 
 
 /* ----------------------------------------
+    Routes for logging actions
+   ---------------------------------------- */
+router.post("/sendActions", async (req, res, next) => {
+  const actionsToLog = req.body
+  if (!actionsToLog) {
+    res.status(400).send("no actions provided")
+  }
+  if(!participantsService.validateActionsFields(actionsToLog)){
+    res.sendStatus(400).send("invalid actions format"); // Bad request
+  }
+
+  const participant = req.participant
+  participantsService.logParticipantActions(participant, actionsToLog)
+
+  res.sendStatus(200)
+});
+
+/* ----------------------------------------
     Routes for asking for data from Twitter
    ---------------------------------------- */
 
