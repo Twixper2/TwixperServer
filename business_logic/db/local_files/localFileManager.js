@@ -26,10 +26,10 @@ function setupFileManager(){
     const requestPathOptions = {
         interval: 5 // five seconds
     }
-    watch.createMonitor(requestsPath, requestPathOptions, async function (monitor) {
-        monitor.on("created", async function (file, stat) {
+    watch.createMonitor(requestsPath, requestPathOptions, function (monitor) {
+        monitor.on("created", function (file, stat) {
             // Handle new files
-            await handleCreatedReportRequest(file)
+            handleCreatedReportRequest(file)
         })
         // monitor.stop(); // Stop watching
     })
