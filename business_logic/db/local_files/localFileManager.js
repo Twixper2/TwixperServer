@@ -6,7 +6,9 @@ var path = require("path");
 var watch = require('watch')
 var AdmZip = require('adm-zip');
 const prependFile = require('prepend-file');
-
+var dbc= require('../../db/DBCommunicator')
+const { promisify } = require("util")
+const writeFile = promisify(fs.writeFile)
 
 // https://github.com/mikeal/watch
 
@@ -24,10 +26,10 @@ function setupFileManager(){
     const requestPathOptions = {
         interval: 5 // five seconds
     }
-    watch.createMonitor(requestsPath, requestPathOptions, function (monitor) {
-        monitor.on("created", function (file, stat) {
+    watch.createMonitor(requestsPath, requestPathOptions, async function (monitor) {
+        monitor.on("created", async function (file, stat) {
             // Handle new files
-            handleCreatedReportRequest(file)
+            await handleCreatedReportRequest(file)
         })
         // monitor.stop(); // Stop watching
     })
@@ -98,15 +100,16 @@ function createReportRequest(expId){
  * @param {String} file the path to the newly created file in requests  
  */
 async function handleCreatedReportRequest(reportRequestFilePath){
+    // extracting expId and actions path
     const fileName = path.basename(reportRequestFilePath, ".txt") 
     const expId = fileName 
     console.log("Creating report for experiment: " + fileName)
     const actionsDirectoryPath = experimentsDataPath + "\\" + expId 
 
-    let actionFileNames = []
     // reading actions names
-    // TODO maybe needs to be changed to an implemintation who doesn't require
+    // TODO: maybe needs to be changed to an implemintation who doesn't require
     // loading all file names to ram (instead, iterating one by one)
+    let actionFileNames = []
     try {
         actionFileNames = fs.readdirSync(actionsDirectoryPath)
         actionFileNames = actionFileNames.map(file => experimentsDataPath + "\\" + expId + "\\" + file) // basenames to full path
@@ -116,48 +119,52 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         return false
     }
 
-    // creating merged file to temp
+
+    // creating merged file to temp and getting experiment from db
     const mergedFilePath = tempPath + "\\" + expId + "_A.json" 
-    let mergeStatus = false
+    let answers = []
     try {
-        mergeStatus = await mergeFiles(actionFileNames, mergedFilePath); // probably should be inside Promise.all with the db call
+        answers = await Promise.all([
+            mergeFiles(actionFileNames, mergedFilePath),
+            dbc.getExperimentById(expId) 
+        ])
     }
     catch(e) {
-        console.log("merge throwed error")
+        console.log("merge or db error")
     }
-    // checking merge success
-    if (!mergeStatus) {
-        console.log("Unable to merge files from " + actionsDirectoryPath + " to " + mergedFilePath )
+    console.log("experiment: " + answers[1])
+    
+    // checking merge success and experiment getting success
+    if (!answers[0] || !answers[1]) {
+        console.log("writing metadata or getting experiment from db actions failed")
         return false
     }
 
     // TODO: replace action files with merged file for performance improvments
-
-    actionFileNames = null // freeing up RAM 
     
-    // making the file a valid json
+    // making the file a valid json + writing experiment file
     let appendToStart = "{ actions_log: ["
     let appendToEnd = "] }"
+    let expMetaPath = tempPath + "\\" + expId + "_EMD"
+    let experiment = answers[1]
     try {
-        await prependFile(mergedFilePath, appendToStart) // append to start
-        fs.appendFileSync(mergedFilePath, appendToEnd) // append to end
+        await Promise.all([
+            prependFile(mergedFilePath, appendToStart), // append to start of actions log file
+            writeFile(expMetaPath, experiment) // write experiment file
+        ])
+        fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
     }
     catch (e) {
         console.log("Problem appending/prepending to file")
         return false
     }
     
-    // writing experiment metadata file
-    // TODO: Call for DBCommunicator to get the experiment's metadata.
-    // get relevant experiment from mongo (dbCommunicaotr), save it as json file 
-    // to "./temp", by name "expID_EMD"
-    
     // writing to zip and deleting request file and temp files
     try {
         let zipPath = outputPath + "\\" + expId + ".zip"
         let zip = new AdmZip();
         zip.addLocalFile(mergedFilePath) // adding merged file
-        //zip.addLocalFile(tempPath + "\\" + expId + "_EMD") // adding experiment metadata file
+        zip.addLocalFile(expMetaPath) // adding experiment metadata file
         try {
             fs.writeFileSync(zipPath, zip.toBuffer()) //writing zip file
         }
@@ -167,7 +174,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         }
         deleteFile(reportRequestFilePath) // async delete of request file, after it is done we can accept more requests
         deleteFile(mergedFilePath) // async delete of temp merged file
-        deleteFile(tempPath + "\\" + expId + "_EMD") 
+        deleteFile(expMetaPath) // async delete of experiment metadata file
         return true
     }
     catch(e) {
@@ -175,8 +182,12 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     }
 };
 
+/**
+ * non-blocking delete of a file 
+ * @param {String} path 
+ */
 function deleteFile(path) {
-    fs.unlink(reportRequestFilePath, (err) => { // async deleting request
+    fs.unlink(path, (err) => { // async deleting request
         if (err) console.log(err);
     }); 
 }
