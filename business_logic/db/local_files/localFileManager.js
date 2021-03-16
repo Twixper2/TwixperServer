@@ -175,24 +175,6 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     }
 };
 
-/**
- * Checks if there is a completed zip report for the exp with the id "expId" under "outputPath".
- * If so, returns the path to the zip file. Else, returns null.
- * @param {String} expId 
- */
-function checkForReportOutput(expId){
-    const filePath = outputPath + "\\" + expId + ".zip" + "\\"
-    try {
-        if (fs.existsSync(filePath)) {
-          return true
-        }
-    } 
-    catch(e) {}
-    finally {
-        return false
-    }
-}
-
 function deleteFile(path) {
     fs.unlink(reportRequestFilePath, (err) => { // async deleting request
         if (err) console.log(err);
@@ -226,6 +208,5 @@ module.exports = {
     insertAction, insertAction,
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,
-    checkForReportOutput: checkForReportOutput,
     getReportPath : getReportPath
 }
