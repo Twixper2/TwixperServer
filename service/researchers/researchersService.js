@@ -60,7 +60,6 @@ async function requestExperimentReport(expId, researcher){
 
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperimentsByIds = getExperimentsByIds
-exports.createExperimentReport = createExperimentReport
 exports.getResearcher = getResearcher
 exports.registerResearcher = registerResearcher
 exports.validateExpFields = validateExpFields
