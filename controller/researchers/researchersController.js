@@ -61,16 +61,34 @@ router.get("/myExperiments", async (req, res, next) => {
 });
 
 // Create experiment report, currently only locally in server side
-router.post("/createExperimentReport", async (req, res, next) => {
+router.post("/requestExperimentReport", async (req, res, next) => {
   const expId = req.body.exp_id
   try{
-    const successfulReportCreation = await researchersService.createExperimentReport(expId)
-    if(successfulReportCreation){
-      // Not 201 on purpose
-      res.status(200).send({message: "Report created successfuly"})
+    const requestSuccess = await researchersService.requestExperimentReport(expId)
+    if(requestSuccess){
+      res.sendStatus(202)
     }
     else{
       res.sendStatus(500)
+    }
+  }
+  catch(e){
+    // Decide for error statuses by the error type.
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
+
+// Create experiment report, currently only locally in server side
+router.get("/getReportIfReady", async (req, res, next) => {
+  const expId = req.query.expId
+  try{
+    const successfulReportCreation = await researchersService.requestExperimentReport(expId)
+    if(successfulReportCreation){
+      // download
+    }
+    else{
+      res.sendStatus(404) // not found
     }
   }
   catch(e){

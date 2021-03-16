@@ -45,7 +45,8 @@ async function registerResearcher(id) {
  * create report for experiment (two files)
  * @param {*} expId 
  */
-async function createExperimentReport(expId){
+async function requestExperimentReport(expId){
+    // in the inner check har such exists
     return await reportCreator.createReport(expId)
 }
 
