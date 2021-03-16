@@ -65,3 +65,4 @@ exports.getResearcher = getResearcher
 exports.registerResearcher = registerResearcher
 exports.validateExpFields = validateExpFields
 exports.requestExperimentReport = requestExperimentReport
+exports.getReportIfReady = getReportIfReady

@@ -83,7 +83,7 @@ function insertActionsArray(expId, actionsArr){
 function createReportRequest(expId){
     try {
         let filepath = requestsPath + "\\" + expId + ".txt\\"
-        fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expid as name
+        fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expId as name
         return true
     }
     catch (e) {
@@ -168,7 +168,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         deleteFile(reportRequestFilePath) // async delete of request file, after it is done we can accept more requests
         deleteFile(mergedFilePath) // async delete of temp merged file
         deleteFile(tempPath + "\\" + expId + "_EMD") 
-        return zipPath
+        return true
     }
     catch(e) {
         return false
@@ -199,11 +199,33 @@ function deleteFile(path) {
     }); 
 }
 
+/**
+ * 
+ * @param {String} expId 
+ * @returns If report is ready, returns path to it. else null
+ */
+function getReportPath(expId) {
+    let zipPath = outputPath + "\\" + expId + ".zip"
+    try {
+        if (fs.existsSync(zipPath)) {
+            return zipPath
+        }
+        else {
+            return null
+        }
+    }
+    catch(err) {
+        console.error(err)
+        return null
+    }
+}
+
 module.exports = {
     setupFileManager: setupFileManager,
     createExperimentFolder: createExperimentFolder,
     insertAction, insertAction,
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,
-    checkForReportOutput: checkForReportOutput
+    checkForReportOutput: checkForReportOutput,
+    getReportPath : getReportPath
 }

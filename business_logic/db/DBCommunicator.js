@@ -42,7 +42,7 @@ function createReportRequest(expId) {
 }
 
 function getReportIfReady(expId) {
-    return localFileManager.
+    return localFileManager.getReportPath(expId)
 }
 
 /*
@@ -105,7 +105,7 @@ async function getExperimentById(expId){
 }
 
  //returns experiment ID if experiment with the code provided exists, else null
- async function isExperimentExists(reqExpCode) {
+async function isExperimentExists(reqExpCode) {
 
 }
 
@@ -126,6 +126,7 @@ module.exports = {
     getResearcher : getResearcher,
     addResearcher : addResearcher,
     updateParticipantTokens: updateParticipantTokens,
-    createReportRequest: createReportRequest
+    createReportRequest: createReportRequest,
+    getReportIfReady : getReportIfReady
 }
 

@@ -16,17 +16,17 @@ const fs = require('fs');
 }
 
 /**
- * return path to report file if exists, else null
+ * return path to report file if exists and legal experiment that belongs to researcher, else null
+ * 
  * @param {*} expId 
  */
 async function getReportIfReady(expId, researcher){ 
     let exp = dbComm.getExperimentById(expId)
-    if (!exp || !exp.researcher_details.researcher_id == researcher.researcher_id) {
+    if (!exp || !(exp.researcher_details.researcher_id == researcher.researcher_id)) {
         throw ({message: "Illegal experiment"})
     }
-    let success = dbComm.getReportIfReady(expId)
-    return success
-
+    let path = dbComm.getReportIfReady(expId)
+    return path
 }
 
 

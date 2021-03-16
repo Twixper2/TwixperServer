@@ -85,9 +85,12 @@ router.get("/getReportIfReady", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
   try{
-    const success = await researchersService.getReportIfReady(expId, researcher)
-    if(success){
-      // download
+    const path = await researchersService.getReportIfReady(expId, researcher)
+    if(path){
+      // if report ready, let user download it
+      res.download(path, function(error){ 
+        console.log("Error in downloading: ", error) 
+      }); 
     }
     else{
       res.sendStatus(404) // not found
