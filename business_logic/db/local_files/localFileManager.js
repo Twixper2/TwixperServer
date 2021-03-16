@@ -186,6 +186,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         return true
     }
     catch(e) {
+        console.log(e)
         return false
     }
 };
