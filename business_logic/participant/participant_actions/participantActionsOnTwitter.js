@@ -13,7 +13,7 @@ async function likeTweet(participant, tweetId){
     //create the action obj and add to db for report
     const actionDate = moment().format(dateFormat);
     let action = createActionObj(participant, "like", actionDate)
-    action['tweet_obj'] = JSON.stringify(likeSuccess) // entire tweet object
+    action['tweet_obj'] = likeSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
     // return response from twitter
@@ -26,7 +26,7 @@ async function unlikeTweet(participant, tweetId){
     //create the action obj and add to db for report
     const actionDate = moment().format(dateFormat);
     let action = createActionObj(participant, "unlike", actionDate)
-    action['tweet_obj'] = JSON.stringify(unlikeSuccess) // entire tweet object
+    action['tweet_obj'] = unlikeSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
     // return response from twitter
@@ -39,7 +39,7 @@ async function publishTweet(participant, tweetParams){
     //create the action obj and add to db for report
     const actionDate = moment().format(dateFormat);
     let action = createActionObj(participant, "tweeted", actionDate)
-    action['tweet_obj'] = JSON.stringify(publishTweetSuccess) // entire tweet object
+    action['tweet_obj'] = publishTweetSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
     // return response from twitter
