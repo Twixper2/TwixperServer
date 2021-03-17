@@ -91,7 +91,12 @@ router.get("/getReportIfReady", async (req, res, next) => {
     if(path){
       // if report is ready, let user download it
       res.download(path, function(error){ 
-        console.log("Error in downloading: " + error) 
+        if(error){
+          console.log("Error in downloading: " + error) 
+        }
+        else{
+          console.log("Report downloaded successfuly")
+        }
       }); 
     }
     else{

@@ -6,7 +6,7 @@ var path = require("path");
 var watch = require('watch')
 var AdmZip = require('adm-zip');
 const prependFile = require('prepend-file');
-var dbc= require('../../db/DBCommunicator')
+var experimentsCollection= require('../mongodb/experimentsCollection')
 const { promisify } = require("util")
 const writeFile = promisify(fs.writeFile)
 
@@ -58,7 +58,7 @@ function insertAction(expId, action){
         Remove the action_type from the title in production.*/
         
     // Make a file that contains the action, and places it under the relevent exp's folder.
-    data = JSON.stringify(action, null, "\t") + "," // Last "," for appending multiple ations later.
+    data = JSON.stringify(action) + "\n" // Line break for appending multiple actions later.
     fs.writeFile(folderPath + docName, data, (err) => {
         if (err){
             console.log(err)
@@ -137,18 +137,17 @@ async function handleCreatedReportRequest(reportRequestFilePath){
 
 
     // creating merged file to temp and getting experiment from db
-    const mergedFilePath = tempPath + "\\" + expId + "_A.json" 
+    const mergedFilePath = tempPath + "\\" + expId + "_Actions.ndjson" 
     let answers = []
     try {
         answers = await Promise.all([
             mergeFiles(actionFileNames, mergedFilePath),
-            dbc.getExperimentById(expId) 
+            experimentsCollection.getExperimentById(expId) 
         ])
     }
     catch(e) {
         console.log("merge or db error")
     }
-    console.log("experiment: " + answers[1])
     
     // checking merge success and experiment getting success
     if (!answers[0] || !answers[1]) {
@@ -159,16 +158,18 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     // TODO: replace action files with merged file for performance improvments
     
     // making the file a valid json + writing experiment file
-    let appendToStart = "{ actions_log: ["
-    let appendToEnd = "] }"
-    let expMetaPath = tempPath + "\\" + expId + "_EMD"
+    // Remove last ","
+
+    // let appendToStart = "{\"actions_log\":[\n"
+    // let appendToEnd = "{\"action_type\":\"end of actions\"}\n]\n}"
+    let expMetaPath = tempPath + "\\" + expId + "_Metadata.json"
     let experiment = answers[1]
     try {
         await Promise.all([
-            prependFile(mergedFilePath, appendToStart), // append to start of actions log file
-            writeFile(expMetaPath, experiment) // write experiment file
+            // prependFile(mergedFilePath, appendToStart), // append to start of actions log file
+            writeFile(expMetaPath, JSON.stringify(experiment, null, "\t")) // write experiment file
         ])
-        fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
+        // fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
     }
     catch (e) {
         console.log(e)
