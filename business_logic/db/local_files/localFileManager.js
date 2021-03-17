@@ -58,7 +58,7 @@ function insertAction(expId, action){
         Remove the action_type from the title in production.*/
         
     // Make a file that contains the action, and places it under the relevent exp's folder.
-    data = JSON.stringify(action) + "\n," // Last "," for appending multiple ations later.
+    data = JSON.stringify(action) + "\n" // Line break for appending multiple actions later.
     fs.writeFile(folderPath + docName, data, (err) => {
         if (err){
             console.log(err)
@@ -137,7 +137,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
 
 
     // creating merged file to temp and getting experiment from db
-    const mergedFilePath = tempPath + "\\" + expId + "_Actions.json" 
+    const mergedFilePath = tempPath + "\\" + expId + "_Actions.ndjson" 
     let answers = []
     try {
         answers = await Promise.all([
@@ -160,16 +160,16 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     // making the file a valid json + writing experiment file
     // Remove last ","
 
-    let appendToStart = "{\"actions_log\":[\n"
-    let appendToEnd = "{\"action_type\":\"end of actions\"}\n]\n}"
+    // let appendToStart = "{\"actions_log\":[\n"
+    // let appendToEnd = "{\"action_type\":\"end of actions\"}\n]\n}"
     let expMetaPath = tempPath + "\\" + expId + "_Metadata.json"
     let experiment = answers[1]
     try {
         await Promise.all([
-            prependFile(mergedFilePath, appendToStart), // append to start of actions log file
+            // prependFile(mergedFilePath, appendToStart), // append to start of actions log file
             writeFile(expMetaPath, JSON.stringify(experiment, null, "\t")) // write experiment file
         ])
-        fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
+        // fs.appendFileSync(mergedFilePath, appendToEnd) // append to end of actions log file
     }
     catch (e) {
         console.log(e)
