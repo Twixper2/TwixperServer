@@ -31,7 +31,7 @@ async function activateNewExperiment(expObj, researcherId){
         })*/
     })
     expObj.exp_id = idGenerator.generateUUID()
-    expObj.exp_code = idGenerator.generateUUID()
+    expObj.exp_code = await generateExpCode()
     expObj.researcher_details = {}
     expObj.researcher_details.researcher_id = researcherId
 
@@ -123,7 +123,27 @@ function validateExpFields(experimentObj) {
     return true
 }
 
-  
+async function generateExpCode() {
+    const MAX_ATTEMPTS = 10 // making sure we will not enter infinite loop 
+    let code = null
+    let attempts = 0 
+    let exp = null
+    do {
+        code = idGenerator.generateUUID()
+        code = code.substring(0, 6) //cutting first 6 chars
+        let exp = await dbComm.getExperimentByCode(code) 
+        attempts += 1 
+    } while (exp && (attempts < MAX_ATTEMPTS)); // trying again if exp exists and we didnt pass MAX_ATTEMPTS 
+    return code
+}
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperiments = getExperiments
 exports.validateExpFields = validateExpFields
+
+
+async function test() {
+    let o = await generateExpCode()
+    console.log(o)
+}
+
+test()
