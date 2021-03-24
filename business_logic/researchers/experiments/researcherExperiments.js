@@ -140,10 +140,3 @@ exports.activateNewExperiment = activateNewExperiment
 exports.getExperiments = getExperiments
 exports.validateExpFields = validateExpFields
 
-
-async function test() {
-    let o = await generateExpCode()
-    console.log(o)
-}
-
-test()
