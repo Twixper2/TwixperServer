@@ -31,19 +31,20 @@ async function activateNewExperiment(expObj, researcherId){
         })*/
     })
     expObj.exp_id = idGenerator.generateUUID()
-    expObj.exp_code = idGenerator.generateUUID()
-    expObj.researcher_details = {}
-    expObj.researcher_details.researcher_id = researcherId
-
-    // adding exp to db and adding expId to researcher
-    const isSuccessfulInsert = await dbComm.insertExperiment(expObj)
-    if(isSuccessfulInsert === true){
-        const isExperimentAdded = await dbComm.addExperimentIdToResearcher(researcherId, expObj.exp_id) // TODO make sure the correct order of inputs 
-        if (isExperimentAdded === true) {
-            return expObj.exp_code
-        }
-        else {
-            // TODO REVERSE THE INSERT ACTION!
+    expObj.exp_code = await generateExpCode()
+    if (expObj.exp_code) {
+        expObj.researcher_details = {}
+        expObj.researcher_details.researcher_id = researcherId
+        // adding exp to db and adding expId to researcher
+        const isSuccessfulInsert = await dbComm.insertExperiment(expObj)
+        if(isSuccessfulInsert === true){
+            const isExperimentAdded = await dbComm.addExperimentIdToResearcher(researcherId, expObj.exp_id) // TODO make sure the correct order of inputs 
+            if (isExperimentAdded === true) {
+                return expObj.exp_code
+            }
+            else {
+                // TODO REVERSE THE INSERT ACTION!
+            }
         }
     }
     throw "Failed to insert to db" // if adding to db failed
@@ -123,7 +124,30 @@ function validateExpFields(experimentObj) {
     return true
 }
 
-  
+/**
+ * 
+ * @returns new code, if 
+ */
+async function generateExpCode() {
+    const MAX_ATTEMPTS = 10 // making sure we will not enter infinite loop 
+    let code = null
+    let attempts = 0 
+    let exp = null
+
+    code = idGenerator.generateUUID()
+    code = code.substring(0, 6) //cutting first 6 chars
+    exp = await dbComm.getExperimentByCode(code) 
+    attempts += 1 
+
+    while (exp != null && exp != undefined && (attempts < MAX_ATTEMPTS)) {
+        code = idGenerator.generateUUID()
+        code = code.substring(0, 6) //cutting first 6 chars
+        exp = await dbComm.getExperimentByCode(code) 
+        attempts += 1 
+    }
+    return code
+}
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperiments = getExperiments
 exports.validateExpFields = validateExpFields
+
