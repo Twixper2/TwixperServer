@@ -71,11 +71,18 @@ app.use((req,res) => {
   res.sendStatus(404);
 });
 
-const port = process.env.PORT;
-const hostname = process.env.HOSTNAME;
+const port =  process.env.PORT || 3000;
 
-const server = app.listen(port, hostname, () => {
+// const hostname = process.env.HOSTNAME;
+/*const server = app.listen(port, hostname, () => {
   // Setting up the file manager
   localFileManager.setupFileManager()
   console.log(`Server running at http://${hostname}:${port}/`);
+});*/
+
+console.log("** BBB")
+app.listen(port, () => {
+  // Setting up the file manager
+  localFileManager.setupFileManager()
+  console.log(`Server running at http://localhost:${port}/`);
 });
