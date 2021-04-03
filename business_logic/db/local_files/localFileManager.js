@@ -90,16 +90,19 @@ function insertActionsArray(expId, actionsArr){
  * @param {String} expId 
  */
 function createReportRequest(expId){
+    let filepath = requestsPath + "\\" + expId + ".txt\\"
     try {
-        let filepath = requestsPath + "\\" + expId + ".txt\\"
-        try {
-            if (fs.existsSync(filepath)) {
-                throw {message : "request-already-exists"}
-            }
+        if (fs.existsSync(filepath)) {
+            throw {message : "request-already-exists"}
         }
-        catch(e) {
-            return false
+    }
+    catch(e) {
+        if (e.message == "request-already-exists") {
+            throw e
         }
+        return false
+    }
+    try{
         fs.closeSync(fs.openSync(filepath, 'w'));   // write empty file with expId as name
         return true
     }

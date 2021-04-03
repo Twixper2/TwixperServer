@@ -8,20 +8,27 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   and append user data from db to req
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.session && req.session.researcherId) {
-    const researcherId = req.session.researcherId;
-    const researcher = await database.getResearcher(researcherId);
-
-    if (researcher) {
+  // if (req.session && req.session.researcherId) {
+  if (req.header('Researcher-Id-Enc')) {
+    // const researcherId = req.session.researcherId;
+    const researcherId = req.header('Researcher-Id-Enc');
+    try{
+      const researcher = await database.getResearcher(researcherId);
+      if (researcher) {
         req.researcher = researcher; //every method has the user now
         next(); //go to the request
+      }
+      else {
+        res.sendStatus(401); //user authentication failed, responde with unautorized
+      }
     }
-    else {
-      res.sendStatus(401); //user authentication failed, responde with unautorized
+    catch(e){
+      console.log(e)
+      res.sendStatus(500);
     }
   }
   else {
-    res.sendStatus(401); //user authentication failed, responde with unautorized
+    res.status(428).send("Missing auth header Researcher-Id-Enc"); 
   }
 });
 
@@ -76,6 +83,7 @@ router.post("/requestExperimentReport", async (req, res, next) => {
   catch(e){
     if (e.message == "request-already-exists") {
       res.status(400).send(e.message)
+      return;
     }
     console.log(e)
     res.sendStatus(500)

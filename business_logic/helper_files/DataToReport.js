@@ -1,3 +1,10 @@
+exports.customReqResHeaders = {
+    'User-Twitter-Token-Enc': "oauthToken",
+    'User-Twitter-Token-Secret-Enc': "oauthTokenSecret",
+
+    'Researcher-Id-Enc': "researcherId"
+}
+
 exports.researcher = {
     // Details we get from google sign in, such as email and maybe full name.
     // "email": "",

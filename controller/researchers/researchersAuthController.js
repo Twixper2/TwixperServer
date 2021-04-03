@@ -7,8 +7,10 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 
 
 router.post("/researcherValidateSession", async (req, res, next) => {
-    if (req.session && req.session.researcherId) {
-        const researcherId = req.session.researcherId;
+    // if (req.session && req.session.researcherId) {
+    if (req.header('Researcher-Id-Enc')) {
+        // const researcherId = req.session.researcherId;
+        const researcherId = req.header('Researcher-Id-Enc');
         try{
             const researcher = await database.getResearcher(researcherId);
             if (researcher) {
@@ -48,7 +50,10 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         // checking if already registered, if yes, give cookie and thats it
         let researcher = await researcherService.getResearcher(researcherId)
         if (researcher) {
-            req.session.researcherId = researcherId
+            // req.session.researcherId = researcherId
+
+            // TODO: Encrypt researcherId
+            res.set('Researcher-Id-Enc', researcherId)
             res.sendStatus(200)
             return
         }
@@ -56,7 +61,10 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         // new user, register him and give cookie
         let addedResearcher = await researcherService.registerResearcher(researcherId)
         if (addedResearcher) {
-            req.session.researcherId = researcherId
+            // req.session.researcherId = researcherId
+
+            // TODO: Encrypt  researcherId
+            res.set('Researcher-Id-Enc', researcherId)
             res.sendStatus(200)
             return
         }

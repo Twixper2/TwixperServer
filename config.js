@@ -1,5 +1,7 @@
 var config = new Object()
 
+config.isProduction = false // real mode: true
+
 /* For twitterCommunicator */
 // Get
 config.realVerifyCredentials = true // real mode: true
