@@ -46,8 +46,10 @@ router.post("/twitterAuthAccessToken", async (req, res, next) => {
 })
 
 router.post("/participantValidateSession", async (req, res, next) => {
-  if (req.session && req.session.userTwitterToken) {
-    const token = req.session.userTwitterToken;
+  // if (req.session && req.session.userTwitterToken) {
+  if (req.header('User-Twitter-Token-Enc') ) {
+    // const token = req.session.userTwitterToken;
+    const token = req.header('User-Twitter-Token-Enc');
     try{
       const participant = await database.getParticipantByToken(token);
       if (participant) {

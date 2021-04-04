@@ -36,36 +36,8 @@ app.use(bodyParser.urlencoded({ extended:true})); //parse application/x-www-form
 app.use(bodyParser.json({limit: '3mb'})); //parse json
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 
+
 /*
-// Options for production
-if(config.isProduction){
-  cookieOptions = {
-    sameSite: "none",
-    secure: true,
-    // secureProxy: true,
-    // httpOnly: false,
-  }
-  
-  //Tell Express that we're running behind a
-  //reverse proxy that supplies https for you
-  app.set('trust proxy', 3);
-
-  //Add middleware that will trick Express
-  //into thinking the request is secure
-  app.use(function(req, res, next) {
-    if(!req.headers['x-forwarded-proto']) { //req.headers['x-arr-ssl'] && 
-      req.headers['x-forwarded-proto'] = 'https';
-    }
-    return next();
-  });
-  
-}
-else{
-  cookieOptions = {
-    httpOnly: false,
-  } 
-}
-
 app.use(
   session({
     // proxy:config.isProduction,
@@ -102,21 +74,14 @@ app.use((req,res) => {
 
 const port =  process.env.PORT || 3000;
 
-// const hostname = process.env.HOSTNAME;
-/*const server = app.listen(port, hostname, () => {
-  // Setting up the file manager
-  localFileManager.setupFileManager()
-  console.log(`Server running at http://${hostname}:${port}/`);
-});*/
-
-console.log("** BBB9")
+console.log("** BBB9") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
 app.listen(port, () => {
   // Setting up the file manager
   /*
     TODO: Add storage to Azure's server and configure the paths to the folders
   */
- if(!config.isProduction){
+ if(!config.isProduction){ // Because in production (azure) it does not work
   localFileManager.setupFileManager()
  }
   console.log(`Server running at http://localhost:${port}/`);

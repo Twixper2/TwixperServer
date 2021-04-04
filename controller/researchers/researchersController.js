@@ -104,6 +104,7 @@ router.get("/getReportIfReady", async (req, res, next) => {
         }
         else{
           console.log("Report downloaded successfuly")
+          // TODO: Delete the file in output
         }
       }); 
     }

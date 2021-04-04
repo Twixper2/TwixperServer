@@ -5,14 +5,12 @@ var fs = require("fs")
 var path = require("path");
 var watch = require('watch')
 var AdmZip = require('adm-zip');
-const prependFile = require('prepend-file');
+// const prependFile = require('prepend-file');
 var experimentsCollection= require('../mongodb/experimentsCollection')
 const { promisify } = require("util")
 const writeFile = promisify(fs.writeFile)
 
 // https://github.com/mikeal/watch
-
-
 
 const rootPath = process.env.FS_ROOT_FOLDER
 const experimentsDataPath = process.env.FS_EXPERIMENTS_DATA_FOLDER
