@@ -116,6 +116,14 @@ async function isExperimentExists(reqExpCode) {
 
 }
 
+async function createExpMetadata (expId, metadataObj){
+    return await fileManager.createExpMetadata(expId, metadataObj);
+}
+
+async function getStreamDictForDownloadReport (expId){
+    return await fileManager.getStreamDictForDownloadReport(expId);
+}
+
 
 module.exports = {
     getExperimentByCode : getExperimentByCode,
@@ -136,6 +144,8 @@ module.exports = {
     updateParticipantTokens: updateParticipantTokens,
     createReportRequest: createReportRequest,
     getReportIfReady : getReportIfReady,
-    checkReportRequestExists : checkReportRequestExists
+    checkReportRequestExists : checkReportRequestExists,
+    createExpMetadata: createExpMetadata,
+    getStreamDictForDownloadReport: getStreamDictForDownloadReport
 }
 

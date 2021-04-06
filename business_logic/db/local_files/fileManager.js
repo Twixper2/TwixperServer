@@ -40,6 +40,10 @@ function insertActionsArray(expId, actionsArr){
     }
 }
 
+/* ------------------------------------
+    Only for local files (localhost) 
+    ----------------------------------
+*/
 function createReportRequest(expId) {
     if(isProduction){
         throw "The funciton 'createReportRequest' is not supported in production"
@@ -67,6 +71,30 @@ function checkReportRequestExists(expId) {
     }
 }
 
+
+/* ------------------------------------
+    Only for azure
+    ----------------------------------
+*/
+async function createExpMetadata(expId, metadataObj){
+    if(isProduction){
+        return await azureStorageManager.createExpMetadata(expId, metadataObj)
+    }
+    else{
+        throw "The funciton 'createExpMetadata' is only supported in production"
+    }
+}
+
+async function getStreamDictForDownloadReport(expId){
+    if(isProduction){
+        return await azureStorageManager.getStreamDictForDownloadReport(expId)
+    }
+    else{ 
+        throw "The funciton 'getStreamDictForDownloadReport' is only supported in production"
+    }
+}
+
+
 module.exports = {
     setupFileManager: setupFileManager,
     initExperimentFiles: initExperimentFiles,
@@ -74,5 +102,7 @@ module.exports = {
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,
     getReportPath : getReportPath,
-    checkReportRequestExists : checkReportRequestExists
+    checkReportRequestExists : checkReportRequestExists,
+    createExpMetadata: createExpMetadata,
+    getStreamDictForDownloadReport: getStreamDictForDownloadReport
 }

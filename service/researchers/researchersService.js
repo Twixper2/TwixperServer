@@ -58,6 +58,14 @@ async function requestExperimentReport(expId, researcher){
     return await reportManager.getReportIfReady(expId, researcher)
 }
 
+async function createExpMetadata(expId, researcher){
+    return await reportManager.createExpMetadata(expId, researcher)
+}
+
+async function getStreamDictForDownloadReport(expId){
+    return await reportManager.getStreamDictForDownloadReport(expId)
+}
+
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperimentsByIds = getExperimentsByIds
 exports.getResearcher = getResearcher
@@ -65,3 +73,5 @@ exports.registerResearcher = registerResearcher
 exports.validateExpFields = validateExpFields
 exports.requestExperimentReport = requestExperimentReport
 exports.getReportIfReady = getReportIfReady
+exports.createExpMetadata = createExpMetadata
+exports.getStreamDictForDownloadReport = getStreamDictForDownloadReport

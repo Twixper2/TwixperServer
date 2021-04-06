@@ -74,13 +74,10 @@ app.use((req,res) => {
 
 const port =  process.env.PORT || 3000;
 
-console.log("** BBB10") // For identifying versions in azure
+// console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
 app.listen(port, () => {
   // Setting up the file manager
-  /*
-    TODO: Add storage to Azure's server and configure the paths to the folders
-  */
   fileManager.setupFileManager()
 
   console.log(`Server running at http://localhost:${port}/`);

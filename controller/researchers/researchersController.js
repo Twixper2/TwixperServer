@@ -2,7 +2,7 @@ var express = require("express")
 var router = express.Router()
 const researchersService = require("../../service/researchers/researchersService.js")
 const database = require("../../business_logic/db/DBCommunicator.js")
-
+const archiver = require('archiver');
 
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
@@ -90,7 +90,7 @@ router.post("/requestExperimentReport", async (req, res, next) => {
   }
 });
 
-// Create experiment report, currently only locally in server side
+// Download experiment report if it is ready
 router.get("/getReportIfReady", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
@@ -124,6 +124,64 @@ router.get("/getReportIfReady", async (req, res, next) => {
   }
 });
 
+// Download experiment report from azure (use in production only)
+router.get("/getExpReport", async (req, res, next) => {
+  const expId = req.query.expId
+  const researcher = req.researcher
+  try{
+    // Create the metadata file
+    await researchersService.createExpMetadata(expId, researcher)
+    // Get the stream dict
+    const streamDict = await researchersService.getStreamDictForDownloadReport(expId)
+    await new Promise((resolve, reject) => {  
+      // create a file to stream archive data to. 
+      // In case you want to directly stream output in http response of express, just grab 'res' in that case instead of creating file stream
+      const output = res
+      const archive = archiver('zip', {
+        zlib: { level: 9 } // Sets the compression level.
+      });
+  
+      // listen for all archive data to be written
+      // 'close' event is fired only when a file descriptor is involved
+      output.on('close', () => {
+        console.log(archive.pointer() + ' total bytes');
+        console.log('archiver has been finalized and the output file descriptor has closed.');
+      });
+  
+      // good practice to catch warnings (ie stat failures and other non-blocking errors)
+      archive.on('warning', (err) => {
+        if (err.code === 'ENOENT') {
+          // log warning
+        } else {
+          // throw error
+          throw err;
+        }
+      });
+      
+      // good practice to catch this error explicitly
+      archive.on('error', (err) => {
+        throw err;
+      });    
+   
+      // pipe archive data to the file
+      archive.pipe(output);
+      
+      for(const blobName in streamDict) {
+          const readableStream = streamDict[blobName];
+          // finalize the archive (ie we are done appending files but streams have to finish yet)
+          archive.append(readableStream, { name: blobName });
+          readableStream.on("error", reject);
+      }
+  
+      archive.finalize();
+      resolve();
+    });
+  }
+  catch(e){
+    console.log(e)
+    res.status(500).send(JSON.stringify(e))
+  }
+})
 
 module.exports = router;
   
