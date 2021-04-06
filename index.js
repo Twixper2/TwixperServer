@@ -7,7 +7,7 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 // var cookieParser = require('cookie-parser');
 // const session = require("client-sessions");
-const localFileManager = require("./business_logic/db/local_files/localFileManager")
+const fileManager = require("./business_logic/db/local_files/fileManager")
 const config = require('./config')
 
 
@@ -64,7 +64,7 @@ app.use(researchersAuthController);  //participant auth
 
 
 app.get("/alive", (req, res) => {
-  res.send("I'm alive");
+  res.send("I'm alive v.1");
 });
 
 
@@ -74,15 +74,14 @@ app.use((req,res) => {
 
 const port =  process.env.PORT || 3000;
 
-console.log("** BBB9") // For identifying versions in azure
+console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
 app.listen(port, () => {
   // Setting up the file manager
   /*
     TODO: Add storage to Azure's server and configure the paths to the folders
   */
- if(!config.isProduction){ // Because in production (azure) it does not work
-  localFileManager.setupFileManager()
- }
+  fileManager.setupFileManager()
+
   console.log(`Server running at http://localhost:${port}/`);
 });

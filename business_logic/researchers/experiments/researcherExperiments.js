@@ -8,7 +8,7 @@ const dateFormat = config.dateFormat
 async function activateNewExperiment(expObj, researcherId){
     // adding all fields to experiment object
     expObj.status = "active"
-    expObj.start_date = moment().format(dateFormat);
+    expObj.start_date = moment.utc().format(dateFormat);
     expObj.num_of_participants = 0
     let groupIdIndex = 11
     let expGroups = expObj.exp_groups

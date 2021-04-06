@@ -1,6 +1,5 @@
 //import mergeFiles from 'merge-files';
 var mergeFiles = require('merge-files')
-
 var fs = require("fs")
 var path = require("path");
 var watch = require('watch')
@@ -69,17 +68,19 @@ function insertAction(expId, action){
  * @param {Array} actionsArr 
  */
 function insertActionsArray(expId, actionsArr){
-    /*const folderPath = experimentsDataPath + "\\" + expId + "\\"
-    const docName = "arr_" + Date.now() + ".json" // indicating that this is array of objects, and current timestamp
-    data = JSON.stringify(actionsArr, null, "\t")
-    fs.writeFile(folderPath + docName, data, (err) => {
+    const folderPath = experimentsDataPath + "\\" + expId + "\\"
+    const timestamp = process.hrtime()
+    const docName = (timestamp[0] * 1000000000 + timestamp[1]) + ".txt" // Current timestamp
+    // Convert the actions array to ndjson string
+    const ndjsonActionsStr = getNdjsonFromArray(actionsArr)
+    fs.writeFile(folderPath + docName, ndjsonActionsStr, (err) => {
         if (err){
-            console.log(error)
+            console.log(err)
         }
-    });*/
-    actionsArr.forEach(actionObj => {
-        insertAction(expId, actionObj)
     });
+    // actionsArr.forEach(actionObj => {
+    //     insertAction(expId, actionObj)
+    // });
 }
 
 /**
@@ -242,6 +243,18 @@ function checkReportRequestExists(expId) {
         console.error(err)
         return null
     }
+}
+
+/**
+ * Returns ndjson string from the array of objects
+ * @param {Array} arrOfObjects Array of objects
+ */
+function getNdjsonFromArray(arrOfObjects){
+    const result = [];
+	for (const obj of arrOfObjects) {
+		result.push(JSON.stringify(obj), '\n');
+	}
+    return result.join("")
 }
 
 module.exports = {

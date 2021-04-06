@@ -1,6 +1,6 @@
 var config = new Object()
 
-config.isProduction = false // real mode: true
+config.isProduction = true // real mode: true
 
 /* For twitterCommunicator */
 // Get
@@ -12,6 +12,6 @@ config.makeActionsInTwitter = true // Real mode: true
 config.publishPostInTwitter = true // Real mode: true
 
 // Date formats
-config.dateFormat = "MM/DD/YYYY HH:mm:ss"
+config.dateFormat = "MM/DD/YYYY HH:mm:ss UTC"
 
 module.exports = config;
