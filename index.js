@@ -64,7 +64,7 @@ app.use(researchersAuthController);  //participant auth
 
 
 app.get("/alive", (req, res) => {
-  res.send("I'm alive v.1");
+  res.send("I'm alive v.2");
 });
 
 

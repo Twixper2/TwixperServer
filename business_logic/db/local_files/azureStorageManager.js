@@ -29,10 +29,12 @@ async function getStreamDict(expId){
     let streamDict = {}; // to have a map of blobName and it's corresponding stream
     const metadataBlobClient = containerClient.getBlobClient("experiment-metadata.json");
     const actionsBlobClient = containerClient.getAppendBlobClient("actions-log.ndjson");
-    const response1 = await metadataBlobClient.download(0); // download from 0 offset 
-    const response2 = await actionsBlobClient.download(0); // download from 0 offset 
-    streamDict[metadataBlobName] = response1.blobDownloadStream;
-    streamDict[actionsBlobName] = response2.blobDownloadStream;
+    const responses = await Promise.all([
+        metadataBlobClient.download(0), // download from 0 offset
+        actionsBlobClient.download(0)
+    ])
+    streamDict[metadataBlobName] = responses[0].blobDownloadStream;
+    streamDict[actionsBlobName] = responses[1].blobDownloadStream;
 
     return streamDict
 
