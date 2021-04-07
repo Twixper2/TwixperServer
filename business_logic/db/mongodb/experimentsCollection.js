@@ -37,7 +37,7 @@ async function getExperimentById(expId) {
   let result = null
   try {
     let collection = db.collection("Experiments")
-    result = await collection.findOne({ exp_id: expId })
+    result = await collection.findOne({ exp_id: expId }, { projection: { _id: 0 } })
   }
   catch (e) {
     throw e

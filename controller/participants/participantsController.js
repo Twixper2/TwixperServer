@@ -11,20 +11,28 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   and append user data from db to req
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.session && req.session.userTwitterToken) {
-    const token = req.session.userTwitterToken;
-    const participant = await database.getParticipantByToken(token);
+  // if (req.session && req.session.userTwitterToken) {
+  if (req.header('User-Twitter-Token-Enc')) {
+    // const token = req.session.userTwitterToken;
+    const token = req.header('User-Twitter-Token-Enc');
+    try{
+      const participant = await database.getParticipantByToken(token);
 
-    if (participant) {
+      if (participant) {
         req.participant = participant; //every method has the user now
         next(); //go to the request
+      }
+      else {
+        res.sendStatus(401);
+      }
     }
-    else {
-      res.sendStatus(401);
+    catch(e){
+      console.log(e)
+      res.sendStatus(500);
     }
   }
   else {
-      res.sendStatus(401); //user authentication failed, responde with unautorized
+    res.status(428).send("Missing auth header User-Twitter-Token-Enc"); 
   }
 });
 

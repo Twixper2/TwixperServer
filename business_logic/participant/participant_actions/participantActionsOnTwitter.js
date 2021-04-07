@@ -11,7 +11,7 @@ async function likeTweet(participant, tweetId){
     let likeSuccess = await twitterComm.likeTweet(participant, tweetId) 
 
     //create the action obj and add to db for report
-    const actionDate = moment().format(dateFormat);
+    const actionDate = moment.utc().format(dateFormat);
     let action = createActionObj(participant, "like", actionDate)
     action['tweet_obj'] = likeSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
@@ -24,7 +24,7 @@ async function unlikeTweet(participant, tweetId){
     let unlikeSuccess = await twitterComm.unlikeTweet(participant, tweetId)
 
     //create the action obj and add to db for report
-    const actionDate = moment().format(dateFormat);
+    const actionDate = moment.utc().format(dateFormat);
     let action = createActionObj(participant, "unlike", actionDate)
     action['tweet_obj'] = unlikeSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
@@ -37,7 +37,7 @@ async function publishTweet(participant, tweetParams){
     let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
 
     //create the action obj and add to db for report
-    const actionDate = moment().format(dateFormat);
+    const actionDate = moment.utc().format(dateFormat);
     let action = createActionObj(participant, "tweeted", actionDate)
     action['tweet_obj'] = publishTweetSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
@@ -53,7 +53,7 @@ async function publishTweet(participant, tweetParams){
 
 function logRegisteredToExperiment(participant){
     //create the action obj and add to db for report
-    const actionDate = moment().format(dateFormat);
+    const actionDate = moment.utc().format(dateFormat);
     let action = createActionObj(participant, "registered to experiment", actionDate)
     database.insertAction(participant.exp_id, action) // not await
 }
