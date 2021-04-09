@@ -55,7 +55,7 @@ const researchersAuthController = require("./controller/researchers/researchersA
 const participantController  = require("./controller/participants/participantsController");
 const researcherController = require("./controller/researchers/researchersController");
 
-app.get("/", (req, res) => res.send("welcome"));
+app.get("/", (req, res) => res.send("welcome v.1"));
 
 app.use("/participants", participantController);
 app.use("/researchers", researcherController);
@@ -64,7 +64,7 @@ app.use(researchersAuthController);  //participant auth
 
 
 app.get("/alive", (req, res) => {
-  res.send("I'm alive v.2");
+  res.send("I'm alive");
 });
 
 
