@@ -2,7 +2,7 @@ exports.data = {
     "created_at": "Wed Jan 06 18:55:17 +0000 2021",
     "id": 1346893114632511489,
     "id_str": "1346893114632511489",
-    "full_text": "Hey there! If you came here, we did not support yet the action you made in this version. Be sure to stay tuned!",
+    "full_text": "Hey there! If you've reached this page, the action you tried to make is not yet supported on this version. Stay tuned!",
     "truncated": false,
     "display_text_range": [
         0,
