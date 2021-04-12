@@ -145,10 +145,10 @@ router.get("/getReportIfReady", async (req, res, next) => {
   }
 });
 
-// Post and activate new experiment
+// End experiment- participants from the experiment well be deleted
 router.post("/endExperiment", async (req, res, next) => {
   try{
-    let expId = req.body.exp_id
+    let expId = req.query.exp_id
     let researcher = req.researcher
     if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
       res.sendStatus(400); // Bad request
@@ -185,7 +185,8 @@ router.get("/getExpReport", async (req, res, next) => {
         zlib: { level: 9 } // Sets the compression level.
       });
   
-       // 'close' event is fired only when a file descriptor is involved
+      // listen for all archive data to be written
+      // 'close' event is fired only when a file descriptor is involved
       output.on('close', () => {
         console.log(archive.pointer() + ' total bytes');
         console.log('archiver has been finalized and the output file descriptor has closed.');
