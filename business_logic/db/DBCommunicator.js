@@ -4,7 +4,7 @@ var experimentsCollection = require("./mongodb/experimentsCollection")
 var participantsCollection = require("./mongodb/participantsCollection")
 var researchersCollection = require("./mongodb/researchersCollection")
 
-var localFileManager = require("./local_files/localFileManager")
+var fileManager = require("./local_files/fileManager")
 
 
 /*
@@ -34,22 +34,22 @@ async function updateParticipantTokens(tId, token, token_secret){
     _____ ACTIONS _____
 */
 function insertAction(expId, action){
-    localFileManager.insertAction(expId, action); 
+    fileManager.insertAction(expId, action); 
 }
 
 function createReportRequest(expId) {
-    return localFileManager.createReportRequest(expId)
+    return fileManager.createReportRequest(expId)
 }
 
 function getReportIfReady(expId) {
-    return localFileManager.getReportPath(expId)
+    return fileManager.getReportPath(expId)
 }
 function insertActionsArray(expId, actionsArr){
-    localFileManager.insertActionsArray(expId, actionsArr); 
+    fileManager.insertActionsArray(expId, actionsArr); 
 }
 
 function checkReportRequestExists(expId) {
-    localFileManager.checkReportRequestExists(expId)
+    fileManager.checkReportRequestExists(expId)
 }
 
 /*
@@ -91,7 +91,7 @@ async function insertExperiment (experiment){
     // await experimentsCollection.deleteAllExperiments()
 
     await experimentsCollection.insertExperiment(experiment);
-    await localFileManager.createExperimentFolder(experiment.exp_id);
+    await fileManager.initExperimentFiles(experiment.exp_id);
     return true
 }
 
@@ -116,6 +116,14 @@ async function isExperimentExists(reqExpCode) {
 
 }
 
+async function createExpMetadata (expId, metadataObj){
+    return await fileManager.createExpMetadata(expId, metadataObj);
+}
+
+async function getStreamDictForDownloadReport (expId){
+    return await fileManager.getStreamDictForDownloadReport(expId);
+}
+
 
 module.exports = {
     getExperimentByCode : getExperimentByCode,
@@ -136,6 +144,8 @@ module.exports = {
     updateParticipantTokens: updateParticipantTokens,
     createReportRequest: createReportRequest,
     getReportIfReady : getReportIfReady,
-    checkReportRequestExists : checkReportRequestExists
+    checkReportRequestExists : checkReportRequestExists,
+    createExpMetadata: createExpMetadata,
+    getStreamDictForDownloadReport: getStreamDictForDownloadReport
 }
 

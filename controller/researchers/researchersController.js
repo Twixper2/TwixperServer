@@ -2,26 +2,33 @@ var express = require("express")
 var router = express.Router()
 const researchersService = require("../../service/researchers/researchersService.js")
 const database = require("../../business_logic/db/DBCommunicator.js")
-
+const archiver = require('archiver');
 
 /* Make sure user is authenticated by checking id provided in the cookie
   and append user data from db to req
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
-  if (req.session && req.session.researcherId) {
-    const researcherId = req.session.researcherId;
-    const researcher = await database.getResearcher(researcherId);
-
-    if (researcher) {
+  // if (req.session && req.session.researcherId) {
+  if (req.header('Researcher-Id-Enc')) {
+    // const researcherId = req.session.researcherId;
+    const researcherId = req.header('Researcher-Id-Enc');
+    try{
+      const researcher = await database.getResearcher(researcherId);
+      if (researcher) {
         req.researcher = researcher; //every method has the user now
         next(); //go to the request
+      }
+      else {
+        res.sendStatus(401); //user authentication failed, responde with unautorized
+      }
     }
-    else {
-      res.sendStatus(401); //user authentication failed, responde with unautorized
+    catch(e){
+      console.log(e)
+      res.sendStatus(500);
     }
   }
   else {
-    res.sendStatus(401); //user authentication failed, responde with unautorized
+    res.status(428).send("Missing auth header Researcher-Id-Enc"); 
   }
 });
 
@@ -97,13 +104,14 @@ router.post("/requestExperimentReport", async (req, res, next) => {
   catch(e){
     if (e.message == "request-already-exists") {
       res.status(400).send(e.message)
+      return;
     }
     console.log(e)
     res.sendStatus(500)
   }
 });
 
-// Create experiment report, currently only locally in server side
+// Download experiment report if it is ready
 router.get("/getReportIfReady", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
@@ -117,6 +125,7 @@ router.get("/getReportIfReady", async (req, res, next) => {
         }
         else{
           console.log("Report downloaded successfuly")
+          // TODO: Delete the file in output
         }
       }); 
     }
@@ -154,6 +163,65 @@ router.post("/endExperiment", async (req, res, next) => {
     res.sendStatus(500)
   }
 });
+
+// Download experiment report from azure (use in production only)
+router.get("/getExpReport", async (req, res, next) => {
+  const expId = req.query.expId
+  const researcher = req.researcher
+  try{
+    // Create the metadata file
+    await researchersService.createExpMetadata(expId, researcher)
+    // Get the stream dict
+    const streamDict = await researchersService.getStreamDictForDownloadReport(expId)
+    await new Promise((resolve, reject) => {  
+      // create a file to stream archive data to. 
+      // In case you want to directly stream output in http response of express, just grab 'res' in that case instead of creating file stream
+      const output = res
+      const archive = archiver('zip', {
+        zlib: { level: 9 } // Sets the compression level.
+      });
+  
+      // listen for all archive data to be written
+      // 'close' event is fired only when a file descriptor is involved
+      output.on('close', () => {
+        console.log(archive.pointer() + ' total bytes');
+        console.log('archiver has been finalized and the output file descriptor has closed.');
+      });
+  
+      // good practice to catch warnings (ie stat failures and other non-blocking errors)
+      archive.on('warning', (err) => {
+        if (err.code === 'ENOENT') {
+          // log warning
+        } else {
+          // throw error
+          throw err;
+        }
+      });
+      
+      // good practice to catch this error explicitly
+      archive.on('error', (err) => {
+        throw err;
+      });    
+   
+      // pipe archive data to the file
+      archive.pipe(output);
+      
+      for(const blobName in streamDict) {
+          const readableStream = streamDict[blobName];
+          // finalize the archive (ie we are done appending files but streams have to finish yet)
+          archive.append(readableStream, { name: blobName });
+          readableStream.on("error", reject);
+      }
+  
+      archive.finalize();
+      resolve();
+    });
+  }
+  catch(e){
+    console.log(e)
+    res.status(500).send(JSON.stringify(e))
+  }
+})
 
 module.exports = router;
   

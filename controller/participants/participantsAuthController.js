@@ -46,8 +46,10 @@ router.post("/twitterAuthAccessToken", async (req, res, next) => {
 })
 
 router.post("/participantValidateSession", async (req, res, next) => {
-  if (req.session && req.session.userTwitterToken) {
-    const token = req.session.userTwitterToken;
+  // if (req.session && req.session.userTwitterToken) {
+  if (req.header('User-Twitter-Token-Enc') ) {
+    // const token = req.session.userTwitterToken;
+    const token = req.header('User-Twitter-Token-Enc');
     try{
       const participant = await database.getParticipantByToken(token);
       if (participant) {
@@ -94,18 +96,12 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
       return;
     }
 
+    /*
     // deleting old cookies if they are differnt
     if ((req.session &&  req.session.userTwitterToken && req.session.userTwitterToken!=oauthToken)
       || (req.session &&  req.session.userTwitterTokenSecret && req.session.userTwitterTokenSecret!=oauthTokenSecret)) {
         req.session.reset();
     }
-
-    // if (req.cookies &&  req.cookies.userTwitterToken && req.cookies.userTwitterToken!=oauthToken) {
-    //   res.clearCookie('userTwitterToken'); 
-    // }
-    // if (req.cookies &&  req.cookies.userTwitterTokenSecret && req.cookies.userTwitterTokenSecret!=oauthTokenSecret) {
-    //   res.clearCookie('userTwitterTokenSecret'); 
-    // }
 
     // giving user cookies if there aren't 
     if (!req.session.userTwitterToken) {
@@ -114,6 +110,14 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     if (!req.session.userTwitterTokenSecret) {
       req.session.userTwitterTokenSecret = oauthTokenSecret;
     }
+    */
+    
+    // Setting headers
+    // TODO: Encrypt the tokens
+    res.set({
+      'User-Twitter-Token-Enc': oauthToken,
+      'User-Twitter-Token-Secret-Enc': oauthTokenSecret,
+    })
 
     // checking if user already registered to an experiment
     let participant = await database.getParticipantByTwitterId(twitter_id_str)
@@ -149,13 +153,26 @@ router.post("/registerToExperiment", async (req, res, next) => {
       return;
     }
 
-    if (!req.session || !req.session.userTwitterToken || !req.session.userTwitterTokenSecret) {
+    if(!req.header('User-Twitter-Token-Enc') || !req.header('User-Twitter-Token-Secret-Enc')){
+      res.status(428).send("Missing auth headers (User-Twitter-Token-Enc, User-Twitter-Token-Secret-Enc)");
+      return;
+      /*
+        The HTTP 428 Precondition Required response status code indicates that the server requires
+        the request to be conditional. Typically, this means that a required precondition header, 
+        such as If-Match , is missing.
+      */
+    }
+    /*if (!req.session || !req.session.userTwitterToken || !req.session.userTwitterTokenSecret) {
       res.status(401).send("Login with twitter first.");
       return;
-    }
+    }*/
 
-    const oauthToken = req.session.userTwitterToken
-    const oauthTokenSecret = req.session.userTwitterTokenSecret       
+    // const oauthToken = req.session.userTwitterToken
+    // const oauthTokenSecret = req.session.userTwitterTokenSecret    
+    
+    // TODO: Decrypt tokens
+    const oauthToken = req.header('User-Twitter-Token-Enc')
+    const oauthTokenSecret = req.header('User-Twitter-Token-Secret-Enc')    
    
     // trying registering user
     try {
@@ -185,9 +202,9 @@ router.post("/registerToExperiment", async (req, res, next) => {
 /**
  * For debugging Nir don't delete this
  */
-router.get("/getCookies", async (req, res, next) => {
-  res.send(req.session)
-});
+// router.get("/getCookies", async (req, res, next) => {
+//   res.send(req.session)
+// });
 
 
 module.exports = router;
