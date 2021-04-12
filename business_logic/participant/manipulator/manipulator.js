@@ -71,13 +71,20 @@ function muteTweets(muteManipulation, tweets, participantUsername){
 */
 function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes, pUsername){
     const entities = tweet.entities
-    // If the participant is mentioned in the tweet, we do not want to mnipulate the tweet.
-    if(isUserMentioned(entities.user_mentions)){
+    /*  If the participant is the author of the tweet
+        or is mentioned in the tweet, we do not want to manipulate the tweet. */
+    if(isUserMentioned(entities.user_mentions, pUsername)){
+        return false
+    }
+    const user = tweet.user
+    const tweetAuthorName = user.screen_name
+    if(pUsername == tweetAuthorName){
+        // The participant is the author of the tweet
         return false
     }
 
-    const user = tweet.user
-    if(usersManip.includes(user.screen_name)){
+
+    if(usersManip.includes(tweetAuthorName)){
         // One of the users in the manipulation wrote this tweet
         return true
     }
