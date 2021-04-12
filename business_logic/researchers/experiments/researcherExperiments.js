@@ -5,7 +5,7 @@ const config = require('../../../config')
 var moment = require('moment');
 const dateFormat = config.dateFormat
 
-async function activateNewExperiment(expObj, researcherId){
+async function activateNewExperiment(expObj, researcherObj){
     // adding all fields to experiment object
     expObj.status = "active"
     expObj.start_date = moment.utc().format(dateFormat);
@@ -32,9 +32,13 @@ async function activateNewExperiment(expObj, researcherId){
     })
     expObj.exp_id = idGenerator.generateUUID()
     expObj.exp_code = await generateExpCode()
+    const researcherId = researcherObj.researcher_id
     if (expObj.exp_code) {
-        expObj.researcher_details = {}
-        expObj.researcher_details.researcher_id = researcherId
+        expObj.researcher_details = {
+            "researcher_id": researcherObj.researcher_id,
+            "researcher_username": researcherObj.researcher_username,
+            "researcher_email": researcherObj.researcher_email,
+        }
         // adding exp to db and adding expId to researcher
         const isSuccessfulInsert = await dbComm.insertExperiment(expObj)
         if(isSuccessfulInsert === true){

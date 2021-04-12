@@ -36,13 +36,13 @@ router.use(async function (req, res, next) {
 router.post("/activateNewExperiment", async (req, res, next) => {
   // Checking for required fields
   let reqBody = req.body
-  let researcherId = req.researcher.researcher_id
+  let researcherObj = req.researcher
   let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
   if(!researchersService.validateExpFields(experiment)){
     res.sendStatus(400); // Bad request
   }
   try{
-    const expCode = await researchersService.activateNewExperiment(experiment, researcherId)
+    const expCode = await researchersService.activateNewExperiment(experiment, researcherObj)
     res.status(201).send({exp_code: expCode})
   }
   catch(e){

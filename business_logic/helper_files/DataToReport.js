@@ -6,10 +6,10 @@ exports.customReqResHeaders = {
 }
 
 exports.researcher = {
-    // Details we get from google sign in, such as email and maybe full name.
-    // "email": "",
-    // "full_name": "",
+    // Details we get from google sign in
     "researcher_id" : "ABCD1234-1234",
+    "researcher_username": "Nir Dzouraev",
+    "researcher_email": "xxx@post.bgu.ac.il",
     "experiments_ids": [235989, 65983, 569895, 878452]
 }
 

@@ -59,7 +59,9 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
         }
 
         // new user, register him and give cookie
-        let addedResearcher = await researcherService.registerResearcher(researcherId)
+        const username = idTokenData.username
+        const email = idTokenData.email
+        let addedResearcher = await researcherService.registerResearcher(researcherId, username, email)
         if (addedResearcher) {
             // req.session.researcherId = researcherId
 
@@ -87,9 +89,13 @@ async function verifyGoogleUser(token) {
     });
     const payload = ticket.getPayload();
     const userId = payload['sub']; //this is the key we will be using to identify the researcher
+    const username = payload['name']
+    const email = payload['email']
     const appClientId = payload['aud'] // this should be our app key
     return {
             "userId" : userId,
+            "username": username,
+            "email": email,
             "appClientId" : appClientId
         }
 }
