@@ -87,11 +87,27 @@ async function deleteParticipants() {
     return false
 }
 
+async function deleteParticipantsFromExp(expId){
+    const db = await makeDb()
+    let result = null
+    try{
+        let collection = db.collection("Participants")
+        result = await collection.deleteMany({exp_id: expId})
+    }
+    catch(e){
+        return false
+    }
+    if (result) {
+        return true
+    }
+    return false}
+
 module.exports = {
     insertParticipant : insertParticipant,
     getParticipantByTwitterId : getParticipantByTwitterId,
     getParticipantByToken : getParticipantByToken,
     deleteParticipants: deleteParticipants,
-    updateParticipantTokens: updateParticipantTokens    
+    updateParticipantTokens: updateParticipantTokens,
+    deleteParticipantsFromExp : deleteParticipantsFromExp,
 
 }

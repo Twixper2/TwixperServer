@@ -111,7 +111,7 @@ router.post("/requestExperimentReport", async (req, res, next) => {
   }
 });
 
-// Download experiment report if it is ready
+// Download experiment report if it is ready - LOCAL FILES VERSION
 router.get("/getReportIfReady", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
@@ -147,15 +147,19 @@ router.get("/getReportIfReady", async (req, res, next) => {
 
 // Post and activate new experiment
 router.post("/endExperiment", async (req, res, next) => {
-  // Checking for required fields
-  let expId = req.body.exp_id
-  if (!expId) {
-    res.sendStatus(400); // Bad request
-  }
-  let exp = null
   try{
-    const expCode = await researchersService.activateNewExperiment(experiment, researcherId)
-    res.status(201).send({exp_code: expCode})
+    let expId = req.body.exp_id
+    let researcher = req.researcher
+    if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
+      res.sendStatus(400); // Bad request
+    }
+    let success = await researchersService.endExperiment(expId)
+    if (!success) {
+      res.sendStatus(500)
+    }
+    else {
+      res.sendStatus(400)
+    } 
   }
   catch(e){
     // Decide for error statuses by the error type.
@@ -164,7 +168,7 @@ router.post("/endExperiment", async (req, res, next) => {
   }
 });
 
-// Download experiment report from azure (use in production only)
+// Download experiment report from azure (use in production only) - AZURE VERSION
 router.get("/getExpReport", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
@@ -181,8 +185,7 @@ router.get("/getExpReport", async (req, res, next) => {
         zlib: { level: 9 } // Sets the compression level.
       });
   
-      // listen for all archive data to be written
-      // 'close' event is fired only when a file descriptor is involved
+       // 'close' event is fired only when a file descriptor is involved
       output.on('close', () => {
         console.log(archive.pointer() + ' total bytes');
         console.log('archiver has been finalized and the output file descriptor has closed.');

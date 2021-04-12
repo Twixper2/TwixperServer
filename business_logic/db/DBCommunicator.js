@@ -25,8 +25,13 @@ async function getParticipantByToken(token){
     return await participantsCollection.getParticipantByToken(token);
 }
 
+
 async function updateParticipantTokens(tId, token, token_secret){
     return await participantsCollection.updateParticipantTokens(tId,token,token_secret);
+}
+
+async function deleteParticipantsFromExp(expId){
+    return await participantsCollection.deleteParticipantsFromExp(expId);
 }
 
 
@@ -116,6 +121,10 @@ async function isExperimentExists(reqExpCode) {
 
 }
 
+async function updateExpStatus(expId, status) {
+    return await experimentsCollection.updateExpStatus(expId, status);
+}
+
 async function createExpMetadata (expId, metadataObj){
     return await fileManager.createExpMetadata(expId, metadataObj);
 }
@@ -146,6 +155,8 @@ module.exports = {
     getReportIfReady : getReportIfReady,
     checkReportRequestExists : checkReportRequestExists,
     createExpMetadata: createExpMetadata,
-    getStreamDictForDownloadReport: getStreamDictForDownloadReport
+    getStreamDictForDownloadReport: getStreamDictForDownloadReport,
+    deleteParticipantsFromExp : deleteParticipantsFromExp,
+    updateExpStatus : updateExpStatus
 }
 
