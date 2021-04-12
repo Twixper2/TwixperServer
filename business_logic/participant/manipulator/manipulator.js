@@ -77,14 +77,13 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
         return false
     }
     const user = tweet.user
-    const tweetAuthorName = user.screen_name
-    if(pUsername == tweetAuthorName){
+    if(pUsername == user.screen_name){
         // The participant is the author of the tweet
         return false
     }
 
 
-    if(usersManip.includes(tweetAuthorName)){
+    if(usersManip.includes(user.screen_name)){
         // One of the users in the manipulation wrote this tweet
         return true
     }
@@ -105,6 +104,10 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
         const original = tweet.retweeted_status
 
         const originalUser = original.user
+        if(pUsername == originalUser.screen_name){
+            // The participant was retweeted by someone, so do not manipulate this tweet
+            return false
+        }
         if(usersManip.includes(originalUser.screen_name)){ 
             // This is a retweet and one of the users in the manipulation wrote the ORIGINAL tweet
             return true
@@ -128,6 +131,11 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
         const quoted = tweet.quoted_status
 
         const quotedUser = quoted.user
+        if(pUsername == quotedUser.screen_name){
+            // The participant is the quoted author, so do not manipulate this tweet
+            return false
+        }
+
         if(usersManip.includes(quotedUser.screen_name)){ 
             // This is a quote and one of the users in the manipulation wrote the quoted tweet
             return true
