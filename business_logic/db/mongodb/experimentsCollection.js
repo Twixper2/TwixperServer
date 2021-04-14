@@ -134,6 +134,22 @@ async function deleteAllExperiments() {
   return false
 }
 
+async function updateExpStatus(expId, status) {
+  const db = await makeDb()
+    let result = null
+    try{
+        let collection = db.collection("Experiments")
+        result = await collection.findOneAndUpdate({exp_id: expId}, {$set: {status: status}})
+    }
+    catch(e){
+        throw(e)
+    }
+    if(result != null){
+        return true
+    }
+    return false
+}
+
 
 module.exports = {
   insertExperiment: insertExperiment,
@@ -141,5 +157,6 @@ module.exports = {
   getExperimentById: getExperimentById,
   getExperimentsByIds: getExperimentsByIds,
   getExperimentByCode: getExperimentByCode,
-  deleteAllExperiments: deleteAllExperiments
+  deleteAllExperiments: deleteAllExperiments,
+  updateExpStatus : updateExpStatus
 }

@@ -125,8 +125,26 @@ function validateExpFields(experimentObj) {
 }
 
 /**
+ * change experiment status, delete participants
+ * @param {string} expId 
+ */
+async function endExperiment(expId) {
+    let changeStatusPromise = dbComm.updateExpStatus(expId, "Closed") 
+    let deleteParticipantsPromise = dbComm.deleteParticipantsFromExp(expId)
+
+    const results = await Promise.all(changeStatusPromise, deleteParticipantsPromise)
+    if (results[0] && results[1]) {
+        return true
+    }
+    else {
+        // TODO Rollback changes
+        return false
+    }
+}
+
+/**
  * 
- * @returns new code, if 
+ * @returns unique 6 chars exp code
  */
 async function generateExpCode() {
     const MAX_ATTEMPTS = 10 // making sure we will not enter infinite loop 
@@ -150,4 +168,4 @@ async function generateExpCode() {
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperiments = getExperiments
 exports.validateExpFields = validateExpFields
-
+exports.endExperiment = endExperiment

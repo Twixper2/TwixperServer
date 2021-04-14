@@ -52,6 +52,27 @@ router.post("/activateNewExperiment", async (req, res, next) => {
   }
 });
 
+// Post and activate new experiment
+router.post("/activateNewExperiment", async (req, res, next) => {
+  // Checking for required fields
+  let reqBody = req.body
+  let researcherId = req.researcher.researcher_id
+  let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
+  if(!researchersService.validateExpFields(experiment)){
+    res.sendStatus(400); // Bad request
+  }
+  try{
+    const expCode = await researchersService.activateNewExperiment(experiment, researcherId)
+    res.status(201).send({exp_code: expCode})
+  }
+  catch(e){
+    // Decide for error statuses by the error type.
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
+
+
 // Get all the researcher's experiments 
 router.get("/myExperiments", async (req, res, next) => {
   const researcher = req.researcher
@@ -90,7 +111,7 @@ router.post("/requestExperimentReport", async (req, res, next) => {
   }
 });
 
-// Download experiment report if it is ready
+// Download experiment report if it is ready - LOCAL FILES VERSION
 router.get("/getReportIfReady", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
@@ -124,7 +145,30 @@ router.get("/getReportIfReady", async (req, res, next) => {
   }
 });
 
-// Download experiment report from azure (use in production only)
+// End experiment- participants from the experiment well be deleted
+router.post("/endExperiment", async (req, res, next) => {
+  try{
+    let expId = req.query.exp_id
+    let researcher = req.researcher
+    if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
+      res.sendStatus(400); // Bad request
+    }
+    let success = await researchersService.endExperiment(expId)
+    if (!success) {
+      res.sendStatus(500)
+    }
+    else {
+      res.sendStatus(400)
+    } 
+  }
+  catch(e){
+    // Decide for error statuses by the error type.
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
+
+// Download experiment report from azure (use in production only) - AZURE VERSION
 router.get("/getExpReport", async (req, res, next) => {
   const expId = req.query.expId
   const researcher = req.researcher
