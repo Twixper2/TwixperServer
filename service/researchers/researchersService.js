@@ -66,6 +66,10 @@ async function getStreamDictForDownloadReport(expId){
     return await reportManager.getStreamDictForDownloadReport(expId)
 }
 
+async function endExperiment(expId) {
+    return await experiments.endExperiment(expId)
+}
+
 exports.activateNewExperiment = activateNewExperiment
 exports.getExperimentsByIds = getExperimentsByIds
 exports.getResearcher = getResearcher
@@ -75,3 +79,4 @@ exports.requestExperimentReport = requestExperimentReport
 exports.getReportIfReady = getReportIfReady
 exports.createExpMetadata = createExpMetadata
 exports.getStreamDictForDownloadReport = getStreamDictForDownloadReport
+exports.endExperiment = endExperiment
