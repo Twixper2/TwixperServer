@@ -152,13 +152,16 @@ router.post("/endExperiment", async (req, res, next) => {
     let researcher = req.researcher
     if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
       res.sendStatus(400); // Bad request
+      return
     }
     let success = await researchersService.endExperiment(expId)
     if (success) {
       res.sendStatus(200)
+      return
     }
     else {
       res.sendStatus(500)
+      return
     } 
   }
   catch(e){
