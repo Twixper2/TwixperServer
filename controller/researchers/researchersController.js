@@ -154,11 +154,11 @@ router.post("/endExperiment", async (req, res, next) => {
       res.sendStatus(400); // Bad request
     }
     let success = await researchersService.endExperiment(expId)
-    if (!success) {
-      res.sendStatus(500)
+    if (success) {
+      res.sendStatus(200)
     }
     else {
-      res.sendStatus(400)
+      res.sendStatus(500)
     } 
   }
   catch(e){
