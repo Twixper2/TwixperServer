@@ -52,27 +52,6 @@ router.post("/activateNewExperiment", async (req, res, next) => {
   }
 });
 
-// Post and activate new experiment
-router.post("/activateNewExperiment", async (req, res, next) => {
-  // Checking for required fields
-  let reqBody = req.body
-  let researcherId = req.researcher.researcher_id
-  let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
-  if(!researchersService.validateExpFields(experiment)){
-    res.sendStatus(400); // Bad request
-  }
-  try{
-    const expCode = await researchersService.activateNewExperiment(experiment, researcherId)
-    res.status(201).send({exp_code: expCode})
-  }
-  catch(e){
-    // Decide for error statuses by the error type.
-    console.log(e)
-    res.sendStatus(500)
-  }
-});
-
-
 // Get all the researcher's experiments 
 router.get("/myExperiments", async (req, res, next) => {
   const researcher = req.researcher
