@@ -133,10 +133,10 @@ function validateExpFields(experimentObj) {
  * @param {string} expId 
  */
 async function endExperiment(expId) {
-    let changeStatusPromise = dbComm.updateExpStatus(expId, "Closed") 
+    let changeStatusPromise = dbComm.updateExpStatus(expId, "closed") 
     let deleteParticipantsPromise = dbComm.deleteParticipantsFromExp(expId)
 
-    const results = await Promise.all(changeStatusPromise, deleteParticipantsPromise)
+    const results = await Promise.all([changeStatusPromise, deleteParticipantsPromise])
     if (results[0] && results[1]) {
         return true
     }

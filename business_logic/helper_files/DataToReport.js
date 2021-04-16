@@ -44,7 +44,7 @@ exports.experiment = {
     "description": "",
     "start_date": "", // Null if not started yet
     "end_date" : "", // Null if not ended yet
-    "status": "", // Draft, Active, Closed
+    "status": "", // draft, active, closed
     "researcher_details": {
         // Details we get from google sign in, such as email and maybe full name.
     },
