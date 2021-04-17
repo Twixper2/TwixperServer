@@ -76,6 +76,10 @@ exports.activeParticipant = {
     "group_id": "", 
     "participant_twitter_id_str" : "99999",
     "participant_twitter_username": "twixperApp",
+    "participant_twitter_name": "Twixper",
+    "participant_twitter_friends_count": 43,
+    "participant_twitter_followers_count": 11,
+    "participant_twitter_profile_image": "https://pbs.twimg.com/profile_images/1316848349618860033/5ii_bkh9_normal.jpg",
     "participant_email": "abc@gmail.com", // Can be null
     "user_twitter_token": "sdgsdfg65565s6",
     "user_twitter_token_secret" : "",

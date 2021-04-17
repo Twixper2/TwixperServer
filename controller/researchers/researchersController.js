@@ -40,6 +40,7 @@ router.post("/activateNewExperiment", async (req, res, next) => {
   let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
   if(!researchersService.validateExpFields(experiment)){
     res.sendStatus(400); // Bad request
+    return
   }
   try{
     const expCode = await researchersService.activateNewExperiment(experiment, researcherObj)
@@ -136,11 +137,9 @@ router.post("/endExperiment", async (req, res, next) => {
     let success = await researchersService.endExperiment(expId)
     if (success) {
       res.sendStatus(200)
-      return
     }
     else {
       res.sendStatus(500)
-      return
     } 
   }
   catch(e){
