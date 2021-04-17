@@ -128,7 +128,7 @@ router.get("/getReportIfReady", async (req, res, next) => {
 // End experiment- participants from the experiment well be deleted
 router.post("/endExperiment", async (req, res, next) => {
   try{
-    let expId = req.query.exp_id
+    let expId = req.query.expId
     let researcher = req.researcher
     if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
       res.sendStatus(400); // Bad request
