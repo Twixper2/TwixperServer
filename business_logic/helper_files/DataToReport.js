@@ -39,11 +39,11 @@ exports.groupManipulations = [
 
 exports.experiment = {
     "exp_id": "",
-    "exp_code": "", // Null if Draft
+    "exp_code": "", // Null (or missing) if Draft
     "title": "",
     "description": "",
-    "start_date": "", // Null if not started yet
-    "end_date" : "", // Null if not ended yet
+    "start_date": "", // Null (or missing) if not started yet
+    "end_date" : "", // Null (or missing) if not ended yet
     "status": "", // draft, active, closed
     "researcher_details": {
         // Details we get from google sign in, such as email and maybe full name.

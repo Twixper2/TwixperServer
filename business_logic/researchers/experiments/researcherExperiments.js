@@ -133,11 +133,17 @@ function validateExpFields(experimentObj) {
  * @param {string} expId 
  */
 async function endExperiment(expId) {
+    const endDate = moment.utc().format(dateFormat);
+    let setEndDatePromise = dbComm.setExpEndDate(expId, endDate)
     let changeStatusPromise = dbComm.updateExpStatus(expId, "closed") 
     let deleteParticipantsPromise = dbComm.deleteParticipantsFromExp(expId)
 
-    const results = await Promise.all([changeStatusPromise, deleteParticipantsPromise])
-    if (results[0] && results[1]) {
+    const results = await Promise.all([
+        setEndDatePromise,
+        changeStatusPromise, 
+        deleteParticipantsPromise
+    ])
+    if (results[0] && results[1] && results[2]) {
         return true
     }
     else {
