@@ -125,6 +125,10 @@ async function updateExpStatus(expId, status) {
     return await experimentsCollection.updateExpStatus(expId, status);
 }
 
+async function setExpEndDate(expId, endDate) {
+    return await experimentsCollection.setExpEndDate(expId, endDate);
+}
+
 async function createExpMetadata (expId, metadataObj){
     return await fileManager.createExpMetadata(expId, metadataObj);
 }
@@ -157,6 +161,7 @@ module.exports = {
     createExpMetadata: createExpMetadata,
     getStreamDictForDownloadReport: getStreamDictForDownloadReport,
     deleteParticipantsFromExp : deleteParticipantsFromExp,
-    updateExpStatus : updateExpStatus
+    updateExpStatus : updateExpStatus,
+    setExpEndDate: setExpEndDate
 }
 

@@ -53,7 +53,8 @@ router.post("/participantValidateSession", async (req, res, next) => {
     try{
       const participant = await database.getParticipantByToken(token);
       if (participant) {
-        res.json( { "hasSession" : true } );
+        const participant_twitter_info = participantsService.extractTwitterInfoFromParticipantObj(participant)
+        res.json( { "hasSession" : true, "participant_twitter_info": participant_twitter_info } );
         return
       }
       else{
@@ -124,9 +125,11 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     // participant already registered to an experiment
     if (participant) {
       await database.updateParticipantTokens(twitter_id_str, oauthToken, oauthTokenSecret)
+      const participant_twitter_info = participantsService.extractTwitterInfoFromParticipantObj(participant)
       res.status(200).json({
         twitter_user_found : true,
-        user_registered_to_experiment : true
+        user_registered_to_experiment : true,
+        participant_twitter_info: participant_twitter_info
       });
     }
     // user is not registered to experiment already
@@ -173,10 +176,11 @@ router.post("/registerToExperiment", async (req, res, next) => {
     // TODO: Decrypt tokens
     const oauthToken = req.header('User-Twitter-Token-Enc')
     const oauthTokenSecret = req.header('User-Twitter-Token-Secret-Enc')    
-   
+    
     // trying registering user
+    let participant  = null
     try {
-      user = await participantsService.registerParticipant(oauthToken, oauthTokenSecret, expCode)
+      participant = await participantsService.registerParticipant(oauthToken, oauthTokenSecret, expCode)
     }
     catch (e) {
       // if it is an error with message, we respond with the eror object containing "name" and "message" keys
@@ -187,24 +191,18 @@ router.post("/registerToExperiment", async (req, res, next) => {
       }
       throw e
     }
-    if (!user) { //registration failed
+    if (!participant) { //registration failed
       res.sendStatus(500);
       return;
     }
-    res.sendStatus(200) //success
+    const participant_twitter_info = participantsService.extractTwitterInfoFromParticipantObj(participant)
+    res.status(200).json({"participant_twitter_info": participant_twitter_info}); //success
   } // end try
   catch(e) {
     console.log(e)
     res.sendStatus(500);
   }
 });
-
-/**
- * For debugging Nir don't delete this
- */
-// router.get("/getCookies", async (req, res, next) => {
-//   res.send(req.session)
-// });
 
 
 module.exports = router;

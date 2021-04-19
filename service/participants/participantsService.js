@@ -125,7 +125,13 @@ function logParticipantActions(participant, actions){
     return participantActionsOnTwitter.logParticipantActions(participant, actions)
 }
 
+/* ----------------------------------------
+    Other helper functions
+   ---------------------------------------- */
 
+function extractTwitterInfoFromParticipantObj(participant){
+    return participantAuthUtils.extractTwitterInfoFromParticipantObj(participant)
+}
 
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
@@ -147,3 +153,5 @@ exports.publishTweet = publishTweet
 
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
+
+exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj

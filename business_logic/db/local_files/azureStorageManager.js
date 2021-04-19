@@ -6,8 +6,8 @@ const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STR
 
 const axios = require('axios')
 
-function initExperimentStorage(expId){
-    axios.post(initExpStorageFuncUrl + "&expId=" + expId)
+async function initExperimentStorage(expId){
+    return await axios.post(initExpStorageFuncUrl + "&expId=" + expId)
 }
 
 function saveExpActions(expId, actions){
