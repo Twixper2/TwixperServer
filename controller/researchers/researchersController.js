@@ -1,37 +1,49 @@
-var express = require("express");
-var router = express.Router();
-const researchersService = require("../../service/researchers/researchersService.js");
+var express = require("express")
+var router = express.Router()
+const researchersService = require("../../service/researchers/researchersService.js")
+const database = require("../../business_logic/db/DBCommunicator.js")
+const archiver = require('archiver');
 
-// access control , checking google auth.
-
-// router.use(function (req, res, next) {
-    // Check for authentication from Twitter, 
-    // and check that this user is in active experiment.
-
-    /*if (req.session && req.session.user_id) {
-      DButils.execQuery("SELECT user_id FROM users")
-        .then((users) => {
-          if (users.find((x) => x.user_id === req.session.user_id)) {
-            req.user_id = req.session.user_id;
-            next();
-          }
-          else throw { status: 401, message: "unauthorized" };
-        })
-        .catch((error) => res.send(error));
-    } else {
-      res.sendStatus(401);
-    }*/
-// });
+/* Make sure user is authenticated by checking id provided in the cookie
+  and append user data from db to req
+  is not authorized, respond with code 401 */
+router.use(async function (req, res, next) {
+  // if (req.session && req.session.researcherId) {
+  if (req.header('Researcher-Id-Enc')) {
+    // const researcherId = req.session.researcherId;
+    const researcherId = req.header('Researcher-Id-Enc');
+    try{
+      const researcher = await database.getResearcher(researcherId);
+      if (researcher) {
+        req.researcher = researcher; //every method has the user now
+        next(); //go to the request
+      }
+      else {
+        res.sendStatus(401); //user authentication failed, responde with unautorized
+      }
+    }
+    catch(e){
+      console.log(e)
+      res.sendStatus(500);
+    }
+  }
+  else {
+    res.status(428).send("Missing auth header Researcher-Id-Enc"); 
+  }
+});
 
 // Post and activate new experiment
 router.post("/activateNewExperiment", async (req, res, next) => {
   // Checking for required fields
-  const reqBody = req.body
-  if(!validateExpFields(reqBody)){
+  let reqBody = req.body
+  let researcherObj = req.researcher
+  let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
+  if(!researchersService.validateExpFields(experiment)){
     res.sendStatus(400); // Bad request
+    return
   }
   try{
-    const expCode = await researchersService.activateNewExperiment(reqBody)
+    const expCode = await researchersService.activateNewExperiment(experiment, researcherObj)
     res.status(201).send({exp_code: expCode})
   }
   catch(e){
@@ -43,9 +55,10 @@ router.post("/activateNewExperiment", async (req, res, next) => {
 
 // Get all the researcher's experiments 
 router.get("/myExperiments", async (req, res, next) => {
-  // TODO: pass the user's cookie to the service
+  const researcher = req.researcher
+  const experimentsIds = researcher.experiments_ids
   try{
-    const experiments = await researchersService.getExperiments()
+    const experiments = await researchersService.getExperimentsByIds(experimentsIds) 
     res.send(experiments)
   }
   catch(e){
@@ -56,17 +69,78 @@ router.get("/myExperiments", async (req, res, next) => {
 });
 
 // Create experiment report, currently only locally in server side
-router.post("/createExperimentReport", async (req, res, next) => {
+router.post("/requestExperimentReport", async (req, res, next) => {
   const expId = req.body.exp_id
+  const researcher = req.researcher
   try{
-    const successfulReportCreation = await researchersService.createExperimentReport(expId)
-    if(successfulReportCreation){
-      // Not 201 on purpose
-      res.status(200).send({message: "Report created successfuly"})
+    const requestSuccess = await researchersService.requestExperimentReport(expId, researcher)
+    if(requestSuccess){
+      res.sendStatus(202)
     }
     else{
       res.sendStatus(500)
     }
+  }
+  catch(e){
+    if (e.message == "request-already-exists") {
+      res.status(400).send(e.message)
+      return;
+    }
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
+
+// Download experiment report if it is ready - LOCAL FILES VERSION
+router.get("/getReportIfReady", async (req, res, next) => {
+  const expId = req.query.expId
+  const researcher = req.researcher
+  try{
+    const path = await researchersService.getReportIfReady(expId, researcher)
+    if(path){
+      // if report is ready, let user download it
+      res.download(path, function(error){ 
+        if(error){
+          console.log("Error in downloading: " + error) 
+        }
+        else{
+          console.log("Report downloaded successfuly")
+          // TODO: Delete the file in output
+        }
+      }); 
+    }
+    else{
+      res.sendStatus(102) // the server has accepted the complete request, but has not yet completed it.
+    }
+  }
+  catch(e){
+    if (e.message == "request-not-exists") {
+      res.status(400).send(e.message)
+    }
+    if (e.message =="Illegal-experiment") {
+      res.status(401).send(e.message)
+    }
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
+
+// End experiment- participants from the experiment well be deleted
+router.post("/endExperiment", async (req, res, next) => {
+  try{
+    let expId = req.query.expId
+    let researcher = req.researcher
+    if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
+      res.sendStatus(400); // Bad request
+      return
+    }
+    let success = await researchersService.endExperiment(expId)
+    if (success) {
+      res.sendStatus(200)
+    }
+    else {
+      res.sendStatus(500)
+    } 
   }
   catch(e){
     // Decide for error statuses by the error type.
@@ -75,43 +149,64 @@ router.post("/createExperimentReport", async (req, res, next) => {
   }
 });
 
-const legalManipulationTypes = ["mute", "inject", "pixel_media", "remove_media"]
-function validateExpFields(reqBody){
-  const title = reqBody.title
-  const description = reqBody.description
-  // Later also add researcherDetails
-  const expGroups = reqBody.exp_groups
-  if(title == null || description == null || expGroups == null){
-    return false
-  }
-  if(!Array.isArray(expGroups)){
-    return false
-  }
-  if(expGroups.length < 1){
-    return false
-  }
-  expGroups.forEach((groupObj) => {
-    const groupName = groupObj.group_name
-    const groupSizePercentage = groupObj.group_size_in_percentage
-    const groupManipulations = groupObj.group_manipulations
-    if(groupName == null || groupSizePercentage == null || groupManipulations == null 
-        || !Array.isArray(groupManipulations)){
-      return false
-    }
-    groupManipulations.forEach((manipulation) => {
-      const type = manipulation.type
-      const users = manipulation.users
-      const keywords = manipulation.keywords
-      if(users == null && keywords == null){
-        return false
+// Download experiment report from azure (use in production only) - AZURE VERSION
+router.get("/getExpReport", async (req, res, next) => {
+  const expId = req.query.expId
+  const researcher = req.researcher
+  try{
+    // Create the metadata file
+    await researchersService.createExpMetadata(expId, researcher)
+    // Get the stream dict
+    const streamDict = await researchersService.getStreamDictForDownloadReport(expId)
+    await new Promise((resolve, reject) => {  
+      // create a file to stream archive data to. 
+      // In case you want to directly stream output in http response of express, just grab 'res' in that case instead of creating file stream
+      const output = res
+      const archive = archiver('zip', {
+        zlib: { level: 9 } // Sets the compression level.
+      });
+  
+      // listen for all archive data to be written
+      // 'close' event is fired only when a file descriptor is involved
+      output.on('close', () => {
+        console.log(archive.pointer() + ' total bytes');
+        console.log('archiver has been finalized and the output file descriptor has closed.');
+      });
+  
+      // good practice to catch warnings (ie stat failures and other non-blocking errors)
+      archive.on('warning', (err) => {
+        if (err.code === 'ENOENT') {
+          // log warning
+        } else {
+          // throw error
+          throw err;
+        }
+      });
+      
+      // good practice to catch this error explicitly
+      archive.on('error', (err) => {
+        throw err;
+      });    
+   
+      // pipe archive data to the file
+      archive.pipe(output);
+      
+      for(const blobName in streamDict) {
+          const readableStream = streamDict[blobName];
+          // finalize the archive (ie we are done appending files but streams have to finish yet)
+          archive.append(readableStream, { name: blobName });
+          readableStream.on("error", reject);
       }
-      if(type == null || !legalManipulationTypes.includes(type)){
-        return false
-      }
-    })
-  })
-  return true
-}
+  
+      archive.finalize();
+      resolve();
+    });
+  }
+  catch(e){
+    console.log(e)
+    res.status(500).send(JSON.stringify(e))
+  }
+})
 
 module.exports = router;
   

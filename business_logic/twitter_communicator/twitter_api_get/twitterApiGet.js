@@ -30,6 +30,13 @@ function sendGetRequestsWrapper(T, apiEndpoint, params){
     });
 }
 
+async function verifyCredentials(T){
+    const params = {
+        include_email: true
+    }
+    return await sendGetRequestsWrapper(T, "account/verify_credentials", params)
+}
+
 async function getFeed(T){ // Add additional request parameters later
     const params = {
         tweet_mode: "extended",
@@ -38,4 +45,5 @@ async function getFeed(T){ // Add additional request parameters later
     return await sendGetRequestsWrapper(T, "statuses/home_timeline", params)
 }
 
+exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed

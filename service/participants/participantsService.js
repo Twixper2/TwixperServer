@@ -82,6 +82,16 @@ async function publishTweet(participant, tweetParams) {
 
 /**_____ Participants auth ______ **/
 
+async function getTwitterRequestToken(oathCallback){
+    let output = await participantAuthUtils.getTwitterRequestToken(oathCallback)
+    return output
+}
+
+async function getTwitterAccesssToken(token, verifier){
+    let output = await participantAuthUtils.getTwitterAccesssToken(token, verifier)
+    return output
+}
+
 /**
  * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
  * @param {*} userTwitterToken 
@@ -103,10 +113,28 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
 }
 
 
+/* ----------------------------------------
+    Log of participant's actions
+   ---------------------------------------- */
 
+function validateActionsFields(actions){
+    return participantActionsOnTwitter.validateActionsFields(actions)
+}
 
+function logParticipantActions(participant, actions){
+    return participantActionsOnTwitter.logParticipantActions(participant, actions)
+}
 
+/* ----------------------------------------
+    Other helper functions
+   ---------------------------------------- */
 
+function extractTwitterInfoFromParticipantObj(participant){
+    return participantAuthUtils.extractTwitterInfoFromParticipantObj(participant)
+}
+
+exports.getTwitterRequestToken = getTwitterRequestToken
+exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.getTwitterUserFromTokens = getTwitterUserFromTokens
 exports.getFeed = getFeed
 exports.searchTweets = searchTweets
@@ -122,3 +150,8 @@ exports.registerParticipant = registerParticipant
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
+
+exports.validateActionsFields = validateActionsFields
+exports.logParticipantActions = logParticipantActions
+
+exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj

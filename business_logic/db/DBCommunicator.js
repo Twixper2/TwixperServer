@@ -1,23 +1,103 @@
 require("dotenv").config();
 
-var experimentsCollection = require("./experimentsCollection")
-var participantsCollection = require("./participantsCollection")
-var researchersCollection = require("./researchersCollection")
-var tweetsCollection = require("./tweetsCollection")
-var actionsCollection = require("./actionsCollection")
+var experimentsCollection = require("./mongodb/experimentsCollection")
+var participantsCollection = require("./mongodb/participantsCollection")
+var researchersCollection = require("./mongodb/researchersCollection")
 
+var fileManager = require("./local_files/fileManager")
+
+
+/*
+    _____ PARTICIPANTS _____
+*/
+async function insertParticipant(participant) {
+    let expId = participant.exp_id; 
+    await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
+    await participantsCollection.insertParticipant(participant);
+    return true
+}
+
+async function getParticipantByTwitterId(tId){
+    return await participantsCollection.getParticipantByTwitterId(tId);
+}
+
+async function getParticipantByToken(token){
+    return await participantsCollection.getParticipantByToken(token);
+}
+
+
+async function updateParticipantTokens(tId, token, token_secret){
+    return await participantsCollection.updateParticipantTokens(tId,token,token_secret);
+}
+
+async function deleteParticipantsFromExp(expId){
+    return await participantsCollection.deleteParticipantsFromExp(expId);
+}
+
+
+/*
+    _____ ACTIONS _____
+*/
+function insertAction(expId, action){
+    fileManager.insertAction(expId, action); 
+}
+
+function createReportRequest(expId) {
+    return fileManager.createReportRequest(expId)
+}
+
+function getReportIfReady(expId) {
+    return fileManager.getReportPath(expId)
+}
+function insertActionsArray(expId, actionsArr){
+    fileManager.insertActionsArray(expId, actionsArr); 
+}
+
+function checkReportRequestExists(expId) {
+    fileManager.checkReportRequestExists(expId)
+}
+
+/*
+    _____ Researchers _____
+*/
+
+// Returns the experiments in the db by ids.
+async function getExperimentsByIds(experimentIds){
+    return await experimentsCollection.getExperimentsByIds(experimentIds);
+}
+
+async function getActionsOfExperiment(expId){
+    return await actionsCollection.getExpActions(expId);
+}
+
+async function getResearcher(id) {
+    return await researchersCollection.getResearcher(id);
+  }
+
+async function addResearcher(researcher) {
+    return await researchersCollection.addResearcher(researcher);
+}
+
+async function addExperimentIdToResearcher(resId, expId){
+    return await researchersCollection.addExperimentId(resId, expId);
+}
+
+async function getResearcherExperiments(researcherId){
+    return await researchersCollection.getResearcherExperiments(researcherId);
+}
 
 async function insertExperiment (experiment){
 
-    /** wipe the whole db- for testing */
-    await actionsCollection.deleteActions();
-    await participantsCollection.deleteParticipants();
-    // await researchersCollection.deleteResearchers();
-    // await tweetsCollection.deleteTweets();
-    await experimentsCollection.deleteAllExperiments()
+    // /** wipe the whole db- for testing */
+    // await actionsCollection.deleteActions();
+    // await participantsCollection.deleteParticipants();
+    // // await researchersCollection.deleteResearchers();
+    // // await tweetsCollection.deleteTweets();
+    // await experimentsCollection.deleteAllExperiments()
 
-    return await experimentsCollection.insertExperiment(experiment);
-    
+    await experimentsCollection.insertExperiment(experiment);
+    await fileManager.initExperimentFiles(experiment.exp_id);
+    return true
 }
 
 async function getExperimentByCode(expCode){
@@ -37,45 +117,24 @@ async function getExperimentById(expId){
 }
 
  //returns experiment ID if experiment with the code provided exists, else null
- async function isExperimentExists(reqExpCode) {
+async function isExperimentExists(reqExpCode) {
 
 }
 
-async function insertParticipant(participant) {
-    let expId = participant.exp_id; 
-    await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
-    await participantsCollection.insertParticipant(participant);
-    return true
+async function updateExpStatus(expId, status) {
+    return await experimentsCollection.updateExpStatus(expId, status);
 }
 
-async function insertAction(action){
-    await actionsCollection.insertAction(action);
+async function setExpEndDate(expId, endDate) {
+    return await experimentsCollection.setExpEndDate(expId, endDate);
 }
 
-async function getParticipantByTwitterId(tId){
-    return await participantsCollection.getParticipantByTwitterId(tId);
+async function createExpMetadata (expId, metadataObj){
+    return await fileManager.createExpMetadata(expId, metadataObj);
 }
 
-async function getParticipantByToken(token){
-    return await participantsCollection.getParticipantByToken(token);
-}
-
-// For Hackathon, remove after it finishes.
-// Returns all the experiments in the db.
-async function getExperiments(){
-    return await experimentsCollection.getExperiments();
-}
-
-
-
-async function getActionsOfExperiment(expId){
-    return await actionsCollection.getExpActions(expId);
-}
-
-
-// After Hackathon finishes:
-async function getResearcherExperiments(researcherId){
-
+async function getStreamDictForDownloadReport (expId){
+    return await fileManager.getStreamDictForDownloadReport(expId);
 }
 
 
@@ -85,11 +144,24 @@ module.exports = {
     getParticipantByTwitterId: getParticipantByTwitterId,
     getParticipantByToken:getParticipantByToken,
     insertAction: insertAction,
+    insertActionsArray: insertActionsArray,
     insertExperiment : insertExperiment,
-    getExperiments: getExperiments,
+    getExperimentsByIds: getExperimentsByIds,
     getActionsOfExperiment: getActionsOfExperiment,
     getResearcherExperiments: getResearcherExperiments,
+    addExperimentIdToResearcher: addExperimentIdToResearcher,
     getExperimentById: getExperimentById,
-    isExperimentExists: isExperimentExists
+    isExperimentExists: isExperimentExists,
+    getResearcher : getResearcher,
+    addResearcher : addResearcher,
+    updateParticipantTokens: updateParticipantTokens,
+    createReportRequest: createReportRequest,
+    getReportIfReady : getReportIfReady,
+    checkReportRequestExists : checkReportRequestExists,
+    createExpMetadata: createExpMetadata,
+    getStreamDictForDownloadReport: getStreamDictForDownloadReport,
+    deleteParticipantsFromExp : deleteParticipantsFromExp,
+    updateExpStatus : updateExpStatus,
+    setExpEndDate: setExpEndDate
 }
 

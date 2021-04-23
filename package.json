@@ -2,7 +2,7 @@
   "name": "twixperserver",
   "version": "1.0.0",
   "description": "Twixper server side",
-  "main": "routes.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test1": "./business_logic/db/DBCommunicator.js"
@@ -18,15 +18,26 @@
   },
   "homepage": "https://github.com/dekellevy93/TwixperServer#readme",
   "dependencies": {
-    "client-sessions": "^0.8.0",
+    "@azure/storage-blob": "^12.5.0",
+    "adm-zip": "^0.5.4",
+    "archiver": "^5.3.0",
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "google-auth-library": "^7.0.2",
     "http": "0.0.1-security",
     "json": "^10.0.0",
+    "merge-files": "^0.1.2",
+    "moment": "^2.29.1",
     "mongodb": "^3.6.2",
     "morgan": "^1.10.0",
-    "twit": "^2.2.11"
+    "oauth-1.0a": "^2.2.6",
+    "prepend-file": "^2.0.0",
+    "twit": "^2.2.11",
+    "uuid": "^8.3.2",
+    "watch": "^1.0.2"
   },
   "keywords": []
 }
