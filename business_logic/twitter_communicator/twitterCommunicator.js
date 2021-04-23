@@ -6,6 +6,7 @@
 const twitterApiGet = require("./twitter_api_get/twitterApiGet");
 const twitterApiPost = require("./twitter_api_post/twitterApiPost");
 const twitterAxiosRequests = require("./twitter_axios_requests/twitterAxiosRequests")
+const twitterInnerApiGet = require("./twitter_internal_api/twitterInnerApiGet")
 
 // var config = require.main.require('./config.js')
 const config = require('../../config.js')
@@ -29,6 +30,7 @@ function setTAuth(token, tokenSecret){
 
 /* Configurations */
 const returnStaticData = config.returnStaticData
+const returnStaticTweetData = config.returnStaticTweetData
 
 /* For static data */
 var feedJSON = []
@@ -95,7 +97,7 @@ async function getFeed(participant  ){
     // Set T w/ the credentials
     setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
     // Call and return relevant function from the modules 
-    return twitterApiGet.getFeed(T)
+    return await twitterApiGet.getFeed(T)
 }
 
 // Possibly add more fields
@@ -122,10 +124,11 @@ async function getUser(username){
 }
 
 async function getTweet(tweetId){
-    if(returnStaticData){
+    if(returnStaticTweetData){
         return tweetJSON
     }
     //Else, call and return relevant function from the modules
+    return await twitterInnerApiGet.getTweet(tweetId)
 }
 
 async function getUserFriends(username){
