@@ -90,8 +90,17 @@ async function getTweet(tweetId){
         return response.data
     }
     else{
-        throw "Error while getting tweet from inner api"
+        throw (
+            {
+                description: "Error while getting tweet from inner api", 
+                message: "inner-api-error"
+            }
+        )
     }
+}
+
+async function getTweetCommentsByCursor(tweetId, cursor){
+
 }
 
 exports.getTweet = getTweet

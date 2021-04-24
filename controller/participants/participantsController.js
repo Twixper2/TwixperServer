@@ -151,7 +151,12 @@ router.get("/getTweet", async (req, res, next) => {
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
