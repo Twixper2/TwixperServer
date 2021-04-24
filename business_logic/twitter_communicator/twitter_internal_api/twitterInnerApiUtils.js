@@ -40,7 +40,13 @@ function formatTweetPageObject(tweetPage, tweetId){
     // If this is a retweet, find and attach the original tweet and his author
     if(formattedTweetPage.retweeted_status_id_str != null){
         const rTweetId = formattedTweetPage.retweeted_status_id_str
-        formattedTweetPage.retweeted_status = buildTweetObj(rTweetId, tweets, users)
+        let rTweet =  buildTweetObj(rTweetId, tweets, users)
+        // Check if there is a quote inside the retweet
+        if(rTweet.is_quote_status == true){
+            const qRTweetId = rTweet.quoted_status_id_str
+            rTweet.quoted_status = buildTweetObj(qRTweetId, tweets, users)
+        }
+        formattedTweetPage.retweeted_status = rTweet
     }
     
     // TODO: Add the 'comments' field
