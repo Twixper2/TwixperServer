@@ -13,15 +13,13 @@ async function getTweet(tweetId){
     return tweetObj
 }
 
-async function getUserFriends(username){
-    const twitterGetUserFriends = await twitterComm.getUserFriends(username)
-    
+async function getUserFriends(participant, username){
+    const twitterGetUserFriends = await twitterComm.getUserFriends(participant, username)
     return twitterGetUserFriends
 }
 
-async function getUserFollowers(username){
-    const twitterGetUserFollowers = await twitterComm.getUserFollowers(username)
-    
+async function getUserFollowers(participant, username){
+    const twitterGetUserFollowers = await twitterComm.getUserFollowers(participant, username)
     return twitterGetUserFollowers
 }
 
@@ -31,9 +29,8 @@ async function getUserTimeline(username){
     return twitterGetUserTimeline
 }
 
-async function getUserLikes(username){
-    const twitterGetUserLikes = await twitterComm.getUserLikes(username)
-    
+async function getUserLikes(participant, username){
+    const twitterGetUserLikes = await twitterComm.getUserLikes(participant, username)
     return twitterGetUserLikes
 }
 

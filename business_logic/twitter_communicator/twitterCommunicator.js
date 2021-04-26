@@ -31,6 +31,9 @@ function setTAuth(token, tokenSecret){
 /* Configurations */
 const returnStaticData = config.returnStaticData
 const returnStaticTweetData = config.returnStaticTweetData
+const returnStaticUserLikesData = config.returnStaticUserLikesData
+const returnStaticUserFollowersData = config.returnStaticUserFollowersData
+const returnStaticUserFriendsData = config.returnStaticUserFriendsData
 
 /* For static data */
 var feedJSON = []
@@ -131,18 +134,24 @@ async function getTweet(tweetId){
     return await twitterInnerApiGet.getTweet(tweetId)
 }
 
-async function getUserFriends(username){
-    if(returnStaticData){
+async function getUserFriends(participant, username){
+    if(returnStaticUserFriendsData){
         return friendsPeopleJSON
     }
-    //Else, call and return relevant function from the modules
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserFriends(T, username)
 }
 
-async function getUserFollowers(username){
-    if(returnStaticData){
+async function getUserFollowers(participant, username){
+    if(returnStaticUserFollowersData){
         return followersPeopleJSON
     }
-    //Else, call and return relevant function from the modules
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserFollowers(T, username)
 }
 
 async function getUserTimeline(username){
@@ -152,11 +161,15 @@ async function getUserTimeline(username){
     //Else, call and return relevant function from the modules
 }
 
-async function getUserLikes(username){
-    if(returnStaticData){
+async function getUserLikes(participant, username){
+    if(returnStaticUserLikesData){
         return userLikesJSON
     }
-    //Else, set T w/ the credentials, call and return relevant function from the modules
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserLikes(T, username)
+
 }
 
 

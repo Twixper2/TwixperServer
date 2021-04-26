@@ -40,13 +40,13 @@ async function getTweet(tweetId){
     return output
 }
 
-async function getUserFriends(username){
-    let output = await participantSpecifiedTwitterData.getUserFriends(username)
+async function getUserFriends(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserFriends(participant, username)
     return output
 }
 
-async function getUserFollowers(username){
-    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
+async function getUserFollowers(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserFollowers(participant, username)
     return output
 }
 
@@ -55,8 +55,8 @@ async function getUserTimeline(username){
     return output
 }
 
-async function getUserLikes(username){
-    let output = await participantSpecifiedTwitterData.getUserLikes(username)
+async function getUserLikes(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserLikes(participant, username)
     return output
 }
 

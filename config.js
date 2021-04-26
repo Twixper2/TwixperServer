@@ -7,6 +7,9 @@ config.isProduction = true // real mode: true
 config.realVerifyCredentials = true // real mode: true
 config.returnStaticData = true // Real mode: false
 config.returnStaticTweetData = false // Real mode: false
+config.returnStaticUserLikesData = false // Real mode: false
+config.returnStaticUserFollowersData = false // Real mode: false
+config.returnStaticUserFriendsData = false // Real mode: false
 
 config.returnStaticFeed = false // Real mode: false
 // Post
