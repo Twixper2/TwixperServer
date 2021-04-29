@@ -10,6 +10,12 @@ async function getUser(username){ // Later we will also send "praticipant" obj f
 async function getTweet(tweetId){
     let tweetObj = await twitterComm.getTweet(tweetId)
     tweetObj = twitterInnerApiUtils.formatTweetPageObject(tweetObj, tweetId)
+    // If this is a retweet, find and attach the original tweet's comments
+    if(tweetObj.retweeted_status_id_str != null){
+        const originalTweet = await twitterComm.getTweet(tweetObj.retweeted_status_id_str) 
+        const commentsArr = twitterInnerApiUtils.formatTweetComments(originalTweet)
+        tweetObj.comments = commentsArr
+    }
     return tweetObj
 }
 
@@ -23,9 +29,9 @@ async function getUserFollowers(participant, username){
     return twitterGetUserFollowers
 }
 
-async function getUserTimeline(username){
-    const twitterGetUserTimeline = await twitterComm.getUserTimeline(username)
-    
+async function getUserTimeline(userId){
+    let twitterGetUserTimeline = await twitterComm.getUserTimeline(userId)
+    twitterGetUserTimeline = twitterInnerApiUtils.formatUserTimelineObject(twitterGetUserTimeline)
     return twitterGetUserTimeline
 }
 

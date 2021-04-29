@@ -34,6 +34,7 @@ const returnStaticTweetData = config.returnStaticTweetData
 const returnStaticUserLikesData = config.returnStaticUserLikesData
 const returnStaticUserFollowersData = config.returnStaticUserFollowersData
 const returnStaticUserFriendsData = config.returnStaticUserFriendsData
+const returnStaticUserTimelineData = config.returnStaticUserFriendsData
 
 /* For static data */
 var feedJSON = []
@@ -154,11 +155,12 @@ async function getUserFollowers(participant, username){
     return await twitterApiGet.getUserFollowers(T, username)
 }
 
-async function getUserTimeline(username){
-    if(returnStaticData){
+async function getUserTimeline(userId){
+    if(returnStaticUserTimelineData){
         return userTimelineJSON
     }
     //Else, call and return relevant function from the modules
+    return await twitterInnerApiGet.getUserTimeline(userId)
 }
 
 async function getUserLikes(participant, username){

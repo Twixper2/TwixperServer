@@ -2,6 +2,7 @@ const AZURE_GET_GUEST_TOKEN_FUNC_URL = process.env.AZURE_GET_GUEST_TOKEN_FUNC_UR
 const axios = require('axios')
 
 async function getGuestToken(){
+    console.log("Asking for a new guest token")
     const response = await axios.get(AZURE_GET_GUEST_TOKEN_FUNC_URL)
         .catch(function (error) {
             if (error.response) { 
@@ -23,45 +24,95 @@ async function getGuestToken(){
  */
 function formatTweetPageObject(tweetPage, tweetId){
     if(!tweetPage.globalObjects){
-        // No need to format, already formatted
+        // No need to format, already formatted (probably this obj is from the official api response)
         return tweetPage
     }
     const tweets = tweetPage.globalObjects.tweets
     const users = tweetPage.globalObjects.users
+    let formattedTweetPage = getFormattedTweet(tweetId, tweets, users)
+    
+    // Add the 'comments' field
+    const commentsArr = formatTweetComments(tweetPage)
+    formattedTweetPage.comments = commentsArr
+
+    return formattedTweetPage
+}
+
+function formatUserTimelineObject(userTimelineObject){
+    if(!userTimelineObject.globalObjects){
+        // No need to format, already formatted (probably this obj is from the official api response)
+        return userTimelineObject
+    }
+    let formattedTimelineTweets = []
+    const tweets = userTimelineObject.globalObjects.tweets
+    const users = userTimelineObject.globalObjects.users
+    const entriesArr = userTimelineObject.timeline.instructions[0].addEntries.entries
+    entriesArr.forEach(entry => {
+        const entryId = entry.entryId
+        if(entryId.startsWith("tweet")){
+            const tweetId = entry.content.item.content.tweet.id
+            const formattedTweet = getFormattedTweet(tweetId, tweets, users)
+            formattedTimelineTweets.push(formattedTweet)
+        }
+    });
+    return formattedTimelineTweets
+}
+
+
+function getFormattedTweet(tweetId, tweets, users){
     // Find the specified tweet 
-    let formattedTweetPage = buildTweetObj(tweetId, tweets, users)
+    let formattedTweet = buildTweetObj(tweetId, tweets, users)
 
     // If this is a quote, find and attach the original quote and his author
-    if(formattedTweetPage.is_quote_status == true){
-        const qTweetId = formattedTweetPage.quoted_status_id_str
-        formattedTweetPage.quoted_status = buildTweetObj(qTweetId, tweets, users)
+    if(formattedTweet.is_quote_status == true){
+        const qTweetId = formattedTweet.quoted_status_id_str
+        formattedTweet.quoted_status = buildTweetObj(qTweetId, tweets, users)
     }
 
     // If this is a retweet, find and attach the original tweet and his author
-    if(formattedTweetPage.retweeted_status_id_str != null){
-        const rTweetId = formattedTweetPage.retweeted_status_id_str
+    if(formattedTweet.retweeted_status_id_str != null){
+        const rTweetId = formattedTweet.retweeted_status_id_str
         let rTweet =  buildTweetObj(rTweetId, tweets, users)
         // Check if there is a quote inside the retweet
         if(rTweet.is_quote_status == true){
             const qRTweetId = rTweet.quoted_status_id_str
             rTweet.quoted_status = buildTweetObj(qRTweetId, tweets, users)
         }
-        formattedTweetPage.retweeted_status = rTweet
+        formattedTweet.retweeted_status = rTweet
     }
-    
-    // TODO: Add the 'comments' field
-
-    return formattedTweetPage
+    return formattedTweet
 }
 
 function buildTweetObj(tweetId, tweets, users){
     // Find the specified tweet 
     let tweet = tweets[tweetId]
+
     // Find the author of the tweet and attach him
     const userId = tweet.user_id_str
     tweet.user = users[userId]
     return tweet
 }
 
+function formatTweetComments(tweetObj){
+    const tweets = tweetObj.globalObjects.tweets
+    const users = tweetObj.globalObjects.users
+    let commentsArr = []
+    const entriesArr = tweetObj.timeline.instructions[0].addEntries.entries
+    entriesArr.forEach(entry => {
+        const entryId = entry.entryId
+        if(entryId.startsWith("conversationThread")){
+            const dashIndex = entryId.indexOf("-")
+            const tweetId = entryId.substring(dashIndex + 1)
+            if(tweets[tweetId]){ // Sometimes the comment is actually deleted
+                const formattedTweet = getFormattedTweet(tweetId, tweets, users)
+                commentsArr.push(formattedTweet)
+            }
+        }
+    });
+    return commentsArr
+}
+
 exports.getGuestToken = getGuestToken
 exports.formatTweetPageObject = formatTweetPageObject
+exports.formatUserTimelineObject = formatUserTimelineObject
+exports.formatTweetComments = formatTweetComments

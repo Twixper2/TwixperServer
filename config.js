@@ -10,6 +10,7 @@ config.returnStaticTweetData = false // Real mode: false
 config.returnStaticUserLikesData = false // Real mode: false
 config.returnStaticUserFollowersData = false // Real mode: false
 config.returnStaticUserFriendsData = false // Real mode: false
+config.returnStaticUserTimelineData = false // Real mode: false
 
 config.returnStaticFeed = false // Real mode: false
 // Post

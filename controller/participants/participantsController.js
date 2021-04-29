@@ -212,16 +212,23 @@ router.get("/getUserFollowers", async (req, res, next) => {
 
 router.get("/getUserTimeline", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
-  const username = req.query.username
-  // if username == null....
-
+  const userId = req.query.userId
+  if (!userId) {
+    res.status(400).send("No user id provided.")
+    return;
+  }
   try{
-    const userTimelineTweets = await participantsService.getUserTimeline(username)
+    const userTimelineTweets = await participantsService.getUserTimeline(userId)
     res.send(userTimelineTweets)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
