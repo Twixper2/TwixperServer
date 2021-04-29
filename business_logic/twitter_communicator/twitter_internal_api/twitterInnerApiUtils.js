@@ -112,7 +112,50 @@ function formatTweetComments(tweetObj){
     return commentsArr
 }
 
+function formatSearchTweetsObject(searchTweetsObj){
+    if(!searchTweetsObj.globalObjects){
+        // No need to format, already formatted (probably this obj is from the official api response)
+        return searchTweetsObj
+    }
+    let formattedTweets = []
+    const tweets = searchTweetsObj.globalObjects.tweets
+    const users = searchTweetsObj.globalObjects.users
+    const entriesArr = searchTweetsObj.timeline.instructions[0].addEntries.entries
+    entriesArr.forEach(entry => {
+        const entryId = entry.entryId
+        if(entryId.startsWith("sq-I-t")){
+            const dashIndex = entryId.lastIndexOf("-")
+            const tweetId = entryId.substring(dashIndex + 1)
+            const formattedTweet = getFormattedTweet(tweetId, tweets, users)
+            formattedTweets.push(formattedTweet)
+        }
+    });
+    return formattedTweets
+}
+
+function formatSearchUsersObject(searchUsersObj){
+    if(!searchUsersObj.globalObjects){
+        // No need to format, already formatted (probably this obj is from the official api response)
+        return searchUsersObj
+    }
+    let formattedUsers = []
+    const users = searchUsersObj.globalObjects.users
+    const entriesArr = searchUsersObj.timeline.instructions[0].addEntries.entries
+    entriesArr.forEach(entry => {
+        const entryId = entry.entryId
+        if(entryId.startsWith("sq-I-u")){
+            const dashIndex = entryId.lastIndexOf("-")
+            const userId = entryId.substring(dashIndex + 1)
+            const formattedUser = users[userId]
+            formattedUsers.push(formattedUser)
+        }
+    });
+    return formattedUsers
+}
+
 exports.getGuestToken = getGuestToken
 exports.formatTweetPageObject = formatTweetPageObject
 exports.formatUserTimelineObject = formatUserTimelineObject
 exports.formatTweetComments = formatTweetComments
+exports.formatSearchTweetsObject = formatSearchTweetsObject
+exports.formatSearchUsersObject = formatSearchUsersObject

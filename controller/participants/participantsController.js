@@ -91,18 +91,22 @@ router.get("/getFeed", async (req, res, next) => {
 
 router.get("/searchTweets", async (req, res, next) => {
   const q = req.query.q
-  const participant = req.participant
   if (!q || q=="") {
     res.status(400).send("search query not provided")
+    return
   }
-
   try{
-    const tweetsSearchResults = await participantsService.searchTweets(q, participant)
+    const tweetsSearchResults = await participantsService.searchTweets(q)
     res.send(tweetsSearchResults)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 

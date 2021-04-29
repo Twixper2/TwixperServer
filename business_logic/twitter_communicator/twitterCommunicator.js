@@ -28,13 +28,6 @@ function setTAuth(token, tokenSecret){
     })
 }
 
-/* Configurations */
-const returnStaticData = config.returnStaticData
-const returnStaticTweetData = config.returnStaticTweetData
-const returnStaticUserLikesData = config.returnStaticUserLikesData
-const returnStaticUserFollowersData = config.returnStaticUserFollowersData
-const returnStaticUserFriendsData = config.returnStaticUserFriendsData
-const returnStaticUserTimelineData = config.returnStaticUserFriendsData
 
 /* For static data */
 var feedJSON = []
@@ -46,7 +39,7 @@ var userJSON = {}
 var tweetJSON = {}
 var userTimelineJSON = []
 var userLikesJSON = []
-if(returnStaticData){ // Require them only when we need to.
+if(config.returnStaticData){ // Require them only when we need to.
     feedJSON = require("./static_twitter_data/FeedJSON.js").data
     peopleJSON = require("./static_twitter_data/SearchPeopleJSON").data
     friendsPeopleJSON = require("./static_twitter_data/FriendsPeopleJSON.js").data
@@ -106,29 +99,31 @@ async function getFeed(participant  ){
 
 // Possibly add more fields
 async function searchTweets(query){
-    if(returnStaticData){
+    if(config.returnStaticSearchTweetsData){
         return searchTweetsJSON
     }
     //Else, call and return relevant function from the modules 
+    return await twitterInnerApiGet.searchTweets(query)
 }
 
 // Possibly add more fields
 async function searchUsers(query){
-    if(returnStaticData){
+    if(config.returnStaticSearchUsersData){
         return peopleJSON
     }
     //Else, call and return relevant function from the modules
+    return await twitterInnerApiGet.searchUsers(query)
 }
 
 async function getUser(username){
-    if(returnStaticData){
+    if(config.returnStaticData){
         return userJSON
     }
     //Else, call and return relevant function from the modules
 }
 
 async function getTweet(tweetId){
-    if(returnStaticTweetData){
+    if(config.returnStaticTweetData){
         return tweetJSON
     }
     //Else, call and return relevant function from the modules
@@ -136,7 +131,7 @@ async function getTweet(tweetId){
 }
 
 async function getUserFriends(participant, username){
-    if(returnStaticUserFriendsData){
+    if(config.returnStaticUserFriendsData){
         return friendsPeopleJSON
     }
     // Set T w/ the credentials
@@ -146,7 +141,7 @@ async function getUserFriends(participant, username){
 }
 
 async function getUserFollowers(participant, username){
-    if(returnStaticUserFollowersData){
+    if(config.returnStaticUserFollowersData){
         return followersPeopleJSON
     }
     // Set T w/ the credentials
@@ -156,7 +151,7 @@ async function getUserFollowers(participant, username){
 }
 
 async function getUserTimeline(userId){
-    if(returnStaticUserTimelineData){
+    if(config.returnStaticUserTimelineData){
         return userTimelineJSON
     }
     //Else, call and return relevant function from the modules
@@ -164,7 +159,7 @@ async function getUserTimeline(userId){
 }
 
 async function getUserLikes(participant, username){
-    if(returnStaticUserLikesData){
+    if(config.returnStaticUserLikesData){
         return userLikesJSON
     }
     // Set T w/ the credentials

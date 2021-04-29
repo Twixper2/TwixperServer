@@ -16,7 +16,12 @@ const getUserTimelineParams = "include_profile_interstitial_type=1&include_block
 +"&include_reply_count=1&tweet_mode=extended&include_entities=true&include_user_entities=true&"
 +"include_ext_media_color=true&include_ext_media_availability=true&send_error_codes=true&"
 +"simple_quoted_tweet=true&include_tweet_replies=false&count=30" // When sending req, add &userId=....
-
+const searchParams = "include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1"
++"&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1"
++"&include_can_media_tag=1&skip_status=1&include_ext_alt_text=true&include_quote_count=true"
++"&include_reply_count=1&tweet_mode=extended&include_entities=true&include_user_entities=true"
++"&include_ext_media_color=true&include_ext_media_availability=true&send_error_codes=true"
++"&simple_quoted_tweet=true&count=35&query_source=typed_query&pc=1&spelling_corrections=1"
 
 const axios = require('axios')
 
@@ -126,5 +131,41 @@ async function getUserTimeline(userId){
     }
 }
 
+async function searchTweets(query){
+    const convertedQuery = encodeURIComponent(query)
+    const url = twitterInnerApiUrl+"/search/adaptive.json?" + searchParams + "&q=" + convertedQuery
+    const response = await sendGetRequestReturnResponse(url)
+    if(response.status == 200){
+        return response.data
+    }
+    else{
+        throw (
+            {
+                description: "Error while searching tweets from inner api", 
+                message: "inner-api-error"
+            }
+        )
+    }
+}
+
+async function searchUsers(query){
+    const convertedQuery = encodeURIComponent(query)
+    const url = twitterInnerApiUrl+"/search/adaptive.json?" + searchParams + "&result_filter=user&q=" + convertedQuery
+    const response = await sendGetRequestReturnResponse(url)
+    if(response.status == 200){
+        return response.data
+    }
+    else{
+        throw (
+            {
+                description: "Error while searching users from inner api", 
+                message: "inner-api-error"
+            }
+        )
+    }
+}
+
 exports.getTweet = getTweet
 exports.getUserTimeline = getUserTimeline
+exports.searchTweets = searchTweets
+exports.searchUsers = searchUsers

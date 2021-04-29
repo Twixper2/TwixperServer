@@ -6,8 +6,8 @@ const participantActionsOnTwitter =  require("../../business_logic/participant/p
 
 /** ______Search for participant_____ **/
 
-async function searchTweets(q, participant){
-    let output = await participantSearchInTwitter.searchTweets(q, participant)
+async function searchTweets(q){
+    let output = await participantSearchInTwitter.searchTweets(q)
     return output
 }
 
