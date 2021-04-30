@@ -116,9 +116,11 @@ router.get("/getReportIfReady", async (req, res, next) => {
   catch(e){
     if (e.message == "request-not-exists") {
       res.status(400).send(e.message)
+      return
     }
     if (e.message =="Illegal-experiment") {
       res.status(401).send(e.message)
+      return
     }
     console.log(e)
     res.sendStatus(500)

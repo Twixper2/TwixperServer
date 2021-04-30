@@ -39,7 +39,7 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
     if(exp.status != "active"){
         throw {
             name: "ExperimentNotActive",
-            message: "This experiment is not active."
+            message: "This experiment was ended by the researcher."
         }
     }
 

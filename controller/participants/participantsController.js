@@ -91,18 +91,22 @@ router.get("/getFeed", async (req, res, next) => {
 
 router.get("/searchTweets", async (req, res, next) => {
   const q = req.query.q
-  const participant = req.participant
   if (!q || q=="") {
     res.status(400).send("search query not provided")
+    return
   }
-
   try{
-    const tweetsSearchResults = await participantsService.searchTweets(q, participant)
+    const tweetsSearchResults = await participantsService.searchTweets(q)
     res.send(tweetsSearchResults)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
@@ -143,75 +147,116 @@ router.get("/getUser", async (req, res, next) => {
 router.get("/getTweet", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const tweetId = req.query.tweetId
-  // if tweetId == null....
-
+  if (!tweetId) {
+    res.status(400).send("No tweet id provided.")
+    return;
+  }
   try{
     const tweet = await participantsService.getTweet(tweetId)
     res.send(tweet)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserFriends", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
-  // if username == null....
-
+  if (!username) {
+    res.status(400).send("No username provided.")
+    return;
+  }
+  const participant = req.participant
   try{
-    const userFriends = await participantsService.getUserFriends(username)
+    const userFriends = await participantsService.getUserFriends(participant, username)
     res.send(userFriends)
   }
   catch(e){
+    console.log("** Error in /participant/userFriends **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserFollowers", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
-  // if username == null....
-
+  if (!username) {
+    res.status(400).send("No username provided.")
+    return;
+  }
+  const participant = req.participant
   try{
-    const userFollowers = await participantsService.getUserFollowers(username)
+    const userFollowers = await participantsService.getUserFollowers(participant, username)
     res.send(userFollowers)
   }
   catch(e){
+    console.log("** Error in /participant/getUserFollowers **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserTimeline", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
-  const username = req.query.username
-  // if username == null....
-
+  const userId = req.query.userId
+  if (!userId) {
+    res.status(400).send("No user id provided.")
+    return;
+  }
   try{
-    const userTimelineTweets = await participantsService.getUserTimeline(username)
+    const userTimelineTweets = await participantsService.getUserTimeline(userId)
     res.send(userTimelineTweets)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserLikes", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
-  // if username == null....
-
+  if (!username) {
+    res.status(400).send("No username provided.")
+    return;
+  }
+  const participant = req.participant
   try{
-    const userLikesTweets = await participantsService.getUserLikes(username)
+    const userLikesTweets = await participantsService.getUserLikes(participant, username)
     res.send(userLikesTweets)
   }
   catch(e){
+    console.log("** Error in /participant/getUserLikes **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 

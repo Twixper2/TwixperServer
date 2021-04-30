@@ -6,6 +6,7 @@
 const twitterApiGet = require("./twitter_api_get/twitterApiGet");
 const twitterApiPost = require("./twitter_api_post/twitterApiPost");
 const twitterAxiosRequests = require("./twitter_axios_requests/twitterAxiosRequests")
+const twitterInnerApiGet = require("./twitter_internal_api/twitterInnerApiGet")
 
 // var config = require.main.require('./config.js')
 const config = require('../../config.js')
@@ -27,8 +28,6 @@ function setTAuth(token, tokenSecret){
     })
 }
 
-/* Configurations */
-const returnStaticData = config.returnStaticData
 
 /* For static data */
 var feedJSON = []
@@ -40,7 +39,7 @@ var userJSON = {}
 var tweetJSON = {}
 var userTimelineJSON = []
 var userLikesJSON = []
-if(returnStaticData){ // Require them only when we need to.
+if(config.returnStaticData){ // Require them only when we need to.
     feedJSON = require("./static_twitter_data/FeedJSON.js").data
     peopleJSON = require("./static_twitter_data/SearchPeopleJSON").data
     friendsPeopleJSON = require("./static_twitter_data/FriendsPeopleJSON.js").data
@@ -95,65 +94,79 @@ async function getFeed(participant  ){
     // Set T w/ the credentials
     setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
     // Call and return relevant function from the modules 
-    return twitterApiGet.getFeed(T)
+    return await twitterApiGet.getFeed(T)
 }
 
 // Possibly add more fields
 async function searchTweets(query){
-    if(returnStaticData){
+    if(config.returnStaticSearchTweetsData){
         return searchTweetsJSON
     }
     //Else, call and return relevant function from the modules 
+    return await twitterInnerApiGet.searchTweets(query)
 }
 
 // Possibly add more fields
 async function searchUsers(query){
-    if(returnStaticData){
+    if(config.returnStaticSearchUsersData){
         return peopleJSON
     }
     //Else, call and return relevant function from the modules
+    return await twitterInnerApiGet.searchUsers(query)
 }
 
 async function getUser(username){
-    if(returnStaticData){
+    if(config.returnStaticData){
         return userJSON
     }
     //Else, call and return relevant function from the modules
 }
 
 async function getTweet(tweetId){
-    if(returnStaticData){
+    if(config.returnStaticTweetData){
         return tweetJSON
     }
     //Else, call and return relevant function from the modules
+    return await twitterInnerApiGet.getTweet(tweetId)
 }
 
-async function getUserFriends(username){
-    if(returnStaticData){
+async function getUserFriends(participant, username){
+    if(config.returnStaticUserFriendsData){
         return friendsPeopleJSON
     }
-    //Else, call and return relevant function from the modules
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserFriends(T, username)
 }
 
-async function getUserFollowers(username){
-    if(returnStaticData){
+async function getUserFollowers(participant, username){
+    if(config.returnStaticUserFollowersData){
         return followersPeopleJSON
     }
-    //Else, call and return relevant function from the modules
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserFollowers(T, username)
 }
 
-async function getUserTimeline(username){
-    if(returnStaticData){
+async function getUserTimeline(userId){
+    if(config.returnStaticUserTimelineData){
         return userTimelineJSON
     }
     //Else, call and return relevant function from the modules
+    return await twitterInnerApiGet.getUserTimeline(userId)
 }
 
-async function getUserLikes(username){
-    if(returnStaticData){
+async function getUserLikes(participant, username){
+    if(config.returnStaticUserLikesData){
         return userLikesJSON
     }
-    //Else, set T w/ the credentials, call and return relevant function from the modules
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserLikes(T, username)
+
 }
 
 
