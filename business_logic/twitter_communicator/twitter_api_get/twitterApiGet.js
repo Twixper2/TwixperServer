@@ -40,7 +40,7 @@ async function verifyCredentials(T){
 async function getFeed(T){ // Add additional request parameters later
     const params = {
         tweet_mode: "extended",
-        count: 40
+        count: 60
     }
     return await sendGetRequestsWrapper(T, "statuses/home_timeline", params)
 }

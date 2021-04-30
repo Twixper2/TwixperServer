@@ -50,9 +50,16 @@ function formatUserTimelineObject(userTimelineObject){
     entriesArr.forEach(entry => {
         const entryId = entry.entryId
         if(entryId.startsWith("tweet")){
-            const tweetId = entry.content.item.content.tweet.id
-            const formattedTweet = getFormattedTweet(tweetId, tweets, users)
-            formattedTimelineTweets.push(formattedTweet)
+            // const tweetId = entry.content.item.content.tweet.id
+            const dashIndex = entryId.indexOf("-")
+            const tweetId = entryId.substring(dashIndex + 1)
+            try{
+                const formattedTweet = getFormattedTweet(tweetId, tweets, users)
+                formattedTimelineTweets.push(formattedTweet)
+            }
+            catch(e){
+                console.log("tweet " + tweetId + " is deleted or broken")
+            }
         }
     });
     return formattedTimelineTweets
@@ -103,9 +110,12 @@ function formatTweetComments(tweetObj){
         if(entryId.startsWith("conversationThread")){
             const dashIndex = entryId.indexOf("-")
             const tweetId = entryId.substring(dashIndex + 1)
-            if(tweets[tweetId]){ // Sometimes the comment is actually deleted
+            try{
                 const formattedTweet = getFormattedTweet(tweetId, tweets, users)
                 commentsArr.push(formattedTweet)
+            }
+            catch(e){ // Sometimes the comment is actually deleted
+                console.log("comment " + tweetId + " is deleted or broken")
             }
         }
     });
@@ -126,8 +136,13 @@ function formatSearchTweetsObject(searchTweetsObj){
         if(entryId.startsWith("sq-I-t")){
             const dashIndex = entryId.lastIndexOf("-")
             const tweetId = entryId.substring(dashIndex + 1)
-            const formattedTweet = getFormattedTweet(tweetId, tweets, users)
-            formattedTweets.push(formattedTweet)
+            try{
+                const formattedTweet = getFormattedTweet(tweetId, tweets, users)
+                formattedTweets.push(formattedTweet)
+            }
+            catch(e){
+                console.log("tweet " + tweetId + " is deleted or broken")
+            }
         }
     });
     return formattedTweets
