@@ -133,6 +133,11 @@ function extractTwitterInfoFromParticipantObj(participant){
     return participantAuthUtils.extractTwitterInfoFromParticipantObj(participant)
 }
 
+async function getLinkPreview(previewUrl){
+    let output = await participantSpecifiedTwitterData.getLinkPreview(previewUrl)
+    return output
+}
+
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.getTwitterUserFromTokens = getTwitterUserFromTokens
@@ -155,3 +160,4 @@ exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
 
 exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj
+exports.getLinkPreview = getLinkPreview

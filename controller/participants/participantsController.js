@@ -360,4 +360,24 @@ router.post("/publishTweet", async (req, res, next) => {
   }
 });
 
+
+/* ----------------------------------------
+    Routes for other resources
+   ---------------------------------------- */
+
+router.post("/getLinkPreview", async (req, res, next) => {
+  const previewUrl = req.body.url
+  if (!previewUrl) {
+    res.status(400).send("No url provided.")
+    return;
+  }
+  try{
+    const metaTagData = await participantsService.getLinkPreview(previewUrl)
+    res.send(metaTagData)
+  }
+  catch(e){
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
 module.exports = router;
