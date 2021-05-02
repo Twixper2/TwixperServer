@@ -63,7 +63,7 @@ async function getLinkPreview(previewUrl){
     }
     const metaTagData = {
       domain: domain,
-      title: getMetaTag('title') || $(`h1`).text() || 'Link',
+      title: getMetaTag('title') || $(`h1`).text() || null,
       img: getMetaTag('image') || null,
     }
     return metaTagData
