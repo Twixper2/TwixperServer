@@ -64,9 +64,11 @@ router.get("/getFeed", async (req, res, next) => {
      For feed, check for additional parameters like "max_id" and "count"
   */
   const participant = req.participant
+  const maxId = req.query.maxId
+  const count = req.query.count
 
   try{
-    const feedTweets = await participantsService.getFeed(participant)
+    const feedTweets = await participantsService.getFeed(participant, maxId, count)
     res.send(feedTweets)
   }
 

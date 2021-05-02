@@ -87,14 +87,14 @@ async function getTwitterAccesssToken(token, verifier){
    ---------------------------------------- */
 
 // Possibly add more fields such as "max_id" and "count"
-async function getFeed(participant  ){ 
+async function getFeed(participant, maxId, count){ 
     if(config.returnStaticFeed){
         return feedJSON
     }
     // Set T w/ the credentials
     setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
     // Call and return relevant function from the modules 
-    return await twitterApiGet.getFeed(T)
+    return await twitterApiGet.getFeed(T, maxId, count)
 }
 
 // Possibly add more fields

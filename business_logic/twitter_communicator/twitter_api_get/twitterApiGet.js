@@ -37,10 +37,17 @@ async function verifyCredentials(T){
     return await sendGetRequestsWrapper(T, "account/verify_credentials", params)
 }
 
-async function getFeed(T){ // Add additional request parameters later
+async function getFeed(T, maxId, count){ // Add additional request parameters later
     const params = {
         tweet_mode: "extended",
+        exclude_replies: "true",
         count: 60
+    }
+    if(count){
+        params.count = count
+    }
+    if(maxId){
+        params.max_id = maxId
     }
     return await sendGetRequestsWrapper(T, "statuses/home_timeline", params)
 }

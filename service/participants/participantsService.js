@@ -24,8 +24,8 @@ async function searchUsers(q){
  * feed for authenticated user
  * @param {*} user 
  */
-async function getFeed(participant){
-    let output = await participantFeed.getFeed(participant)
+async function getFeed(participant, maxId, count){
+    let output = await participantFeed.getFeed(participant, maxId, count)
     return output
 }
 
