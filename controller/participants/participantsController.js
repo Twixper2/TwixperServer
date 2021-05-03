@@ -21,9 +21,9 @@ router.use(async function (req, res, next) {
 
     try{
       const encryptedToken = encryptToken(token)
+      const encryptedTokenSecret = encryptToken(tokenSecret)
       let participant = await database.getParticipantByToken(encryptedToken);
-
-      if (participant) {
+      if (participant && (participant.user_twitter_token_secret == encryptedTokenSecret)) {
         participant.user_twitter_token = token
         participant.user_twitter_token_secret = tokenSecret
         req.participant = participant; //every method has the user now
@@ -323,7 +323,7 @@ router.post("/publishTweet", async (req, res, next) => {
 });
 
 function encryptToken(token) {
-  return bcrypt.hashSync(token)
+  return bcrypt.hashSync(token, 10)
 }
 
 module.exports = router;

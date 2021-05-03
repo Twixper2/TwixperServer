@@ -95,7 +95,7 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
 }
 
 function encryptToken(token) {
-    return bcrypt.hashSync(token)
+    return bcrypt.hashSync(token, 10)
 }
 
 exports.getTwitterRequestToken = getTwitterRequestToken
