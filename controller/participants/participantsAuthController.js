@@ -3,6 +3,9 @@ var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
+/**
+ * Requesting the oauth tokens from twitter, by the oauth_callback param
+ */
 router.post("/twitterAuthRequestToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_callback){
@@ -24,6 +27,9 @@ router.post("/twitterAuthRequestToken", async (req, res, next) => {
   }
 })
 
+/**
+ * Requesting the access token from twitter
+ */
 router.post("/twitterAuthAccessToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_token || !params.oauth_verifier){
@@ -45,6 +51,10 @@ router.post("/twitterAuthAccessToken", async (req, res, next) => {
   }
 })
 
+
+/**
+ * Check if participant has a valid session in db (the participant with the same token exists)
+ */
 router.post("/participantValidateSession", async (req, res, next) => {
   // if (req.session && req.session.userTwitterToken) {
   if (req.header('User-Twitter-Token-Enc') ) {
@@ -71,7 +81,13 @@ router.post("/participantValidateSession", async (req, res, next) => {
   }
 });
 
-
+/**
+ * Gets oauth token and oauth token secret, returns two fields:
+ * twitter_user_found - is this a real valid twitter user?
+ * user_registered_to_experiment - is the user already registered to experiment? 
+ * In case of real twitter user, we responde with the tokens in the header for the client to put them in the headers of it's requests
+ * (cookie-like implementation)
+ */
 // if { twitter_user_found : true, user_registered_to_experiment : true }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
 // if { twitter_user_found : true, user_registered_to_experiment : false } give cookies (regular new user registration)
 // if { twitter_user_found : false } do nothing, respond code 400

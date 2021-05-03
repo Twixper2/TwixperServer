@@ -2,6 +2,8 @@ const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const database = require("../../db/DBCommunicator.js");
 const groupSelector = require("../participant_auth_utils/groupSelector")
 const participantActionsOnTwitter =  require("../participant_actions/participantActionsOnTwitter");
+const bcrypt = require("bcryptjs");
+
 
 async function getTwitterRequestToken(oathCallback){
     const twitterResponse = await twitterComm.getTwitterRequestToken(oathCallback)
@@ -56,8 +58,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         "participant_twitter_id_str": twitterUser.id_str,
         "participant_twitter_username": twitterUser.screen_name,
         "participant_email": twitterUser.email,
-        "user_twitter_token" : oauthToken,
-        "user_twitter_token_secret" : oauthTokenSecret,
+        "user_twitter_token" : encryptToken(oauthToken),
+        "user_twitter_token_secret" : encryptToken(oauthTokenSecret),
         "group_manipulations": group.group_manipulations
     }
     
@@ -90,6 +92,10 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
     // let twitter_id_str = userData.id_str
     // return twitter_id_str
     return userData
+}
+
+function encryptToken(token) {
+    return bcrypt.hashSync(token)
 }
 
 exports.getTwitterRequestToken = getTwitterRequestToken

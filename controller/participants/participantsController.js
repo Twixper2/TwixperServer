@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 const participantsService = require("../../service/participants/participantsService.js");
 const database = require("../../business_logic/db/DBCommunicator.js")
+const bcrypt = require("bcryptjs");
+
 
 /**
  * TODO: every function needs to pass the user to service layer, so manipulations can be applied.
@@ -15,10 +17,15 @@ router.use(async function (req, res, next) {
   if (req.header('User-Twitter-Token-Enc')) {
     // const token = req.session.userTwitterToken;
     const token = req.header('User-Twitter-Token-Enc');
+    const tokenSecret = req.header('User-Twitter-Token-Secret-Enc');
+
     try{
-      const participant = await database.getParticipantByToken(token);
+      const encryptedToken = encryptToken(token)
+      let participant = await database.getParticipantByToken(encryptedToken);
 
       if (participant) {
+        participant.user_twitter_token = token
+        participant.user_twitter_token_secret = tokenSecret
         req.participant = participant; //every method has the user now
         next(); //go to the request
       }
@@ -314,5 +321,9 @@ router.post("/publishTweet", async (req, res, next) => {
     }
   }
 });
+
+function encryptToken(token) {
+  return bcrypt.hashSync(token)
+}
 
 module.exports = router;
