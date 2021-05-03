@@ -14,10 +14,10 @@ const bcrypt = require("bcryptjs");
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   // if (req.session && req.session.userTwitterToken) {
-  if (req.header('User-Twitter-Token-Enc')) {
+  if (req.header('User-Twitter-Token')) {
     // const token = req.session.userTwitterToken;
-    const token = req.header('User-Twitter-Token-Enc');
-    const tokenSecret = req.header('User-Twitter-Token-Secret-Enc');
+    const token = req.header('User-Twitter-Token');
+    const tokenSecret = req.header('User-Twitter-Token-Secret');
 
     try{
       const encryptedToken = encryptToken(token)
@@ -39,7 +39,7 @@ router.use(async function (req, res, next) {
     }
   }
   else {
-    res.status(428).send("Missing auth header User-Twitter-Token-Enc"); 
+    res.status(428).send("Missing auth header User-Twitter-Token"); 
   }
 });
 

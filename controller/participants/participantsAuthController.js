@@ -57,9 +57,9 @@ router.post("/twitterAuthAccessToken", async (req, res, next) => {
  */
 router.post("/participantValidateSession", async (req, res, next) => {
   // if (req.session && req.session.userTwitterToken) {
-  if (req.header('User-Twitter-Token-Enc') ) {
+  if (req.header('User-Twitter-Token')&&req.header('User-Twitter-Token-Secret') ) {
     // const token = req.session.userTwitterToken;
-    const token = req.header('User-Twitter-Token-Enc');
+    const token = req.header('User-Twitter-Token');
     try{
       const participant = await database.getParticipantByToken(token);
       if (participant) {
@@ -129,10 +129,9 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     */
     
     // Setting headers
-    // TODO: Encrypt the tokens
     res.set({
-      'User-Twitter-Token-Enc': oauthToken,
-      'User-Twitter-Token-Secret-Enc': oauthTokenSecret,
+      'User-Twitter-Token': oauthToken,
+      'User-Twitter-Token-Secret': oauthTokenSecret,
     })
 
     // checking if user already registered to an experiment
@@ -169,8 +168,8 @@ router.post("/registerToExperiment", async (req, res, next) => {
       return;
     }
 
-    if(!req.header('User-Twitter-Token-Enc') || !req.header('User-Twitter-Token-Secret-Enc')){
-      res.status(428).send("Missing auth headers (User-Twitter-Token-Enc, User-Twitter-Token-Secret-Enc)");
+    if(!req.header('User-Twitter-Token') || !req.header('User-Twitter-Token-Secret')){
+      res.status(428).send("Missing auth headers (User-Twitter-Token, User-Twitter-Token-Secret)");
       return;
       /*
         The HTTP 428 Precondition Required response status code indicates that the server requires
@@ -186,9 +185,8 @@ router.post("/registerToExperiment", async (req, res, next) => {
     // const oauthToken = req.session.userTwitterToken
     // const oauthTokenSecret = req.session.userTwitterTokenSecret    
     
-    // TODO: Decrypt tokens
-    const oauthToken = req.header('User-Twitter-Token-Enc')
-    const oauthTokenSecret = req.header('User-Twitter-Token-Secret-Enc')    
+    const oauthToken = req.header('User-Twitter-Token')
+    const oauthTokenSecret = req.header('User-Twitter-Token-Secret')    
    
     // trying registering user
     try {

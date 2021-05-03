@@ -9,9 +9,9 @@ const archiver = require('archiver');
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   // if (req.session && req.session.researcherId) {
-  if (req.header('Researcher-Id-Enc')) {
+  if (req.header('Researcher-Id')) {
     // const researcherId = req.session.researcherId;
-    const researcherId = req.header('Researcher-Id-Enc');
+    const researcherId = req.header('Researcher-Id');
     try{
       const researcher = await database.getResearcher(researcherId);
       if (researcher) {
