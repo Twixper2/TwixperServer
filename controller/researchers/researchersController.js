@@ -28,7 +28,7 @@ router.use(async function (req, res, next) {
     }
   }
   else {
-    res.status(428).send("Missing auth header Researcher-Id-Enc"); 
+    res.status(428).send("Missing auth header Researcher-Id"); 
   }
 });
 
