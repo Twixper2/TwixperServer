@@ -6,8 +6,8 @@ const participantActionsOnTwitter =  require("../../business_logic/participant/p
 
 /** ______Search for participant_____ **/
 
-async function searchTweets(q, participant){
-    let output = await participantSearchInTwitter.searchTweets(q, participant)
+async function searchTweets(q){
+    let output = await participantSearchInTwitter.searchTweets(q)
     return output
 }
 
@@ -40,23 +40,23 @@ async function getTweet(tweetId){
     return output
 }
 
-async function getUserFriends(username){
-    let output = await participantSpecifiedTwitterData.getUserFriends(username)
+async function getUserFriends(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserFriends(participant, username)
     return output
 }
 
-async function getUserFollowers(username){
-    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
+async function getUserFollowers(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserFollowers(participant, username)
     return output
 }
 
-async function getUserTimeline(username){
-    let output = await participantSpecifiedTwitterData.getUserTimeline(username)
+async function getUserTimeline(userId){
+    let output = await participantSpecifiedTwitterData.getUserTimeline(userId)
     return output
 }
 
-async function getUserLikes(username){
-    let output = await participantSpecifiedTwitterData.getUserLikes(username)
+async function getUserLikes(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserLikes(participant, username)
     return output
 }
 
@@ -125,7 +125,13 @@ function logParticipantActions(participant, actions){
     return participantActionsOnTwitter.logParticipantActions(participant, actions)
 }
 
+/* ----------------------------------------
+    Other helper functions
+   ---------------------------------------- */
 
+function extractTwitterInfoFromParticipantObj(participant){
+    return participantAuthUtils.extractTwitterInfoFromParticipantObj(participant)
+}
 
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
@@ -147,3 +153,5 @@ exports.publishTweet = publishTweet
 
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
+
+exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj

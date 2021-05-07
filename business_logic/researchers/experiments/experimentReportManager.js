@@ -41,6 +41,8 @@ async function createExpMetadata(expId, researcher){
     if (!exp || !(exp.researcher_details.researcher_id == researcher.researcher_id)) {
         throw ({message: "Illegal-experiment"})
     }
+    // Deleting the researcher id from the exp (for the metadata file)
+    delete exp.researcher_details.researcher_id
     return await dbComm.createExpMetadata(expId, exp)
 } 
 

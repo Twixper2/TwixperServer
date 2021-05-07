@@ -166,6 +166,8 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     // let appendToEnd = "{\"action_type\":\"end of actions\"}\n]\n}"
     let expMetaPath = tempPath + "\\" + expId + "_Metadata.json"
     let experiment = answers[1]
+    // Deleting the researcher id from the exp (for the metadata file)
+    delete experiment.researcher_details.researcher_id
     try {
         await Promise.all([
             // prependFile(mergedFilePath, appendToStart), // append to start of actions log file
