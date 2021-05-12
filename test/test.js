@@ -3,7 +3,8 @@ const assert = require('assert');
 var experimentsCollection = require("../business_logic/db/mongodb/experimentsCollection.js")
 var participantsCollection = require("../business_logic/db/mongodb/participantsCollection.js")
 var researchersCollection = require("../business_logic/db/mongodb/researchersCollection.js")
-var researchersCollection = require("../business_logic/db/mongodb/researchersCollection.js")
+var researcherExperiments = require('../business_logic/researchers/experiments/researcherExperiments.js')
+var participantFeed = require("../business_logic/participant/participant_manipulated_data/participantFeed.js");
 var manipulator = require("../business_logic/participant/manipulator/manipulator")
 
 
@@ -137,7 +138,7 @@ describe("Researchers Collection tests", () => {
 			assert.strictEqual(false, true);
 		}
 	});
-	it("Unsuccessfully adding a researcher to the DB", async () => {
+	it("Unsuccessfully adding a null researcher to the DB", async () => {
 		try {
 			await researchersCollection.addResearcher(null);
 			assert.strictEqual(false, false);
@@ -279,7 +280,8 @@ describe("Manipulator tests", () => {
 				"type": "mute",
 				"users": ["realDonaldTrump", "dekellevy93", "techInsider"],
 				"keywords": ["banana", "politic", "football"]
-			}], [], parUserId);
+			}], [tweet].user.screen_name, parUserName);
+			result.contain(tweet.idstr)
 			assert.strictEqual(result, false);
 		}
 		catch {
@@ -288,20 +290,350 @@ describe("Manipulator tests", () => {
 	});
 });
 
+describe("Participant feed tests", () => {
+	it("Successfully getting a participant feed", async () => {
+		try {
+			await participantFeed.getFeed({ participant_twitter_username: "ishlach_koren", participant_twitter_id_str: "1238476547444572162" });
+			assert.strictEqual(true, true);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Unsuccessfully getting a participant feed - participant is null", async () => {
+		try {
+			await participantFeed.getFeed(null);
+			assert.strictEqual(false, false);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+});
+describe("Researcher experiments tests", () => {
+	it("Successfully activiate a researcher experiment", async () => {
+		try {
+			await researcherExperiments.activateNewExperiment("title": "removing some tweets",
+				"description": "Wow",
+				"researcher_details": {
+				"researcher_id": "100661359885301662673"
+			},
+				"exp_groups": [{
+					"group_name": "Control group",
+					"group_size_in_percentage": 100,
+					"group_manipulations": [{
+						"type": "mute",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "inject",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "pixel_media",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "remove_media",
+						"users": [],
+						"keywords": []
+					}],
+					"group_id": 11,
+					"group_num_of_participants": 1,
+					"group_participants": [{
+						"participant_twitter_username": "FrimTal",
+						"participant_twitter_id_str": "1284058939982786560"
+					}]
+				}],
+				"status": "active",
+				"start_date": "04/02/2021 18:55:13",
+				"num_of_participants": 1,
+				"exp_id": "2703f0a4-8413-4ce4-99d0-2643b9969b0a",
+				"exp_code": "b41cef", "researcher_id": "100661359885301662673",
+				"researcher_username": "Tal Frimerman",
+				"researcher_email": "talf123123@gmail.com");
+			assert.strictEqual(true, true);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Unsuccessfully activiate a null experiment to researcher", async () => {
+		try {
+			await researcherExperiments.activateNewExperiment(null, {
+				"researcher_id": "100661359885301662673",
+				"researcher_username": "Tal Frimerman",
+				"researcher_email": "talf123123@gmail.com"
+			});
+			assert.strictEqual(false, false);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Successfully getting a researcher experiment", async () => {
+		try {
+			await researcherExperiments.getExperiments(["fe731ba4-98b6-426d-b2dc-6ccf81d36c20"]);
+			if (experiments && experiments != [])
+				assert.strictEqual(true, true);
+				else {
+					assert.strictEqual(false, true);
+				}
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Unsuccessfully getting a researcher experiment", async () => {
+		try {
+			const experiments = await researcherExperiments.getExperiments([]);
+			if (experiments && experiments != []) {
+				assert.strictEqual(false, false);
+			}
+			else {
+				assert.strictEqual(false, true);
+			}
+		}
 
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Successfully ending a valid id experiment", async () => {
+		try {
+			if (experiments && experiments != [])
+				assert.strictEqual(await researcherExperiments.endExperiment(["fe731ba4-98b6-426d-b2dc-6ccf81d36c20"]), true
+				);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+		assert.strictEqual(false, true);
 
+	});
+	it("Unsuccessfully ending an invalid id experiment", async () => {
+		try {
+			assert.strictEqual(await researcherExperiments.endExperiment(["1234567890false"]), false
+			);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+		assert.strictEqual(false, true);
 
-// describe("Test2", () => {
-// 	beforeEach(() => {
-// 	console.log( "executes before every test" );
-// 	});
+	});
+	it("Successfully validate experiment's fields", async () => {
+		try {
+			if (experiments && experiments != [])
+				assert.strictEqual(await researcherExperiments.validateExpFields({
+					"title": "Test end exp",
+					"description": "asda",
+					"researcher_details": {
+						"researcher_id": "103134605356512612125",
+						"researcher_username": "twixper app",
+						"researcher_email": "twixper@gmail.com"
+					},
+					"exp_groups": [{
+						"group_name": "Control group",
+						"group_size_in_percentage": 50,
+						"group_manipulations": [{
+							"type": "mute",
+							"users": [],
+							"keywords": []
+						}, {
+							"type": "inject",
+							"users": [],
+							"keywords": []
+						}, {
+							"type": "pixel_media",
+							"users": [],
+							"keywords": []
+						}, {
+							"type": "remove_media",
+							"users": [],
+							"keywords": []
+						}],
+						"group_id": 11,
+						"group_num_of_participants": 1,
+						"group_participants": [{
+							"participant_twitter_username": "TwixperApp",
+							"participant_twitter_id_str": "1316847294424199168"
+						}]
+					}, {
+						"group_name": "Group 2",
+						"group_size_in_percentage": 50,
+						"group_manipulations": [{
+							"type": "mute",
+							"users": [],
+							"keywords": []
+						}, {
+							"type": "inject",
+							"users": [],
+							"keywords": []
+						}, {
+							"type": "pixel_media",
+							"users": [],
+							"keywords": []
+						}, {
+							"type": "remove_media",
+							"users": [],
+							"keywords": []
+						}],
+						"group_id": 12,
+						"group_num_of_participants": 0,
+						"group_participants": []
+					}],
+					"status": "closed",
+					"start_date": "04/18/2021 13:46:21 UTC",
+					"num_of_participants": 1,
+					"exp_id": "fe731ba4-98b6-426d-b2dc-6ccf81d36c20",
+					"exp_code": "c46357",
+					"end_date": "04/18/2021 13:53:48 UTC"
+				}), true
+				);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+		assert.strictEqual(false, true);
 
-// 	it("Is returning 4 when adding 2 + 3", () => {
-// 	assert.equal(2 + 3, 4);
-// 	});
-
-// 	it("Is returning 8 when multiplying 2 * 4", () => {
-// 	assert.equal(2*4, 8);
-// 	});
-// });
-// });
+	});
+	it("Unsuccessfully trying to validate an experiment with 0 groups", async () => {
+		try {
+			assert.strictEqual(await researcherExperiments.validateExpFields(({
+				"title": "Test end exp",
+				"description": "asda",
+				"researcher_details": {
+					"researcher_id": "103134605356512612125",
+					"researcher_username": "twixper app",
+					"researcher_email": "twixper@gmail.com"
+				},
+				"exp_groups": [],
+				"status": "closed",
+				"start_date": "04/18/2021 13:46:21 UTC",
+				"num_of_participants": 1,
+				"exp_id": "fe731ba4-98b6-426d-b2dc-6ccf81d36c20",
+				"exp_code": "c46357",
+				"end_date": "04/18/2021 13:53:48 UTC"
+			})), false
+			);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Unsuccessfully trying to validate an experiment with 0 manipulations in groups", async () => {
+		try {
+			assert.strictEqual(await researcherExperiments.validateExpFields(({
+				"title": "Test end exp",
+				"description": "asda",
+				"researcher_details": {
+					"researcher_id": "103134605356512612125",
+					"researcher_username": "twixper app",
+					"researcher_email": "twixper@gmail.com"
+				},
+				"exp_groups": [{
+					"group_name": "Control group",
+					"group_size_in_percentage": 50,
+					"group_manipulations": null,
+					"group_id": 11,
+					"group_num_of_participants": 1,
+					"group_participants": [{
+						"participant_twitter_username": "TwixperApp",
+						"participant_twitter_id_str": "1316847294424199168"
+					}]
+				}, {
+					"group_name": "Group 2",
+					"group_size_in_percentage": 50,
+					"group_manipulations": null,
+					"group_id": 12,
+					"group_num_of_participants": 0,
+					"group_participants": []
+				}],
+				"status": "closed",
+				"start_date": "04/18/2021 13:46:21 UTC",
+				"num_of_participants": 1,
+				"exp_id": "fe731ba4-98b6-426d-b2dc-6ccf81d36c20",
+				"exp_code": "c46357",
+				"end_date": "04/18/2021 13:53:48 UTC"
+			}), false
+			));
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+	it("Unsuccessfully trying to validate an experiment which one of the manipulations type is null", async () => {
+		try {
+			assert.strictEqual(await researcherExperiments.validateExpFields({
+				"title": "Test end exp",
+				"description": "asda",
+				"researcher_details": {
+					"researcher_id": "103134605356512612125",
+					"researcher_username": "twixper app",
+					"researcher_email": "twixper@gmail.com"
+				},
+				"exp_groups": [{
+					"group_name": "Control group",
+					"group_size_in_percentage": 50,
+					"group_manipulations": [{
+						"type": "mute",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "inject",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "pixel_media",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": null,
+						"users": [],
+						"keywords": []
+					}],
+					"group_id": 11,
+					"group_num_of_participants": 1,
+					"group_participants": [{
+						"participant_twitter_username": "TwixperApp",
+						"participant_twitter_id_str": "1316847294424199168"
+					}]
+				}, {
+					"group_name": "Group 2",
+					"group_size_in_percentage": 50,
+					"group_manipulations": [{
+						"type": "mute",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "inject",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "pixel_media",
+						"users": [],
+						"keywords": []
+					}, {
+						"type": "remove_media",
+						"users": [],
+						"keywords": []
+					}],
+					"group_id": 12,
+					"group_num_of_participants": 0,
+					"group_participants": []
+				}],
+				"status": "closed",
+				"start_date": "04/18/2021 13:46:21 UTC",
+				"num_of_participants": 1,
+				"exp_id": "fe731ba4-98b6-426d-b2dc-6ccf81d36c20",
+				"exp_code": "c46357",
+				"end_date": "04/18/2021 13:53:48 UTC"
+			}), true
+			);
+		}
+		catch {
+			assert.strictEqual(false, true);
+		}
+	});
+});
