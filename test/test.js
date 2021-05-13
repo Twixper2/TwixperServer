@@ -1,5 +1,42 @@
-// Requiring module
-const assert = require('assert');
+const data = require("./dbDataForTests")
+var makeDb = require("../business_logic/db/mongodb/DBConnector").makeDb
+
+describe("Tests", () => {
+	before(async function () { // beforeAll
+        console.log("Inserting data to 'Twixper-Test' database before all tests");
+        const db = await makeDb()
+        let participantsCollection = db.collection("Participants")
+        let researchersCollection = db.collection("Researchers")
+        let experimentsCollection = db.collection("Experiments")
+        await Promise.all([
+            participantsCollection.insertOne(data.participant1),
+            participantsCollection.insertOne(data.participant2),
+            participantsCollection.insertOne(data.participantToRemove),
+            researchersCollection.insertOne(data.researcher1),
+            experimentsCollection.insertOne(data.exp1),
+            experimentsCollection.insertOne(data.exp2),
+        ])
+    });
+	require("./db_tests/dbTests")
+	require("./researcher_tests/researcherTests")
+	require("./participant_tests/participantTests")
+	require("./manipulator_tests/manipulatorTests")
+	after(async function () { // afterAll
+        console.log("Clearing data from 'Twixper-Test' database after all tests");
+        const db = await makeDb()
+        let participantsCollection = db.collection("Participants")
+        let researchersCollection = db.collection("Researchers")
+        let experimentsCollection = db.collection("Experiments")
+        await Promise.all([
+            participantsCollection.deleteMany( { } ),
+            researchersCollection.deleteMany( { } ),
+            experimentsCollection.deleteMany( { } ),
+        ])
+    });
+})
+// Requiring modules
+
+/*
 var experimentsCollection = require("../business_logic/db/mongodb/experimentsCollection.js")
 var participantsCollection = require("../business_logic/db/mongodb/participantsCollection.js")
 var researchersCollection = require("../business_logic/db/mongodb/researchersCollection.js")
@@ -636,4 +673,4 @@ describe("Researcher experiments tests", () => {
 			assert.strictEqual(false, true);
 		}
 	});
-});
+});*/

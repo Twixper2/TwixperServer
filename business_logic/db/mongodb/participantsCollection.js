@@ -1,6 +1,9 @@
 var makeDb = require("./DBConnector.js").makeDb
 
 async function insertParticipant(participant) {
+    if(participant == null){
+        throw "participant can't be null"
+    }
     const db = await makeDb()
     let result = null
     try{
@@ -55,9 +58,7 @@ async function updateParticipantTokens(tId,token,token_secret) {
     let result = null
     try{
         let collection = db.collection("Participants")
-        result = await collection.findOneAndUpdate({participant_twitter_id_str: tId}, {$set: {user_twitter_token: token,user_twitter_token_secret :token_secret}}, {upsert: true}, function(err,doc) {
-            if (err) { throw err; }
-          });  
+        result = await collection.findOneAndUpdate({participant_twitter_id_str: tId}, {$set: {user_twitter_token: token,user_twitter_token_secret :token_secret}}, {upsert: true});  
         // result = await result.toArray()
         // result = result[0]
     }

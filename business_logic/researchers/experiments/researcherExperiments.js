@@ -6,6 +6,9 @@ var moment = require('moment');
 const dateFormat = config.dateFormat
 
 async function activateNewExperiment(expObj, researcherObj){
+    if(expObj == null || researcherObj == null){
+        throw "exp or res obj caannot be null"
+    }
     // adding all fields to experiment object
     expObj.status = "active"
     expObj.start_date = moment.utc().format(dateFormat);
@@ -98,7 +101,8 @@ function validateExpFields(experimentObj) {
     }
 
     // validate groups
-    expGroups.forEach((groupObj) => {
+    for (let i = 0; i < expGroups.length; i++) {
+        const groupObj = expGroups[i];
         if (!typeof experimentObj === 'object') {    // not an obj
             return false
         }
@@ -110,7 +114,8 @@ function validateExpFields(experimentObj) {
         }
 
         // validate group manipulations
-        groupManipulations.forEach((manipulation) => {
+        for (let j = 0; j < groupManipulations.length; j++) {
+            const manipulation = groupManipulations[j];
             if (!typeof manipulation === 'object') {    // not an obj
                 return false
             }
@@ -118,13 +123,13 @@ function validateExpFields(experimentObj) {
             const users = manipulation.users
             const keywords = manipulation.keywords
             if(users == null && keywords == null){
-            return false
+                return false
             }
             if(type == null || !legalManipulationTypes.includes(type)){
-            return false
+                return false
             }
-        })
-    })
+        }
+    }
     return true
 }
 
