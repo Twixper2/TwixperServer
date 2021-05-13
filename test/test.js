@@ -3,6 +3,7 @@ var makeDb = require("../business_logic/db/mongodb/DBConnector").makeDb
 
 describe("Tests", () => {
 	before(async function () { // beforeAll
+		this.timeout(5000);
         console.log("Inserting data to 'Twixper-Test' database before all tests");
         const db = await makeDb()
         let participantsCollection = db.collection("Participants")

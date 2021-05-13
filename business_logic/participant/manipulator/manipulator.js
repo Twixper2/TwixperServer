@@ -82,23 +82,6 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
         return false
     }
 
-
-    if(usersManip.includes(user.screen_name)){
-        // One of the users in the manipulation wrote this tweet
-        return true
-    }
-
-    if(isKeywordsInHashtags(entities.hashtags, keywords)){
-        // One of the hashtags in the tweet is in the keywords
-        return true
-    }
-
-    const tweetText = tweet.full_text
-    if(isRegexesInText(tweetText, keywordsRegexes)){
-        // The tweet's text contains one of the keywords
-        return true
-    }
-
     // Check if it is a retweet
     if(tweet.retweeted_status && tweet.retweeted_status){
         const original = tweet.retweeted_status
@@ -154,6 +137,22 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
         }
     }
 
+    if(usersManip.includes(user.screen_name)){
+        // One of the users in the manipulation wrote this tweet
+        return true
+    }
+
+    if(isKeywordsInHashtags(entities.hashtags, keywords)){
+        // One of the hashtags in the tweet is in the keywords
+        return true
+    }
+
+    const tweetText = tweet.full_text
+    if(isRegexesInText(tweetText, keywordsRegexes)){
+        // The tweet's text contains one of the keywords
+        return true
+    }
+
     return false
 }
 
@@ -169,20 +168,22 @@ function prepareKeywords(keywords){
 }
 
 function isUserMentioned(userMentioned, username){
-    userMentioned.forEach(obj => {
+    for (let i = 0; i < userMentioned.length; i++) {
+        const obj = userMentioned[i];
         if(obj.screen_name == username){
             return true
         }
-    });
+    }
     return false
 }
 
 function isKeywordsInHashtags(hashtags, keywords){
-    hashtags.forEach(obj => {
+    for (let i = 0; i < hashtags.length; i++) {
+        const obj = hashtags[i];
         if(keywords.includes(obj.text)){
             return true
         }
-    });
+    }
     return false
 }
 
