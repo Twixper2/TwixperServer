@@ -16,7 +16,7 @@ describe("Researcher tests", () => {
             catch(e) {
                 assert.fail(e)
             }
-        }).timeout(5000);
+        }).timeout(10000);
         it("Unsuccessfully activate a null experiment", async () => {
             await expect(researcherExperiments.activateNewExperiment(null, data.researcher1)).to.eventually.be.rejected
         });

@@ -10,6 +10,9 @@
 
 
 function manipulateTweets(manipulations, tweets, participantUsername){
+    if(manipulations == null || tweets == null || participantUsername == null){
+        throw "At least one of the arguments is null"
+    }
     let manipulatedTweets = tweets
     const muteManipulation = manipulations.find(man => man.type == "mute") 
     if (muteManipulation!= null){

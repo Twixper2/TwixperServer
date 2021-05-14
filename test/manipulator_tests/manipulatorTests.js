@@ -5,6 +5,23 @@ var common = require("../common");
 var assert = common.assert;
 
 describe("Manipulator tests", () => {
+	it("tweets is null", async () => {
+		assert.throws(function (){
+			manipulator.manipulateTweets(data.manipulations, null, "premierleague")
+		})
+	});
+	it("manipulations is null", async () => {
+		const tweets = [data.tweet1]
+		assert.throws(function (){
+			manipulator.manipulateTweets(null, tweets, "premierleague")
+		})
+	});
+	it("participantUsername is null", async () => {
+		const tweets = [data.tweet1]
+		assert.throws(function (){
+			manipulator.manipulateTweets(data.manipulations, tweets, null)
+		})
+	});
 	it("Participant is the tweet's author", () => {
 		const tweets = [data.tweet1]
 		const result = manipulator.manipulateTweets(data.manipulations, tweets, "premierleague")
@@ -70,6 +87,4 @@ describe("Manipulator tests", () => {
 		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
 		assert.equal(result.length, 1)
 	});
-	
-
 });
