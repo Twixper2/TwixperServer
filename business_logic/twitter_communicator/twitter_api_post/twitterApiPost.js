@@ -48,6 +48,14 @@ async function publishTweet(T, tweetParams){
     return await sendPostRequestsWrapper(T, "statuses/update", tweetParams)
 }
 
+async function publishRetweet(T, tweetId){ 
+    const params = {
+        id: tweetId,
+    }
+    return await sendPostRequestsWrapper(T, "statuses/retweet", params)
+}
+
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
+exports.publishRetweet = publishRetweet

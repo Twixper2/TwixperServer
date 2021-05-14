@@ -79,6 +79,10 @@ async function publishTweet(participant, tweetParams) {
     return output
 }
 
+async function publishRetweet(participant, tweetId) {
+    let output = await participantActionsOnTwitter.publishRetweet(participant, tweetId)
+    return output
+}
 
 /**_____ Participants auth ______ **/
 
@@ -155,6 +159,7 @@ exports.registerParticipant = registerParticipant
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
+exports.publishRetweet = publishRetweet
 
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions

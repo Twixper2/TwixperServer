@@ -205,6 +205,16 @@ async function publishTweet(participant, tweetParams){
     return twitterApiPost.publishTweet(T, tweetParams)
 }  
 
+async function publishRetweet(participant, tweetId){ 
+    if(!config.publishPostInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.publishRetweet(T, tweetId)
+}  
+
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.verifyCredentials = verifyCredentials
@@ -221,3 +231,4 @@ exports.getUserLikes = getUserLikes
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
+exports.publishRetweet = publishRetweet

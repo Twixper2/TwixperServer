@@ -333,6 +333,8 @@ router.post("/publishTweet", async (req, res, next) => {
     See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update 
     ***** Tweet which is a comment should have the property in_reply_to_status_id
           AND include "@usernameMentioned" at the status text. *****
+    ***** Tweet which is a quote - add the parameter "attachment_url".
+          See https://stackoverflow.com/questions/29680965/how-do-i-properly-retweet-with-a-comment-via-twitters-api
   */
   const tweetParams = req.body
   if (!tweetParams || !tweetParams.status) {
@@ -361,6 +363,34 @@ router.post("/publishTweet", async (req, res, next) => {
     }
   }
 });
+
+router.post("/publishRetweet", async (req, res, next) => {
+  const tweetId = req.query.tweetId
+  if (!tweetId) {
+    res.status(400).send("No tweet id provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const retweetSuccess = await participantsService.publishRetweet(participant, tweetId)
+    if(retweetSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/publishRetweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+})
 
 
 /* ----------------------------------------

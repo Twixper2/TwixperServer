@@ -36,9 +36,17 @@ async function unlikeTweet(participant, tweetId){
 async function publishTweet(participant, tweetParams){    
     let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
 
-    //create the action obj and add to db for report
+    // Create the action obj and add to db for report
+    let actionType = "tweeted"
+    // Check if this regular tweet, comment or quote
+    if(tweetParams.in_reply_to_status_id){
+        actionType = "replied"
+    }
+    else if(tweetParams.attachment_url){
+        actionType = "quoted"
+    }   
     const actionDate = moment.utc().format(dateFormat);
-    let action = createActionObj(participant, "tweeted", actionDate)
+    let action = createActionObj(participant, actionType, actionDate)
     action['tweet_obj'] = publishTweetSuccess // entire tweet object
     database.insertAction(participant.exp_id, action) // not await
 
@@ -46,6 +54,18 @@ async function publishTweet(participant, tweetParams){
     return publishTweetSuccess
 }
 
+async function publishRetweet(participant, tweetId){    
+    let publishRetweetSuccess = await twitterComm.publishRetweet(participant, tweetId)
+
+    // Create the action obj and add to db for report
+    const actionDate = moment.utc().format(dateFormat);
+    let action = createActionObj(participant, "retweeted", actionDate)
+    action['tweet_obj'] = publishRetweetSuccess // entire tweet object
+    database.insertAction(participant.exp_id, action) // not await
+
+    // return response from twitter
+    return publishRetweetSuccess
+}
 
 /* ----------------------------------------
     Log of other actions
@@ -96,6 +116,7 @@ function validateActionsFields(actions){
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
 exports.publishTweet = publishTweet
+exports.publishRetweet = publishRetweet
 exports.logRegisteredToExperiment = logRegisteredToExperiment
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
