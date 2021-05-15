@@ -71,7 +71,7 @@ async function updateParticipantTokens(tId,token,token_secret) {
     return false
 }
 
-async function deleteParticipants() {
+/*async function deleteParticipants() {
     const db = await makeDb()
     let result = null
     try{
@@ -85,7 +85,7 @@ async function deleteParticipants() {
         return true
     }
     return false
-}
+}*/
 
 async function deleteParticipantsFromExp(expId){
     const db = await makeDb()
@@ -106,7 +106,6 @@ module.exports = {
     insertParticipant : insertParticipant,
     getParticipantByTwitterId : getParticipantByTwitterId,
     getParticipantByToken : getParticipantByToken,
-    deleteParticipants: deleteParticipants,
     updateParticipantTokens: updateParticipantTokens,
     deleteParticipantsFromExp : deleteParticipantsFromExp,
 
