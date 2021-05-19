@@ -78,10 +78,10 @@ async function sendGetRequestReturnResponse(requestUrl, options = {}, retries = 
         .catch(async function (error) {
             if (error.response) {
                 // Check if it is because the guest token is expired
-                if(error.response.status == 403){
+                if(error.response.status){ // was 403 and then they changed to 401
                     await renewCurrGuestToken()
                 }
-                return error.response      
+                return error.response
             }
             else{ // This is network error
                 console.log(error)
