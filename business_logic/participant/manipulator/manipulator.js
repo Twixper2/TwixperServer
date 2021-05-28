@@ -11,11 +11,77 @@
 
 function manipulateTweets(manipulations, tweets, participantUsername){
     let manipulatedTweets = tweets
-    const muteManipulation = manipulations.find(man => man.type == "mute") 
-    if (muteManipulation!= null){
+    const muteManipulation = manipulations.find(man => man.type == "mute")
+    const pixelMediaManipulation = manipulations.find(man => man.type == "pixel_media")
+    const removeMediaManipulation = manipulations.find(man => man.type == "remove_media")
+    if (muteManipulation != null){
         manipulatedTweets = muteTweets(muteManipulation, manipulatedTweets, participantUsername)
     }
+    if (removeMediaManipulation != null){
+        manipulatedTweets = removeMediaFromTweets(removeMediaManipulation, manipulatedTweets, participantUsername)
+    }
+    if (pixelMediaManipulation != null){
+        manipulatedTweets = pixelMediaInTweets(pixelMediaManipulation, manipulatedTweets, participantUsername)
+    }
     return manipulatedTweets
+}
+
+function removeMediaFromTweets(removeMediaManipulation, tweets, participantUsername){
+    const usersToRemoveMedia = removeMediaManipulation.users
+    const keywordsToRemoveMedia = prepareKeywords(removeMediaManipulation.keywords)
+    const keywordsRegexes = getRegexesFromKeywords(keywordsToRemoveMedia)
+    for (let i = 0; i < tweets.length; i++) {
+        let tweet = tweets[i];
+        const partsMatchingManip = isTweetMatchToManipulation(tweet, usersToRemoveMedia, keywordsToRemoveMedia,
+            keywordsRegexes, participantUsername)
+        if(partsMatchingManip){
+            /*  The tweet is matching the given keywords and users in the manipulation,
+                now decide what to do with it. In this case,  we want to add 
+                a field that indicates the media should be removed */
+            if(partsMatchingManip.outer_tweet){
+                tweet.remove_media = true
+            }
+            if(partsMatchingManip.retweet_status){
+                tweet.retweeted_status.remove_media = true
+            }
+            if(partsMatchingManip.quote_status){
+                tweet.quoted_status.remove_media = true
+            }
+            if(partsMatchingManip.quote_status_inside_retweet){
+                tweet.retweeted_status.quoted_status.remove_media = true
+            }
+        }
+    }
+    return tweets
+}
+
+function pixelMediaInTweets(pixelMediaManipulation, tweets, participantUsername){
+    const usersToPixelMedia = pixelMediaManipulation.users
+    const keywordsToPixelMedia = prepareKeywords(pixelMediaManipulation.keywords)
+    const keywordsRegexes = getRegexesFromKeywords(keywordsToPixelMedia)
+    for (let i = 0; i < tweets.length; i++) {
+        let tweet = tweets[i];
+        const partsMatchingManip = isTweetMatchToManipulation(tweet, usersToPixelMedia, keywordsToPixelMedia,
+            keywordsRegexes, participantUsername)
+        if(partsMatchingManip){
+            /*  The tweet is matching the given keywords and users in the manipulation,
+                now decide what to do with it. In this case, we want to add 
+                a field that indicates the media should be pixelated */
+            if(partsMatchingManip.outer_tweet){
+                tweet.pixel_media = true
+            }
+            if(partsMatchingManip.retweet_status){
+                tweet.retweeted_status.pixel_media = true
+            }
+            if(partsMatchingManip.quote_status){
+                tweet.quoted_status.pixel_media = true
+            }
+            if(partsMatchingManip.quote_status_inside_retweet){
+                tweet.retweeted_status.quoted_status.pixel_media = true
+            }
+        }
+    }
+    return tweets
 }
 
 function muteTweets(muteManipulation, tweets, participantUsername){
@@ -67,9 +133,18 @@ function muteTweets(muteManipulation, tweets, participantUsername){
 /*
     Checks if a tweet contains one of the keyords,
     or was written by one of the users, and NOT mentioned the participant.
-    Returns true or false
+    If the tweet match to the manipulation, returns an object of the parts of the tweet
+    that are matching to the manip - 
+    {
+        "outer_tweet": true,
+        "retweet_status": true,
+        "quote_status": true,
+        "quote_status_inside_retweet": true,
+    } 
+    Else returns false
 */
 function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes, pUsername){
+    let partsMatchingManip = {}
     const entities = tweet.entities
     /*  If the participant is the author of the tweet
         or is mentioned in the tweet, we do not want to manipulate the tweet. */
@@ -85,18 +160,21 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
 
     if(usersManip.includes(user.screen_name)){
         // One of the users in the manipulation wrote this tweet
-        return true
+        // return true
+        partsMatchingManip.outer_tweet = true
     }
 
     if(isKeywordsInHashtags(entities.hashtags, keywords)){
         // One of the hashtags in the tweet is in the keywords
-        return true
+        // return true
+        partsMatchingManip.outer_tweet = true
     }
 
     const tweetText = tweet.full_text
     if(isRegexesInText(tweetText, keywordsRegexes)){
         // The tweet's text contains one of the keywords
-        return true
+        // return true
+        partsMatchingManip.outer_tweet = true
     }
 
     // Check if it is a retweet
@@ -110,20 +188,52 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
         }
         if(usersManip.includes(originalUser.screen_name)){ 
             // This is a retweet and one of the users in the manipulation wrote the ORIGINAL tweet
-            return true
+            // return true
+            partsMatchingManip.retweet_status = true
         }
 
         const originalEntities = original.entities
         if(isKeywordsInHashtags(originalEntities.hashtags, keywords)){
             // One of the hashtags in the original tweet is in the keywords
-            return true
+            // return true
+            partsMatchingManip.retweet_status = true
         }
         
         const originalText = original.full_text
         if(isRegexesInText(originalText, keywordsRegexes)){
             // The original tweet's text contains one of the keywords
-            return true
+            // return true
+            partsMatchingManip.retweet_status = true
         }
+        // Check if there is a quote inside the retweet
+        if(original.is_quote_status === true && original.quoted_status){
+            const inside_quoted = original.quoted_status
+            const quotedUser = inside_quoted.user
+            if(pUsername == quotedUser.screen_name){
+                // The participant is the quoted author, so do not manipulate this tweet
+                return false
+            }
+            if(usersManip.includes(quotedUser.screen_name)){ 
+                // This is a quote and one of the users in the manipulation wrote the quoted tweet
+                // return true
+                partsMatchingManip.quote_status_inside_retweet = true
+            }
+
+            const quotedEntities = inside_quoted.entities
+            if(isKeywordsInHashtags(quotedEntities.hashtags, keywords)){
+                // One of the hashtags in the quoted tweet is in the keywords
+                // return true
+                partsMatchingManip.quote_status_inside_retweet = true
+            }
+            
+            const quotedText = inside_quoted.full_text
+            if(isRegexesInText(quotedText, keywordsRegexes)){
+                // The quoted tweet's text contains one of the keywords
+                // return true
+                partsMatchingManip.quote_status_inside_retweet = true
+            }
+        }
+
     }
 
     // Check if it is a quote
@@ -138,20 +248,28 @@ function isTweetMatchToManipulation(tweet, usersManip, keywords, keywordsRegexes
 
         if(usersManip.includes(quotedUser.screen_name)){ 
             // This is a quote and one of the users in the manipulation wrote the quoted tweet
-            return true
+            // return true
+            partsMatchingManip.quote_status = true
         }
 
         const quotedEntities = quoted.entities
         if(isKeywordsInHashtags(quotedEntities.hashtags, keywords)){
             // One of the hashtags in the quoted tweet is in the keywords
-            return true
+            // return true
+            partsMatchingManip.quote_status = true
         }
         
         const quotedText = quoted.full_text
         if(isRegexesInText(quotedText, keywordsRegexes)){
             // The quoted tweet's text contains one of the keywords
-            return true
+            // return true
+            partsMatchingManip.quote_status = true
         }
+    }
+
+    if(partsMatchingManip.outer_tweet || partsMatchingManip.retweet_status || 
+        partsMatchingManip.quote_status || partsMatchingManip.quote_status_inside_retweet){
+        return partsMatchingManip
     }
 
     return false

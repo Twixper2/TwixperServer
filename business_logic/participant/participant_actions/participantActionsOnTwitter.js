@@ -33,6 +33,32 @@ async function unlikeTweet(participant, tweetId){
     return unlikeSuccess
 }
 
+async function follow(participant, screenName){    
+    let followSuccess = await twitterComm.follow(participant, screenName)
+
+    //create the action obj and add to db for report
+    const actionDate = moment.utc().format(dateFormat);
+    let action = createActionObj(participant, "follow", actionDate)
+    action['user_obj'] = followSuccess // entire user object
+    database.insertAction(participant.exp_id, action) // not await
+
+    // return response from twitter
+    return followSuccess
+}
+
+async function unfollow(participant, screenName){    
+    let unfollowSuccess = await twitterComm.unfollow(participant, screenName)
+
+    //create the action obj and add to db for report
+    const actionDate = moment.utc().format(dateFormat);
+    let action = createActionObj(participant, "unfollow", actionDate)
+    action['user_obj'] = unfollowSuccess // entire user object
+    database.insertAction(participant.exp_id, action) // not await
+
+    // return response from twitter
+    return unfollowSuccess
+}
+
 async function publishTweet(participant, tweetParams){    
     let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
 
@@ -115,6 +141,8 @@ function validateActionsFields(actions){
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.follow = follow
+exports.unfollow = unfollow
 exports.publishTweet = publishTweet
 exports.publishRetweet = publishRetweet
 exports.logRegisteredToExperiment = logRegisteredToExperiment

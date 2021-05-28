@@ -44,6 +44,20 @@ async function unlikeTweet(T, tweetId){
     return await sendPostRequestsWrapper(T, "favorites/destroy", params)
 }
 
+async function follow(T, screenName){ 
+    const params = {
+        screen_name: screenName,
+    }
+    return await sendPostRequestsWrapper(T, "friendships/create", params)
+}
+
+async function unfollow(T, screenName){ 
+    const params = {
+        screen_name: screenName,
+    }
+    return await sendPostRequestsWrapper(T, "friendships/destroy", params)
+}
+
 async function publishTweet(T, tweetParams){ 
     return await sendPostRequestsWrapper(T, "statuses/update", tweetParams)
 }
@@ -57,5 +71,7 @@ async function publishRetweet(T, tweetId){
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.follow = follow
+exports.unfollow = unfollow
 exports.publishTweet = publishTweet
 exports.publishRetweet = publishRetweet

@@ -74,6 +74,16 @@ async function unlikeTweet(participant, tweetId) {
     return output
 }
 
+async function follow(participant, screenName) {
+    let output = await participantActionsOnTwitter.follow(participant, screenName)
+    return output
+}
+
+async function unfollow(participant, screenName) {
+    let output = await participantActionsOnTwitter.unfollow(participant, screenName)
+    return output
+}
+
 async function publishTweet(participant, tweetParams) {
     let output = await participantActionsOnTwitter.publishTweet(participant, tweetParams)
     return output
@@ -158,6 +168,8 @@ exports.registerParticipant = registerParticipant
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.follow = follow
+exports.unfollow = unfollow
 exports.publishTweet = publishTweet
 exports.publishRetweet = publishRetweet
 

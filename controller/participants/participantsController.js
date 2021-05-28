@@ -326,6 +326,62 @@ router.post("/unlikeTweet", async (req, res, next) => {
   }
 });
 
+router.post("/follow", async (req, res, next) => {
+  const screenName = req.query.screen_name
+  if (!screenName) {
+    res.status(400).send("No screen name provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const followSuccess = await participantsService.follow(participant, screenName)
+    if(followSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/follow **")
+    console.log(e)
+    if(e.message){ 
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
+router.post("/unfollow", async (req, res, next) => {
+  const screenName = req.query.screen_name
+  if (!screenName) {
+    res.status(400).send("No screen name provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const followSuccess = await participantsService.unfollow(participant, screenName)
+    if(followSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/unfollow **")
+    console.log(e)
+    if(e.message){ 
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
 // For new tweets and comments
 router.post("/publishTweet", async (req, res, next) => {
   /* 

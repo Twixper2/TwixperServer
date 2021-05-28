@@ -195,6 +195,26 @@ async function unlikeTweet(participant, tweetId){
     return twitterApiPost.unlikeTweet(T, tweetId)
 }  
 
+async function follow(participant, screenName){ 
+    if(!config.makeActionsInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.follow(T, screenName)
+}
+
+async function unfollow(participant, screenName){ 
+    if(!config.makeActionsInTwitter){
+        return true
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return twitterApiPost.unfollow(T, screenName)
+} 
+
 async function publishTweet(participant, tweetParams){ 
     if(!config.publishPostInTwitter){
         return true
@@ -230,5 +250,7 @@ exports.getUserLikes = getUserLikes
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.follow = follow
+exports.unfollow = unfollow
 exports.publishTweet = publishTweet
 exports.publishRetweet = publishRetweet

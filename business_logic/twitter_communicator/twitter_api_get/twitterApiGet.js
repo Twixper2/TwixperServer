@@ -41,7 +41,7 @@ async function getFeed(T, maxId, count){ // Add additional request parameters la
     const params = {
         tweet_mode: "extended",
         exclude_replies: "true",
-        count: 60
+        count: 40
     }
     if(count){
         params.count = count
