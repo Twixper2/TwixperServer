@@ -15,13 +15,13 @@ const getUserTimelineParams = "include_profile_interstitial_type=1&include_block
 +"include_can_media_tag=1&skip_status=1&include_cards=1&include_ext_alt_text=true&include_quote_count=true"
 +"&include_reply_count=1&tweet_mode=extended&include_entities=true&include_user_entities=true&"
 +"include_ext_media_color=true&include_ext_media_availability=true&send_error_codes=true&"
-+"simple_quoted_tweet=true&include_tweet_replies=false&count=40" // When sending req, add &userId=....
++"simple_quoted_tweet=true&include_tweet_replies=false" // When sending req, add &userId=... &count=...
 const searchParams = "include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1"
 +"&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1"
 +"&include_can_media_tag=1&skip_status=1&include_ext_alt_text=true&include_quote_count=true"
 +"&include_reply_count=1&tweet_mode=extended&include_entities=true&include_user_entities=true"
 +"&include_ext_media_color=true&include_ext_media_availability=true&send_error_codes=true"
-+"&simple_quoted_tweet=true&count=40&query_source=typed_query&pc=1&spelling_corrections=1"
++"&simple_quoted_tweet=true&query_source=typed_query&pc=1&spelling_corrections=1" // When sending req, add &count=...
 
 const axios = require('axios')
 
@@ -115,8 +115,9 @@ async function getTweetCommentsByCursor(tweetId, cursor){
 
 }
 
-async function getUserTimeline(userId){
-    const url = twitterInnerApiUrl+"/timeline/profile/" + userId + ".json?" + getUserTimelineParams +"&userid=" + userId
+async function getUserTimeline(userId, count=40){
+    const url = twitterInnerApiUrl+"/timeline/profile/" + userId + ".json?" + getUserTimelineParams 
+    + "&userid=" + userId + "&count=" + count
     const response = await sendGetRequestReturnResponse(url)
     if(response.status == 200){
         return response.data
@@ -131,9 +132,10 @@ async function getUserTimeline(userId){
     }
 }
 
-async function searchTweets(query){
+async function searchTweets(query, count=40){
     const convertedQuery = encodeURIComponent(query)
-    const url = twitterInnerApiUrl+"/search/adaptive.json?" + searchParams + "&q=" + convertedQuery
+    const url = twitterInnerApiUrl+"/search/adaptive.json?" + searchParams + "&q=" 
+    + convertedQuery + "&count=" + count
     const response = await sendGetRequestReturnResponse(url)
     if(response.status == 200){
         return response.data

@@ -52,6 +52,16 @@ async function getFeed(T, maxId, count){ // Add additional request parameters la
     return await sendGetRequestsWrapper(T, "statuses/home_timeline", params)
 }
 
+async function getUserTimeline(T, username, count=10){
+    const params = {
+        screen_name: username,
+        tweet_mode: "extended",
+        exclude_replies: "true",
+        count: count
+    }
+    return await sendGetRequestsWrapper(T, "statuses/user_timeline", params)
+}
+
 async function getUserLikes(T, username){
     const params = {
         screen_name: username,
@@ -82,5 +92,6 @@ async function getUserFollowers(T, username){
 exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
 exports.getUserLikes = getUserLikes
+exports.getUserTimeline = getUserTimeline
 exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers

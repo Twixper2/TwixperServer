@@ -98,12 +98,12 @@ async function getFeed(participant, maxId, count){
 }
 
 // Possibly add more fields
-async function searchTweets(query){
+async function searchTweets(query, count=40){
     if(config.returnStaticSearchTweetsData){
         return searchTweetsJSON
     }
     //Else, call and return relevant function from the modules 
-    return await twitterInnerApiGet.searchTweets(query)
+    return await twitterInnerApiGet.searchTweets(query, count)
 }
 
 // Possibly add more fields
@@ -116,9 +116,9 @@ async function searchUsers(query){
 }
 
 async function getUser(username){
-    if(config.returnStaticData){
+    // if(config.returnStaticData){
         return userJSON
-    }
+    // }
     //Else, call and return relevant function from the modules
 }
 
@@ -150,12 +150,22 @@ async function getUserFollowers(participant, username){
     return await twitterApiGet.getUserFollowers(T, username)
 }
 
-async function getUserTimeline(userId){
+async function getUserTimeline(userId, count=40){
     if(config.returnStaticUserTimelineData){
         return userTimelineJSON
     }
     //Else, call and return relevant function from the modules
-    return await twitterInnerApiGet.getUserTimeline(userId)
+    return await twitterInnerApiGet.getUserTimeline(userId, count)
+}
+
+async function getUserTimelineFromOfficialApi(participant, userName, count=10){
+    if(config.returnStaticFeed){
+        return feedJSON
+    }
+    // Set T w/ the credentials
+    setTAuth(participant.user_twitter_token, participant.user_twitter_token_secret)
+    // Call and return relevant function from the modules 
+    return await twitterApiGet.getUserTimeline(T, userName, count)
 }
 
 async function getUserLikes(participant, username){
@@ -246,6 +256,7 @@ exports.getTweet = getTweet
 exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
+exports.getUserTimelineFromOfficialApi = getUserTimelineFromOfficialApi
 exports.getUserLikes = getUserLikes
 
 exports.likeTweet = likeTweet

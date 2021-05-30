@@ -12,8 +12,7 @@ async function getFeed(participant, maxId, count){
     // Get the feed from Twitter
     let twitterFeedTweets = await twitterComm.getFeed(participant, maxId, count)
     if (twitterFeedTweets) {
-        twitterFeedTweets = manipulator.manipulateTweets(participant.group_manipulations, 
-            twitterFeedTweets, participant.participant_twitter_username)
+        twitterFeedTweets = await manipulator.manipulateTweets(participant, twitterFeedTweets)
         return twitterFeedTweets
     }
     return null

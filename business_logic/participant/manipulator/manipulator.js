@@ -8,22 +8,76 @@
                             By Twixper
  */
 
+const utils = require("./manipulatorUtils")
+const params = require("../../../config").injectionParams
 
-function manipulateTweets(manipulations, tweets, participantUsername){
+async function manipulateTweets(participant, tweets){
+    const manipulations = participant.group_manipulations
+    const participantUsername = participant.participant_twitter_username
     let manipulatedTweets = tweets
     const muteManipulation = manipulations.find(man => man.type == "mute")
     const pixelMediaManipulation = manipulations.find(man => man.type == "pixel_media")
     const removeMediaManipulation = manipulations.find(man => man.type == "remove_media")
-    if (muteManipulation != null){
+    const injectManipulation = manipulations.find(man => man.type == "inject")
+    if(injectManipulation != null && (injectManipulation.users.length > 0 || injectManipulation.keywords.length > 0)){
+        manipulatedTweets = await injectTweets(participant, manipulatedTweets)
+    }
+    if (muteManipulation != null && (muteManipulation.users.length > 0 || muteManipulation.keywords.length > 0)){
         manipulatedTweets = muteTweets(muteManipulation, manipulatedTweets, participantUsername)
     }
-    if (removeMediaManipulation != null){
+    if (removeMediaManipulation != null && (removeMediaManipulation.users.length > 0 || removeMediaManipulation.keywords.length > 0)){
         manipulatedTweets = removeMediaFromTweets(removeMediaManipulation, manipulatedTweets, participantUsername)
     }
-    if (pixelMediaManipulation != null){
+    if (pixelMediaManipulation != null && (pixelMediaManipulation.users.length > 0 || pixelMediaManipulation.keywords.length > 0)){
         manipulatedTweets = pixelMediaInTweets(pixelMediaManipulation, manipulatedTweets, participantUsername)
     }
+    
     return manipulatedTweets
+}
+
+async function injectTweets(participant, currTweets){
+    const expId = participant.exp_id
+    const groupId = participant.group_id
+    let injectionDoc = await utils.getInjectionDoc(expId, groupId)
+    const tweetsToInject = injectionDoc.tweets_to_inject
+    let entitiesStates = injectionDoc.entities_states
+    const feedLenBeforeInjection = currTweets.length
+    currTweets = utils.injectTweets(currTweets, tweetsToInject)
+    const feedLenAfterInjection = currTweets.length
+    if(feedLenAfterInjection - feedLenBeforeInjection == 0){
+        // No tweets injected, probably all are not up to date.
+        let notUpdatedEnts = utils.getNotUpdatedEntities(entitiesStates)
+        if(notUpdatedEnts.length > 0){
+            // Select randomly the entities to update
+            utils.shuffleArray(notUpdatedEnts)
+            // Select some of the first entites
+            const numEntsToUpdate = Math.min(3, params.numUpdatesForIteration)
+            notUpdatedEnts = notUpdatedEnts.slice(0, numEntsToUpdate)
+            // Call with await to update the injected tweets
+            console.log("updating injections tweets before injecting")
+            await utils.updateInjectionTweets(participant, injectionDoc, notUpdatedEnts)
+            // Call the function again for injecting the updated tweets injections
+            return injectTweets(participant, currTweets)
+        }
+    }
+
+    let notUpdatedEnts = utils.getNotUpdatedEntities(entitiesStates)
+    if(notUpdatedEnts.length > 0){
+        // Select randomly the entities to update
+        utils.shuffleArray(notUpdatedEnts)
+        // Select the first "numUpdatesForIteration" entites
+        notUpdatedEnts = notUpdatedEnts.slice(0, params.numUpdatesForIteration)
+        // Update the is_updating_now field for those entities
+        await utils.changeIsUpdatingStatus(expId, groupId, entitiesStates, notUpdatedEnts, true)
+        // Call w/o await to update the injected tweets
+        console.log("updating injections tweets")
+        utils.updateInjectionTweets(participant, injectionDoc, notUpdatedEnts)
+        .then(function(res){
+            console.log("Done updating injection tweets in async way")
+        })
+    }
+    return currTweets
+
 }
 
 function removeMediaFromTweets(removeMediaManipulation, tweets, participantUsername){

@@ -1,8 +1,8 @@
 const twitterComm = require("../../twitter_communicator/twitterCommunicator")
 const twitterInnerApiUtils = require("../../twitter_communicator/twitter_internal_api/twitterInnerApiUtils")
 
-async function searchTweets(q){
-    let searchResults = await twitterComm.searchTweets(q)
+async function searchTweets(q, count=40){
+    let searchResults = await twitterComm.searchTweets(q, count)
     if(!searchResults.globalObjects){
         // No need to format, already formatted (probably this obj is from the official api response)
         return searchResults
@@ -14,12 +14,6 @@ async function searchTweets(q){
     }
     return resObject
 
-    // if (results) {
-    //     /** Not manipulating search results */
-    //     // results.statuses = manipulator.manipulateTweets(participant.group_manipulations, results.statuses)
-    //     return results
-    // }
-    // return null
 }
 
 async function searchUsers(q){    

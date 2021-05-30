@@ -31,10 +31,15 @@ async function getUserFollowers(participant, username){
     return twitterGetUserFollowers
 }
 
-async function getUserTimeline(userId){
-    let twitterGetUserTimeline = await twitterComm.getUserTimeline(userId)
+async function getUserTimeline(userId, count=40){
+    let twitterGetUserTimeline = await twitterComm.getUserTimeline(userId, count)
     twitterGetUserTimeline = twitterInnerApiUtils.formatUserTimelineObject(twitterGetUserTimeline)
     return twitterGetUserTimeline
+}
+
+async function getUserTimelineFromOfficialApi(participant, userName, count=10){
+  let twitterGetUserTimeline = await twitterComm.getUserTimelineFromOfficialApi(participant, userName, count)
+  return twitterGetUserTimeline
 }
 
 async function getUserLikes(participant, username){
@@ -75,5 +80,6 @@ exports.getTweet = getTweet
 exports.getUserFriends = getUserFriends
 exports.getUserFollowers = getUserFollowers
 exports.getUserTimeline = getUserTimeline
+exports.getUserTimelineFromOfficialApi = getUserTimelineFromOfficialApi
 exports.getUserLikes = getUserLikes
 exports.getLinkPreview = getLinkPreview
