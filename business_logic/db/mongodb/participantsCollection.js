@@ -100,7 +100,9 @@ async function deleteParticipantsFromExp(expId){
     if (result) {
         return true
     }
-    return false}
+    return false
+}
+
 
 module.exports = {
     insertParticipant : insertParticipant,

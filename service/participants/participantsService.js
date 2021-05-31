@@ -24,8 +24,8 @@ async function searchUsers(q){
  * feed for authenticated user
  * @param {*} user 
  */
-async function getFeed(participant){
-    let output = await participantFeed.getFeed(participant)
+async function getFeed(participant, maxId, count){
+    let output = await participantFeed.getFeed(participant, maxId, count)
     return output
 }
 
@@ -74,11 +74,25 @@ async function unlikeTweet(participant, tweetId) {
     return output
 }
 
+async function follow(participant, screenName) {
+    let output = await participantActionsOnTwitter.follow(participant, screenName)
+    return output
+}
+
+async function unfollow(participant, screenName) {
+    let output = await participantActionsOnTwitter.unfollow(participant, screenName)
+    return output
+}
+
 async function publishTweet(participant, tweetParams) {
     let output = await participantActionsOnTwitter.publishTweet(participant, tweetParams)
     return output
 }
 
+async function publishRetweet(participant, tweetId) {
+    let output = await participantActionsOnTwitter.publishRetweet(participant, tweetId)
+    return output
+}
 
 /**_____ Participants auth ______ **/
 
@@ -133,6 +147,11 @@ function extractTwitterInfoFromParticipantObj(participant){
     return participantAuthUtils.extractTwitterInfoFromParticipantObj(participant)
 }
 
+async function getLinkPreview(previewUrl){
+    let output = await participantSpecifiedTwitterData.getLinkPreview(previewUrl)
+    return output
+}
+
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.getTwitterUserFromTokens = getTwitterUserFromTokens
@@ -149,9 +168,13 @@ exports.registerParticipant = registerParticipant
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.follow = follow
+exports.unfollow = unfollow
 exports.publishTweet = publishTweet
+exports.publishRetweet = publishRetweet
 
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
 
 exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj
+exports.getLinkPreview = getLinkPreview
