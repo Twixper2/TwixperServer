@@ -148,3 +148,4 @@ exports.publishRetweet = publishRetweet
 exports.logRegisteredToExperiment = logRegisteredToExperiment
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
+exports.createActionObj = createActionObj

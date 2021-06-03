@@ -182,31 +182,14 @@ exports.report = {
             "clicked tweet media video", // Clicked on a video that was attached to a tweet.
             "clicked tweet url", // Clicked on a url that was in a tweet.
             "clicked tweet url with preview", // Clicked on a link-preview that was in a tweet.
+            "muted tweet (manipulation)", // A tweet that was muted
+            "injected tweet (manipulation)",
+            "pixelated media (manipulation)",
+            "removed media (manipulation)"
         ]
         ,
         {
             action_type: "muted tweet (manipulation)",
-            action_date: "",
-            participant_twitter_username: "",
-            participant_group_id: "",
-            tweet_obj: {}
-        },
-        {
-            action_type : "injected tweet (manipulation)",
-            action_date: "",
-            participant_twitter_username: "",
-            participant_group_id: "",
-            tweet_obj: {}
-        },
-        {
-            action_type : "pixelated media (manipulation)",
-            action_date: "",
-            participant_twitter_username: "",
-            participant_group_id: "",
-            tweet_obj: {}
-        },
-        {
-            action_type : "removed media (manipulation)",
             action_date: "",
             participant_twitter_username: "",
             participant_group_id: "",

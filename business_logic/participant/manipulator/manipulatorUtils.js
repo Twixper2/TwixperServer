@@ -101,6 +101,12 @@ async function updateInjectionTweets(participant, injectionDoc, entitiesStatesTo
     await dbComm.replaceInjectionDoc(injectionDoc.exp_id, injectionDoc.group_id, injectionDoc)
 }
 
+/**
+ * Edits the feed by injecting tweets to it.
+ * @param {*} feedTweets The feed to edit
+ * @param {*} tweetsToInject The tweets pool to inject from
+ * @returns Array of the injected tweets
+ */
 function injectTweets(feedTweets, tweetsToInject){
     if(feedTweets.length <= 1){ // Feed is empty
         return tweetsToInject
@@ -108,11 +114,13 @@ function injectTweets(feedTweets, tweetsToInject){
     const fromId = feedTweets[feedTweets.length - 1].id_str
     const toId = feedTweets[0].id_str
     const maxNumTweetsToInject = params.numTweetsToInject
+    let injectedTweets = []
     let totalInjected = 0
     tweetsToInject.forEach(tweet => {
         const tweetId = tweet.id_str
         if(totalInjected <= maxNumTweetsToInject && tweetId > fromId &&  tweetId < toId){
             feedTweets.push(tweet)
+            injectedTweets.push(tweet)
             totalInjected ++
         }
     });
@@ -124,7 +132,9 @@ function injectTweets(feedTweets, tweetsToInject){
     .map(id_str => {
       return feedTweets.find(a => a.id_str === id_str)
     })
-    return uniqueFeedTweets
+    feedTweets = uniqueFeedTweets
+
+    return injectedTweets
 }
 
 function shuffleArray(array){
