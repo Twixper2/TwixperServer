@@ -65,8 +65,10 @@ async function activateNewExperiment(expObj, researcherObj){
         if(isSuccessfulInsert === true){
             const isExperimentAdded = await dbComm.addExperimentIdToResearcher(researcherId, expObj.exp_id) // TODO make sure the correct order of inputs 
             if (isExperimentAdded === true) {
-                // Insert the injection docs
-                await dbComm.insertInjectionDocs(injectionObjectsArray)
+                if(injectionObjectsArray.length > 0){
+                    // Insert the injection docs
+                    await dbComm.insertInjectionDocs(injectionObjectsArray)
+                }
                 return expObj.exp_code
             }
             else {
