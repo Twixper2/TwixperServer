@@ -53,9 +53,9 @@ async function injectTweets(currTweets, participant, manipulationLogger){
         let notUpdatedEnts = utils.getNotUpdatedEntities(entitiesStates)
         if(notUpdatedEnts.length > 0){
             // Select randomly the entities to update
-            utils.shuffleArray(notUpdatedEnts)
+            // utils.shuffleArray(notUpdatedEnts)
             // Select some of the first entites
-            const numEntsToUpdate = Math.min(3, params.numUpdatesForIteration)
+            const numEntsToUpdate = Math.min(2, params.numUpdatesForIteration)
             notUpdatedEnts = notUpdatedEnts.slice(0, numEntsToUpdate)
             // Call with await to update the injected tweets
             console.log("updating injections tweets before injecting")
