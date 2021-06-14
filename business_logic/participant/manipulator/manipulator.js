@@ -9,55 +9,59 @@
  */
 
 const utils = require("./manipulatorUtils")
-const params = require("../../../config").injectionParams
+const config =  require("../../../config")
+const params = config.injectionParams
+const dateFormat = config.dateFormat
+const actionsOnTwitter = require("../participant_actions/participantActionsOnTwitter")
+var moment = require('moment');
 
 async function manipulateTweets(participant, tweets){
     const manipulations = participant.group_manipulations
-    const participantUsername = participant.participant_twitter_username
     let manipulatedTweets = tweets
+    let manipulationLogger = [] // For loging each manipluated tweet as action
     const muteManipulation = manipulations.find(man => man.type == "mute")
     const pixelMediaManipulation = manipulations.find(man => man.type == "pixel_media")
     const removeMediaManipulation = manipulations.find(man => man.type == "remove_media")
     const injectManipulation = manipulations.find(man => man.type == "inject")
     if(injectManipulation != null && (injectManipulation.users.length > 0 || injectManipulation.keywords.length > 0)){
-        manipulatedTweets = await injectTweets(participant, manipulatedTweets)
+        manipulatedTweets = await injectTweets(manipulatedTweets, participant, manipulationLogger)
     }
     if (muteManipulation != null && (muteManipulation.users.length > 0 || muteManipulation.keywords.length > 0)){
-        manipulatedTweets = muteTweets(muteManipulation, manipulatedTweets, participantUsername)
+        manipulatedTweets = muteTweets(muteManipulation, manipulatedTweets, participant, manipulationLogger)
     }
     if (removeMediaManipulation != null && (removeMediaManipulation.users.length > 0 || removeMediaManipulation.keywords.length > 0)){
-        manipulatedTweets = removeMediaFromTweets(removeMediaManipulation, manipulatedTweets, participantUsername)
+        manipulatedTweets = removeMediaFromTweets(removeMediaManipulation, manipulatedTweets, participant, manipulationLogger)
     }
     if (pixelMediaManipulation != null && (pixelMediaManipulation.users.length > 0 || pixelMediaManipulation.keywords.length > 0)){
-        manipulatedTweets = pixelMediaInTweets(pixelMediaManipulation, manipulatedTweets, participantUsername)
+        manipulatedTweets = pixelMediaInTweets(pixelMediaManipulation, manipulatedTweets, participant, manipulationLogger)
     }
+    // Log the manipulaitonLogger
+    actionsOnTwitter.logParticipantActions(participant, manipulationLogger)
     
     return manipulatedTweets
 }
 
-async function injectTweets(participant, currTweets){
+async function injectTweets(currTweets, participant, manipulationLogger){
     const expId = participant.exp_id
     const groupId = participant.group_id
     let injectionDoc = await utils.getInjectionDoc(expId, groupId)
     const tweetsToInject = injectionDoc.tweets_to_inject
     let entitiesStates = injectionDoc.entities_states
-    const feedLenBeforeInjection = currTweets.length
-    currTweets = utils.injectTweets(currTweets, tweetsToInject)
-    const feedLenAfterInjection = currTweets.length
-    if(feedLenAfterInjection - feedLenBeforeInjection == 0){
+    const injectedTweets = utils.injectTweets(currTweets, tweetsToInject)
+    if(injectedTweets.length == 0){
         // No tweets injected, probably all are not up to date.
         let notUpdatedEnts = utils.getNotUpdatedEntities(entitiesStates)
         if(notUpdatedEnts.length > 0){
             // Select randomly the entities to update
-            utils.shuffleArray(notUpdatedEnts)
+            // utils.shuffleArray(notUpdatedEnts)
             // Select some of the first entites
-            const numEntsToUpdate = Math.min(3, params.numUpdatesForIteration)
+            const numEntsToUpdate = Math.min(2, params.numUpdatesForIteration)
             notUpdatedEnts = notUpdatedEnts.slice(0, numEntsToUpdate)
             // Call with await to update the injected tweets
             console.log("updating injections tweets before injecting")
             await utils.updateInjectionTweets(participant, injectionDoc, notUpdatedEnts)
             // Call the function again for injecting the updated tweets injections
-            return injectTweets(participant, currTweets)
+            return injectTweets(currTweets, participant, manipulationLogger)
         }
     }
 
@@ -76,11 +80,18 @@ async function injectTweets(participant, currTweets){
             console.log("Done updating injection tweets in async way")
         })
     }
+
+    // Add the log to the logger
+    injectedTweets.forEach(tweet => {
+        const action = createManipActionLog(participant, "injected tweet (manipulation)", tweet)
+        manipulationLogger.push(action)
+    });
     return currTweets
 
 }
 
-function removeMediaFromTweets(removeMediaManipulation, tweets, participantUsername){
+function removeMediaFromTweets(removeMediaManipulation, tweets, participant, manipulationLogger){
+    const participantUsername = participant.participantUsername
     const usersToRemoveMedia = removeMediaManipulation.users
     const keywordsToRemoveMedia = prepareKeywords(removeMediaManipulation.keywords)
     const keywordsRegexes = getRegexesFromKeywords(keywordsToRemoveMedia)
@@ -104,12 +115,16 @@ function removeMediaFromTweets(removeMediaManipulation, tweets, participantUsern
             if(partsMatchingManip.quote_status_inside_retweet){
                 tweet.retweeted_status.quoted_status.remove_media = true
             }
+            // Add the log to the logger
+            const action = createManipActionLog(participant, "removed media (manipulation)", tweet)
+            manipulationLogger.push(action)
         }
     }
     return tweets
 }
 
-function pixelMediaInTweets(pixelMediaManipulation, tweets, participantUsername){
+function pixelMediaInTweets(pixelMediaManipulation, tweets, participant, manipulationLogger){
+    const participantUsername = participant.participantUsername
     const usersToPixelMedia = pixelMediaManipulation.users
     const keywordsToPixelMedia = prepareKeywords(pixelMediaManipulation.keywords)
     const keywordsRegexes = getRegexesFromKeywords(keywordsToPixelMedia)
@@ -133,12 +148,16 @@ function pixelMediaInTweets(pixelMediaManipulation, tweets, participantUsername)
             if(partsMatchingManip.quote_status_inside_retweet){
                 tweet.retweeted_status.quoted_status.pixel_media = true
             }
+            //  Add the log to the logger
+            const action = createManipActionLog(participant, "pixelated media (manipulation)", tweet)
+            manipulationLogger.push(action)
         }
     }
     return tweets
 }
 
-function muteTweets(muteManipulation, tweets, participantUsername){
+function muteTweets(muteManipulation, tweets, participant, manipulationLogger){
+    const participantUsername = participant.participantUsername
     const usersToMute = muteManipulation.users
     const keywordsToMute = prepareKeywords(muteManipulation.keywords)
     
@@ -180,8 +199,19 @@ function muteTweets(muteManipulation, tweets, participantUsername){
                 the feed if the tweet should not be muted  */
             filteredTweets.push(tweet)
         }
+        else{ // The tweet is matches the manipulation, add the log to the logger
+            const action = createManipActionLog(participant, "muted tweet (manipulation)", tweet)
+            manipulationLogger.push(action)
+        }
     }
     return filteredTweets
+}
+
+function createManipActionLog(participant, action_type, tweet_obj){
+    const action_date = moment.utc().format(dateFormat)
+    let action = actionsOnTwitter.createActionObj(participant, action_type, action_date)
+    action['tweet_obj'] = tweet_obj
+    return action
 }
 
 /*

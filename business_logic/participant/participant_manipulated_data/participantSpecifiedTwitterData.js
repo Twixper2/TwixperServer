@@ -48,7 +48,21 @@ async function getUserLikes(participant, username){
 }
 
 async function getLinkPreview(previewUrl){
-    const html = await axios.get(previewUrl).then(res => res.data)
+    const html = await axios.get(previewUrl, {
+      timeout: 2500
+    }).then(res => res.data).catch(res => null)
+    if(html == null){
+      console.log("Link preview timeout, returning only domain name")
+      let domain = new URL(previewUrl).hostname
+      if(domain.startsWith("www.")){
+        domain = domain.substring(4)
+      }
+      return {
+        domain: domain,
+        title: null,
+        img: null,
+      }
+    }
     const $ = cheerio.load(html);
     const getMetaTag = (name) =>  {
       return(

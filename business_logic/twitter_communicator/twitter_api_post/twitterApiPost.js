@@ -33,6 +33,7 @@ function sendPostRequestsWrapper(T, apiEndpoint, params){
 async function likeTweet(T, tweetId){ 
     const params = {
         id: tweetId,
+        tweet_mode: "extended"
     }
     return await sendPostRequestsWrapper(T, "favorites/create", params)
 }
@@ -40,6 +41,7 @@ async function likeTweet(T, tweetId){
 async function unlikeTweet(T, tweetId){ 
     const params = {
         id: tweetId,
+        tweet_mode: "extended"
     }
     return await sendPostRequestsWrapper(T, "favorites/destroy", params)
 }
@@ -59,12 +61,14 @@ async function unfollow(T, screenName){
 }
 
 async function publishTweet(T, tweetParams){ 
+    tweetParams.tweet_mode = "extended"
     return await sendPostRequestsWrapper(T, "statuses/update", tweetParams)
 }
 
 async function publishRetweet(T, tweetId){ 
     const params = {
         id: tweetId,
+        tweet_mode: "extended",
     }
     return await sendPostRequestsWrapper(T, "statuses/retweet", params)
 }
