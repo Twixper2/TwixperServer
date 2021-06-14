@@ -69,8 +69,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         "participant_twitter_followers_count": twitterUser.followers_count,
         "participant_twitter_profile_image": twitterUser.profile_image_url_https,
         "participant_email": twitterUser.email,
-        "user_twitter_token" : encryptToken(oauthToken),
-        "user_twitter_token_secret" : encryptToken(oauthTokenSecret),
+        "user_twitter_token" : encryptToken(oauthToken), // here we encrypt user's tokens!
+        "user_twitter_token_secret" : encryptToken(oauthTokenSecret), // here we encrypt user's tokens!
         "group_manipulations": group.group_manipulations
     }
     
@@ -105,10 +105,10 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
     return userData
 }
 
-<<<<<<< HEAD
 function encryptToken(token) {
     return bcrypt.hashSync(token, 10)
-=======
+}
+
 function extractTwitterInfoFromParticipantObj(participant){
     return {
         "id_str": participant.participant_twitter_id_str,
@@ -118,7 +118,6 @@ function extractTwitterInfoFromParticipantObj(participant){
         "followers_count": participant.participant_twitter_followers_count,
         "profile_image_url_https": participant.participant_twitter_profile_image
     }
->>>>>>> cf573f3e38ba74125c73a48307136d001be40714
 }
 
 exports.getTwitterRequestToken = getTwitterRequestToken
