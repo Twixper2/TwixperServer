@@ -3,7 +3,7 @@ var makeDb = require("../business_logic/db/mongodb/DBConnector").makeDb
 
 describe("Tests", () => {
 	before(async function () { // beforeAll
-		this.timeout(5000);
+		this.timeout(10000);
         console.log("Inserting data to 'Twixper-Test' database before all tests");
         const db = await makeDb()
         let participantsCollection = db.collection("Participants")
@@ -23,6 +23,7 @@ describe("Tests", () => {
 	require("./participant_tests/participantTests")
 	require("./manipulator_tests/manipulatorTests")
 	after(async function () { // afterAll
+		this.timeout(10000);
         console.log("Clearing data from 'Twixper-Test' database after all tests");
         const db = await makeDb()
         let participantsCollection = db.collection("Participants")

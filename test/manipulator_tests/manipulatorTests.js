@@ -3,88 +3,116 @@ var manipulator = require("../../business_logic/participant/manipulator/manipula
 var data = require("./dataForManipulatorTests")
 var common = require("../common");
 var assert = common.assert;
+var expect = common.expect;
+var participant = {
+	participant_twitter_username: "avi",
+	group_manipulations: data.manipulations
+}
 
 describe("Manipulator tests", () => {
 	it("tweets is null", async () => {
-		assert.throws(function (){
-			manipulator.manipulateTweets(data.manipulations, null, "premierleague")
-		})
+		await expect(manipulator.manipulateTweets(participant, null)).to.eventually.be.rejected
+		// assert.throws(function (){
+		// 	manipulator.manipulateTweets(participant, null)
+		// })
 	});
 	it("manipulations is null", async () => {
 		const tweets = [data.tweet1]
-		assert.throws(function (){
-			manipulator.manipulateTweets(null, tweets, "premierleague")
-		})
+		let p = {
+			participant_twitter_username: "premierleague",
+			group_manipulations: null
+		}
+		await expect(manipulator.manipulateTweets(p, tweets)).to.eventually.be.rejected
+		// assert.throws(function (){
+		// 	manipulator.manipulateTweets(p, tweets)
+		// })
 	});
-	it("participantUsername is null", async () => {
+	it("participant is null", async () => {
 		const tweets = [data.tweet1]
-		assert.throws(function (){
-			manipulator.manipulateTweets(data.manipulations, tweets, null)
-		})
+		await expect(manipulator.manipulateTweets(null, tweets)).to.eventually.be.rejected
+		// assert.throws(function (){
+		// 	manipulator.manipulateTweets(null, tweets)
+		// })
 	});
-	it("Participant is the tweet's author", () => {
+	it("Participant is the tweet's author", async () => {
 		const tweets = [data.tweet1]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "premierleague")
+		let p = {
+			participant_twitter_username: "premierleague",
+			group_manipulations: data.manipulations
+		}
+		const result = await manipulator.manipulateTweets(p, tweets)
 		assert.equal(result.length, 1)
 	});
-	it("Participant is mentioned", () => {
+	it("Participant is mentioned", async () => {
 		const tweets = [data.tweetWithLfcMentioned]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "LFC")
+		let p = {
+			participant_twitter_username: "LFC",
+			group_manipulations: data.manipulations
+		}
+		const result = await manipulator.manipulateTweets(p, tweets)
 		assert.equal(result.length, 1)
 	});
-	it("One of the users in the manipulation wrote this tweet", () => {
+	it("One of the users in the manipulation wrote this tweet", async () => {
 		const tweets = [data.tweet1]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("One of the hashtags in tweet is in the keywords", () => {
+	it("One of the hashtags in tweet is in the keywords", async () => {
 		const tweets = [data.tweet1]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet's text contains a keyword", () => {
+	it("The tweet's text contains a keyword", async () => {
 		const tweets = [data.tweet1]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet is a retweet and one of the users in the manipulation wrote the original tweet", () => {
+	it("The tweet is a retweet and one of the users in the manipulation wrote the original tweet", async () => {
 		const tweets = [data.retweet]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet is a retweet and the participant is retweeted", () => {
+	it("The tweet is a retweet and the participant is retweeted", async () => {
 		const tweets = [data.retweet]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "LFC")
+		let p = {
+			participant_twitter_username: "LFC",
+			group_manipulations: data.manipulations
+		}
+		const result = await manipulator.manipulateTweets(p, tweets)
 		assert.equal(result.length, 1)
 	});
-	it("The tweet is a retweet and one of the hashtags in the original tweet is in the keywords", () => {
+	it("The tweet is a retweet and one of the hashtags in the original tweet is in the keywords", async () => {
 		const tweets = [data.retweet]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet is a qoute and the participant is the quoted author", () => {
+	it("The tweet is a qoute and the participant is the quoted author", async () => {
 		const tweets = [data.quote]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "CAPEUSA")
+		let p = {
+			participant_twitter_username: "CAPEUSA",
+			group_manipulations: data.manipulations
+		}
+		const result = await manipulator.manipulateTweets(p, tweets)
 		assert.equal(result.length, 1)
 	});
-	it("The tweet is a quote and one of the users in the manipulation wrote the quoted tweet", () => {
+	it("The tweet is a quote and one of the users in the manipulation wrote the quoted tweet", async () => {
 		const tweets = [data.quote]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet is a quote and one of the hashtags in the quoted tweet is in the keywords", () => {
+	it("The tweet is a quote and one of the hashtags in the quoted tweet is in the keywords", async () => {
 		const tweets = [data.quote]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet is a quote and the quoted tweet's text contains one of the keywords", () => {
+	it("The tweet is a quote and the quoted tweet's text contains one of the keywords", async () => {
 		const tweets = [data.quote]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 0)
 	});
-	it("The tweet is not matched to manipulation", () => {
+	it("The tweet is not matched to manipulation", async () => {
 		const tweets = [data.innocentTweet]
-		const result = manipulator.manipulateTweets(data.manipulations, tweets, "someone")
+		const result = await manipulator.manipulateTweets(participant, tweets)
 		assert.equal(result.length, 1)
 	});
 });

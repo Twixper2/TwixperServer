@@ -12,6 +12,9 @@ var fileManager = require("./local_files/fileManager")
     _____ PARTICIPANTS _____
 */
 async function insertParticipant(participant) {
+    if(participant == null){
+        throw "participant argument is null"
+    }
     let expId = participant.exp_id; 
     await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
     await participantsCollection.insertParticipant(participant);

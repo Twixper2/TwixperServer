@@ -94,7 +94,7 @@ async function injectTweets(currTweets, participant, manipulationLogger){
 }
 
 function removeMediaFromTweets(removeMediaManipulation, tweets, participant, manipulationLogger){
-    const participantUsername = participant.participantUsername
+    const participantUsername = participant.participant_twitter_username
     const usersToRemoveMedia = removeMediaManipulation.users
     const keywordsToRemoveMedia = prepareKeywords(removeMediaManipulation.keywords)
     const keywordsRegexes = getRegexesFromKeywords(keywordsToRemoveMedia)
@@ -127,7 +127,7 @@ function removeMediaFromTweets(removeMediaManipulation, tweets, participant, man
 }
 
 function pixelMediaInTweets(pixelMediaManipulation, tweets, participant, manipulationLogger){
-    const participantUsername = participant.participantUsername
+    const participantUsername = participant.participant_twitter_username
     const usersToPixelMedia = pixelMediaManipulation.users
     const keywordsToPixelMedia = prepareKeywords(pixelMediaManipulation.keywords)
     const keywordsRegexes = getRegexesFromKeywords(keywordsToPixelMedia)
@@ -160,7 +160,7 @@ function pixelMediaInTweets(pixelMediaManipulation, tweets, participant, manipul
 }
 
 function muteTweets(muteManipulation, tweets, participant, manipulationLogger){
-    const participantUsername = participant.participantUsername
+    const participantUsername = participant.participant_twitter_username
     const usersToMute = muteManipulation.users
     const keywordsToMute = prepareKeywords(muteManipulation.keywords)
     
