@@ -13,27 +13,48 @@ async function activateNewExperiment(expObj, researcherObj){
     expObj.status = "active"
     expObj.start_date = moment.utc().format(dateFormat);
     expObj.num_of_participants = 0
+    expObj.exp_id = idGenerator.generateUUID()
     let groupIdIndex = 11
     let expGroups = expObj.exp_groups
-    // Initalizing groups
+    // Initalizing groups and creating the injections docs objects
+    let injectionObjectsArray = []
     expGroups.forEach((groupObj)=>{
         groupObj.group_id = groupIdIndex
         groupObj.group_num_of_participants = 0
         groupObj.group_participants = []
         groupIdIndex += 1
-        /* 
-        // Lowercasing the keywords
-        let groupManip = groupObj.group_manipulations
-        groupManip.forEach((manip)=>{
-            let manipKeywords = manip.keywords
-            // Lowercasing the keywords
-            for (let i = 0; i < manipKeywords.length; i++) {
-                let keyword = manipKeywords[i];
-                manipKeywords[i] = keyword.toLowerCase()
+        manips = groupObj.group_manipulations
+        const injectManipulation = manips.find(man => man.type == "inject")
+        if(injectManipulation != null && (injectManipulation.users.length > 0 || injectManipulation.keywords.length > 0)){
+            let injectionObject = {
+                exp_id: expObj.exp_id,
+                group_id: groupObj.group_id,
+                tweets_to_inject: [],
+                entities_states: []
             }
-        })*/
+            injectManipulation.users.forEach(user => {
+                injectionObject.entities_states.push(
+                    {
+                        type: "user",
+                        entity_value: user,
+                        last_updated: Date.parse('December 17, 1995 03:24:00'),
+                        is_updating_now: false
+                    }
+                )
+            });
+            injectManipulation.keywords.forEach(keyword => {
+                injectionObject.entities_states.push(
+                    {
+                        type: "keyword",
+                        entity_value: keyword,
+                        last_updated: Date.parse('December 17, 1995 03:24:00'),
+                        is_updating_now: false
+                    }
+                )
+            });
+            injectionObjectsArray.push(injectionObject)
+        }
     })
-    expObj.exp_id = idGenerator.generateUUID()
     expObj.exp_code = await generateExpCode()
     const researcherId = researcherObj.researcher_id
     if (expObj.exp_code) {
@@ -47,12 +68,17 @@ async function activateNewExperiment(expObj, researcherObj){
         if(isSuccessfulInsert === true){
             const isExperimentAdded = await dbComm.addExperimentIdToResearcher(researcherId, expObj.exp_id) // TODO make sure the correct order of inputs 
             if (isExperimentAdded === true) {
+                if(injectionObjectsArray.length > 0){
+                    // Insert the injection docs
+                    await dbComm.insertInjectionDocs(injectionObjectsArray)
+                }
                 return expObj.exp_code
             }
             else {
                 // TODO REVERSE THE INSERT ACTION!
             }
         }
+        
     }
     throw "Failed to insert to db" // if adding to db failed
     // return expObj.exp_code
@@ -142,13 +168,15 @@ async function endExperiment(expId) {
     let setEndDatePromise = dbComm.setExpEndDate(expId, endDate)
     let changeStatusPromise = dbComm.updateExpStatus(expId, "closed") 
     let deleteParticipantsPromise = dbComm.deleteParticipantsFromExp(expId)
+    let deleteInjectionDocsPromise = dbComm.deleteInjectionDocs(expId)
 
     const results = await Promise.all([
         setEndDatePromise,
         changeStatusPromise, 
-        deleteParticipantsPromise
+        deleteParticipantsPromise,
+        deleteInjectionDocsPromise
     ])
-    if (results[0] && results[1] && results[2]) {
+    if (results[0] && results[1] && results[2] && results[3]) {
         return true
     }
     else {

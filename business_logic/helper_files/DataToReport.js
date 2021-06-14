@@ -154,29 +154,47 @@ exports.report = {
             "action_type" : ""
         },
         // Actions that contains the relevent tweet object will contain the field "tweet_obj"
+        // Actions that contains the relevent user object will contain the field "user_obj"
+        // "clicked tweet media" contains the relevent clicked media object - field "media_obj_clicked"
+        // "clicked tweet url" contains the field "url_clicked"
+        // "clicked tweet url with preview" contains the field "url_clicked" and "link_preview_details"
+        // "searched" contains the field "query"
 
-        // The other fields varies for each action type.
         // The possible action types:
         [
-            "registered to experiment", // (done) 
-            "login", // (done) 
-            "logout", // (done)
-            "view tweet", // (done) Passively saw a tweet, in feed or in other tab (for example in public user's timleine) 
-            "like", // (done) Can be like on a tweet or comment
-            "unlike", // (done)
-            "retweet",
-            "comment",
-            "quote",
-            "tweeted", // (done) Posted new tweet
-            "view tweet full", // Went to the tweet's full page
-            "view user profile", // Went to a public user profile page
-            "follow",
-            "unfollow",
-            "click tweet media", // Clicked on a media that was attached to a tweet. For example - image, video, link
-            "search"
-            // Represent a tweet by Id, and save all the data in another json for easy retrieval  
+            "registered to experiment",
+            "login", 
+            "logout",
+            "view tweet", // Passively saw a tweet, in feed or in other tab (for example in public user's timleine) 
+            "like", // Can be like on a tweet or comment
+            "unlike", 
+            "retweeted", 
+            "replied", 
+            "quoted", 
+            "tweeted", // Posted new tweet
+            "view tweet page", // Went to the tweet's full page
+            "view user page", // Went to a public user profile page
+            "follow", 
+            "unfollow", 
+            "searched tweets",
+            "searched users",
+            "clicked tweet media photo", // Clicked on a photo that was attached to a tweet.
+            "clicked tweet media video", // Clicked on a video that was attached to a tweet.
+            "clicked tweet url", // Clicked on a url that was in a tweet.
+            "clicked tweet url with preview", // Clicked on a link-preview that was in a tweet.
+            "muted tweet (manipulation)", // A tweet that was muted
+            "injected tweet (manipulation)",
+            "pixelated media (manipulation)",
+            "removed media (manipulation)"
         ]
-
+        ,
+        {
+            action_type: "muted tweet (manipulation)",
+            action_date: "",
+            participant_twitter_username: "",
+            participant_group_id: "",
+            tweet_obj: {}
+        },
     ]
 
 }

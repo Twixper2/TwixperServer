@@ -17,6 +17,10 @@ router.post("/researcherValidateSession", async (req, res, next) => {
                 res.json( { "hasSession" : true } );
                 return
             }
+            else{
+                res.json( { "hasSession" : false } );
+                return
+            }
         }
         catch(e) {
             console.log(e)
