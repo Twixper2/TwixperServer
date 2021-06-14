@@ -20,7 +20,7 @@ router.use(async function (req, res, next) {
     const tokenSecret = req.header('User-Twitter-Token-Secret');
 
     try{
-      const encryptedToken = encryptToken(token)
+      const encryptedToken = encryptToken(token) // we encrypt tokens to comapre them to the encrypted tokens in the db. then, we will use the original ones
       const encryptedTokenSecret = encryptToken(tokenSecret)
       let participant = await database.getParticipantByToken(encryptedToken);
       if (participant && (participant.user_twitter_token_secret == encryptedTokenSecret)) {
