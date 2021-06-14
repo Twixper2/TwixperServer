@@ -20,10 +20,8 @@ router.use(async function (req, res, next) {
     const tokenSecret = req.header('User-Twitter-Token-Secret');
 
     try{
-      const encryptedToken = encryptToken(token) // we encrypt tokens to comapre them to the encrypted tokens in the db. then, we will use the original ones
-      const encryptedTokenSecret = encryptToken(tokenSecret)
-      let participant = await database.getParticipantByToken(encryptedToken);
-      if (participant && (participant.user_twitter_token_secret == encryptedTokenSecret)) {
+      let participant = await database.getParticipantByToken(token);
+      if (participant && bcrypt.compareSync(tokenSecret, participant.user_twitter_token_secret)) {  // we check if the encrypted token secret in the db ,atches the token secret provided
         participant.user_twitter_token = token
         participant.user_twitter_token_secret = tokenSecret
         req.participant = participant; //every method has the user now
@@ -427,9 +425,8 @@ router.post("/publishTweet", async (req, res, next) => {
   }
 });
 
-function encryptToken(token) {
-  return bcrypt.hashSync(token, 10)
-}
+
+
 
 router.post("/publishRetweet", async (req, res, next) => {
   const tweetId = req.query.tweetId

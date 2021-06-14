@@ -75,8 +75,8 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         "participant_twitter_followers_count": twitterUser.followers_count,
         "participant_twitter_profile_image": twitterUser.profile_image_url_https,
         "participant_email": twitterUser.email,
-        "user_twitter_token" : encryptToken(oauthToken), // here we encrypt user's tokens!
-        "user_twitter_token_secret" : encryptToken(oauthTokenSecret), // here we encrypt user's tokens!
+        "user_twitter_token" : oauthToken, 
+        "user_twitter_token_secret" : encryptToken(oauthTokenSecret), // here we encrypt user's token secret!
         "group_manipulations": group.group_manipulations
     }
     
