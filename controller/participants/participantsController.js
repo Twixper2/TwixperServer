@@ -21,10 +21,11 @@ router.use(async function (req, res, next) {
 
     try{
       let participant = await database.getParticipantByToken(token);
-      if (participant && bcrypt.compareSync(tokenSecret, participant.user_twitter_token_secret)) {  // we check if the encrypted token secret in the db ,atches the token secret provided
+      // Check if the encrypted token secret in the db matches the token secret provided
+      if (participant && bcrypt.compareSync(tokenSecret, participant.user_twitter_token_secret)) { 
         participant.user_twitter_token = token
         participant.user_twitter_token_secret = tokenSecret
-        req.participant = participant; //every method has the user now
+        req.participant = participant; //every method has the participant now
         next(); //go to the request
       }
       else {

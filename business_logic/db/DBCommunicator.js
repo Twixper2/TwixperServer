@@ -12,6 +12,9 @@ var fileManager = require("./local_files/fileManager")
     _____ PARTICIPANTS _____
 */
 async function insertParticipant(participant) {
+    if(participant == null){
+        throw "participant argument is null"
+    }
     let expId = participant.exp_id; 
     await experimentsCollection.insertParticipantToExp(expId,participant); //find the exp id from participant 
     await participantsCollection.insertParticipant(participant);
@@ -108,9 +111,9 @@ async function addExperimentIdToResearcher(resId, expId){
     return await researchersCollection.addExperimentId(resId, expId);
 }
 
-async function getResearcherExperiments(researcherId){
+/*async function getResearcherExperiments(researcherId){
     return await researchersCollection.getResearcherExperiments(researcherId);
-}
+}*/
 
 async function insertExperiment (experiment){
 
@@ -178,7 +181,7 @@ module.exports = {
     getInjectionDoc: getInjectionDoc,
     getExperimentsByIds: getExperimentsByIds,
     getActionsOfExperiment: getActionsOfExperiment,
-    getResearcherExperiments: getResearcherExperiments,
+    // getResearcherExperiments: getResearcherExperiments,
     addExperimentIdToResearcher: addExperimentIdToResearcher,
     getExperimentById: getExperimentById,
     isExperimentExists: isExperimentExists,
