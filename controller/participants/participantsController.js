@@ -20,7 +20,7 @@ router.use(async function (req, res, next) {
     const tokenSecret = req.header('User-Twitter-Token-Secret');
 
     try{
-      let participant = await database.getParticipantByToken(encryptedToken);
+      let participant = await database.getParticipantByToken(token);
       if (participant && bcrypt.compareSync(tokenSecret, participant.user_twitter_token_secret)) {  // we check if the encrypted token secret in the db ,atches the token secret provided
         participant.user_twitter_token = token
         participant.user_twitter_token_secret = tokenSecret
