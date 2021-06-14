@@ -1,8 +1,8 @@
 exports.customReqResHeaders = {
-    'User-Twitter-Token-Enc': "oauthToken",
-    'User-Twitter-Token-Secret-Enc': "oauthTokenSecret",
+    'User-Twitter-Token': "oauthToken",
+    'User-Twitter-Token-Secret': "oauthTokenSecret",
 
-    'Researcher-Id-Enc': "researcherId"
+    'Researcher-Id': "researcherId"
 }
 
 exports.researcher = {

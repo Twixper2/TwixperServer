@@ -3,6 +3,9 @@ var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const participantsService = require("../../service/participants/participantsService.js");
 
+/**
+ * Requesting the oauth tokens from twitter, by the oauth_callback param
+ */
 router.post("/twitterAuthRequestToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_callback){
@@ -24,6 +27,9 @@ router.post("/twitterAuthRequestToken", async (req, res, next) => {
   }
 })
 
+/**
+ * Requesting the access token from twitter
+ */
 router.post("/twitterAuthAccessToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_token || !params.oauth_verifier){
@@ -45,11 +51,15 @@ router.post("/twitterAuthAccessToken", async (req, res, next) => {
   }
 })
 
+
+/**
+ * Check if participant has a valid session in db (the participant with the same token exists)
+ */
 router.post("/participantValidateSession", async (req, res, next) => {
   // if (req.session && req.session.userTwitterToken) {
-  if (req.header('User-Twitter-Token-Enc') ) {
+  if (req.header('User-Twitter-Token')&&req.header('User-Twitter-Token-Secret') ) {
     // const token = req.session.userTwitterToken;
-    const token = req.header('User-Twitter-Token-Enc');
+    const token = req.header('User-Twitter-Token');
     try{
       const participant = await database.getParticipantByToken(token);
       if (participant) {
@@ -72,7 +82,13 @@ router.post("/participantValidateSession", async (req, res, next) => {
   }
 });
 
-
+/**
+ * Gets oauth token and oauth token secret, returns two fields:
+ * twitter_user_found - is this a real valid twitter user?
+ * user_registered_to_experiment - is the user already registered to experiment? 
+ * In case of real twitter user, we responde with the tokens in the header for the client to put them in the headers of it's requests
+ * (cookie-like implementation)
+ */
 // if { twitter_user_found : true, user_registered_to_experiment : true }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
 // if { twitter_user_found : true, user_registered_to_experiment : false } give cookies (regular new user registration)
 // if { twitter_user_found : false } do nothing, respond code 400
@@ -114,10 +130,9 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     */
     
     // Setting headers
-    // TODO: Encrypt the tokens
     res.set({
-      'User-Twitter-Token-Enc': oauthToken,
-      'User-Twitter-Token-Secret-Enc': oauthTokenSecret,
+      'User-Twitter-Token': oauthToken,
+      'User-Twitter-Token-Secret': oauthTokenSecret,
     })
 
     // checking if user already registered to an experiment
@@ -156,8 +171,8 @@ router.post("/registerToExperiment", async (req, res, next) => {
       return;
     }
 
-    if(!req.header('User-Twitter-Token-Enc') || !req.header('User-Twitter-Token-Secret-Enc')){
-      res.status(428).send("Missing auth headers (User-Twitter-Token-Enc, User-Twitter-Token-Secret-Enc)");
+    if(!req.header('User-Twitter-Token') || !req.header('User-Twitter-Token-Secret')){
+      res.status(428).send("Missing auth headers (User-Twitter-Token, User-Twitter-Token-Secret)");
       return;
       /*
         The HTTP 428 Precondition Required response status code indicates that the server requires

@@ -8,9 +8,9 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 
 router.post("/researcherValidateSession", async (req, res, next) => {
     // if (req.session && req.session.researcherId) {
-    if (req.header('Researcher-Id-Enc')) {
+    if (req.header('Researcher-Id')) {
         // const researcherId = req.session.researcherId;
-        const researcherId = req.header('Researcher-Id-Enc');
+        const researcherId = req.header('Researcher-Id');
         try{
             const researcher = await database.getResearcher(researcherId);
             if (researcher) {
@@ -57,7 +57,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
             // req.session.researcherId = researcherId
 
             // TODO: Encrypt researcherId
-            res.set('Researcher-Id-Enc', researcherId)
+            res.set('Researcher-Id', researcherId)
             res.sendStatus(200)
             return
         }
@@ -70,7 +70,7 @@ router.post("/researcherGoogleLogin", async (req, res, next) => {
             // req.session.researcherId = researcherId
 
             // TODO: Encrypt  researcherId
-            res.set('Researcher-Id-Enc', researcherId)
+            res.set('Researcher-Id', researcherId)
             res.sendStatus(200)
             return
         }
