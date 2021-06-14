@@ -36,13 +36,14 @@ router.use(async function (req, res, next) {
 router.post("/activateNewExperiment", async (req, res, next) => {
   // Checking for required fields
   let reqBody = req.body
-  let researcherId = req.researcher.researcher_id
+  let researcherObj = req.researcher
   let experiment =  JSON.parse(JSON.stringify(reqBody)) // deep copying the exp details
   if(!researchersService.validateExpFields(experiment)){
     res.sendStatus(400); // Bad request
+    return
   }
   try{
-    const expCode = await researchersService.activateNewExperiment(experiment, researcherId)
+    const expCode = await researchersService.activateNewExperiment(experiment, researcherObj)
     res.status(201).send({exp_code: expCode})
   }
   catch(e){
@@ -115,9 +116,11 @@ router.get("/getReportIfReady", async (req, res, next) => {
   catch(e){
     if (e.message == "request-not-exists") {
       res.status(400).send(e.message)
+      return
     }
     if (e.message =="Illegal-experiment") {
       res.status(401).send(e.message)
+      return
     }
     console.log(e)
     res.sendStatus(500)
@@ -127,7 +130,7 @@ router.get("/getReportIfReady", async (req, res, next) => {
 // End experiment- participants from the experiment well be deleted
 router.post("/endExperiment", async (req, res, next) => {
   try{
-    let expId = req.query.exp_id
+    let expId = req.query.expId
     let researcher = req.researcher
     if (!expId || !researcher.experiments_ids.includes(expId)) { // make sure the researcher owns the experiment
       res.sendStatus(400); // Bad request
@@ -136,11 +139,9 @@ router.post("/endExperiment", async (req, res, next) => {
     let success = await researchersService.endExperiment(expId)
     if (success) {
       res.sendStatus(200)
-      return
     }
     else {
       res.sendStatus(500)
-      return
     } 
   }
   catch(e){

@@ -29,14 +29,22 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
             message: "Not a twitter user."
         }
     }
+
     //checking experiment
     const exp = await database.getExperimentByCode(expCode); 
     if(!exp || !exp.exp_id){  //no such experiment
-      throw {
-          name: "NoSuchExperiment",
-          message: "No such experiment."
+        throw {
+            name: "NoSuchExperiment",
+            message: "No such experiment."
         }
     }
+    if(exp.status != "active"){
+        throw {
+            name: "ExperimentNotActive",
+            message: "This experiment was ended by the researcher."
+        }
+    }
+
     // verifying not already registered
     let praticipantFromDb = await database.getParticipantByTwitterId(twitterUser.id_str)
     if (praticipantFromDb) {
@@ -45,7 +53,6 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
             message: "User already registered."
         }
     }
-
 
     // raffle group for praticipant. currnetly only naive raffle supported
     const expGroups = exp.exp_groups;
@@ -57,6 +64,10 @@ async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
         "group_id": group.group_id,
         "participant_twitter_id_str": twitterUser.id_str,
         "participant_twitter_username": twitterUser.screen_name,
+        "participant_twitter_name": twitterUser.name,
+        "participant_twitter_friends_count": twitterUser.friends_count,
+        "participant_twitter_followers_count": twitterUser.followers_count,
+        "participant_twitter_profile_image": twitterUser.profile_image_url_https,
         "participant_email": twitterUser.email,
         "user_twitter_token" : encryptToken(oauthToken),
         "user_twitter_token_secret" : encryptToken(oauthTokenSecret),
@@ -94,11 +105,24 @@ async function getTwitterUserFromTokens(userTwitterToken, userTwitterTokenSecret
     return userData
 }
 
+<<<<<<< HEAD
 function encryptToken(token) {
     return bcrypt.hashSync(token, 10)
+=======
+function extractTwitterInfoFromParticipantObj(participant){
+    return {
+        "id_str": participant.participant_twitter_id_str,
+        "screen_name": participant.participant_twitter_username,
+        "name": participant.participant_twitter_name,
+        "friends_count": participant.participant_twitter_friends_count, 
+        "followers_count": participant.participant_twitter_followers_count,
+        "profile_image_url_https": participant.participant_twitter_profile_image
+    }
+>>>>>>> cf573f3e38ba74125c73a48307136d001be40714
 }
 
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
 exports.registerParticipant = registerParticipant
 exports.getTwitterUserFromTokens = getTwitterUserFromTokens
+exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj

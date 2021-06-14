@@ -37,13 +37,61 @@ async function verifyCredentials(T){
     return await sendGetRequestsWrapper(T, "account/verify_credentials", params)
 }
 
-async function getFeed(T){ // Add additional request parameters later
+async function getFeed(T, maxId, count){ // Add additional request parameters later
     const params = {
         tweet_mode: "extended",
+        exclude_replies: "true",
         count: 40
+    }
+    if(count){
+        params.count = count
+    }
+    if(maxId){
+        params.max_id = maxId
     }
     return await sendGetRequestsWrapper(T, "statuses/home_timeline", params)
 }
 
+async function getUserTimeline(T, username, count=10){
+    const params = {
+        screen_name: username,
+        tweet_mode: "extended",
+        exclude_replies: "true",
+        count: count
+    }
+    return await sendGetRequestsWrapper(T, "statuses/user_timeline", params)
+}
+
+async function getUserLikes(T, username){
+    const params = {
+        screen_name: username,
+        tweet_mode: "extended",
+        count: 40
+    }
+    return await sendGetRequestsWrapper(T, "favorites/list", params)
+}
+
+async function getUserFriends(T, username){
+    const params = {
+        screen_name: username,
+        skip_status: "true",
+        count: 50
+    }
+    return await sendGetRequestsWrapper(T, "friends/list", params)
+}
+
+async function getUserFollowers(T, username){ 
+    const params = {
+        screen_name: username,
+        skip_status: "true",
+        count: 50
+    }
+    return await sendGetRequestsWrapper(T, "followers/list", params)
+}
+
 exports.verifyCredentials = verifyCredentials
 exports.getFeed = getFeed
+exports.getUserLikes = getUserLikes
+exports.getUserTimeline = getUserTimeline
+exports.getUserFriends = getUserFriends
+exports.getUserFollowers = getUserFollowers

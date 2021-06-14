@@ -71,9 +71,11 @@ router.get("/getFeed", async (req, res, next) => {
      For feed, check for additional parameters like "max_id" and "count"
   */
   const participant = req.participant
+  const maxId = req.query.maxId
+  const count = req.query.count
 
   try{
-    const feedTweets = await participantsService.getFeed(participant)
+    const feedTweets = await participantsService.getFeed(participant, maxId, count)
     res.send(feedTweets)
   }
 
@@ -98,18 +100,22 @@ router.get("/getFeed", async (req, res, next) => {
 
 router.get("/searchTweets", async (req, res, next) => {
   const q = req.query.q
-  const participant = req.participant
   if (!q || q=="") {
     res.status(400).send("search query not provided")
+    return
   }
-
   try{
-    const tweetsSearchResults = await participantsService.searchTweets(q, participant)
+    const tweetsSearchResults = await participantsService.searchTweets(q)
     res.send(tweetsSearchResults)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
@@ -150,75 +156,116 @@ router.get("/getUser", async (req, res, next) => {
 router.get("/getTweet", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const tweetId = req.query.tweetId
-  // if tweetId == null....
-
+  if (!tweetId) {
+    res.status(400).send("No tweet id provided.")
+    return;
+  }
   try{
     const tweet = await participantsService.getTweet(tweetId)
     res.send(tweet)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserFriends", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
-  // if username == null....
-
+  if (!username) {
+    res.status(400).send("No username provided.")
+    return;
+  }
+  const participant = req.participant
   try{
-    const userFriends = await participantsService.getUserFriends(username)
+    const userFriends = await participantsService.getUserFriends(participant, username)
     res.send(userFriends)
   }
   catch(e){
+    console.log("** Error in /participant/userFriends **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserFollowers", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
-  // if username == null....
-
+  if (!username) {
+    res.status(400).send("No username provided.")
+    return;
+  }
+  const participant = req.participant
   try{
-    const userFollowers = await participantsService.getUserFollowers(username)
+    const userFollowers = await participantsService.getUserFollowers(participant, username)
     res.send(userFollowers)
   }
   catch(e){
+    console.log("** Error in /participant/getUserFollowers **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserTimeline", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
-  const username = req.query.username
-  // if username == null....
-
+  const userId = req.query.userId
+  if (!userId) {
+    res.status(400).send("No user id provided.")
+    return;
+  }
   try{
-    const userTimelineTweets = await participantsService.getUserTimeline(username)
+    const userTimelineTweets = await participantsService.getUserTimeline(userId)
     res.send(userTimelineTweets)
   }
   catch(e){
     console.log(e)
-    res.sendStatus(500)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
   }
 });
 
 router.get("/getUserLikes", async (req, res, next) => {
   /* Check the req, if there are required paramaters missing, throw error */
   const username = req.query.username
-  // if username == null....
-
+  if (!username) {
+    res.status(400).send("No username provided.")
+    return;
+  }
+  const participant = req.participant
   try{
-    const userLikesTweets = await participantsService.getUserLikes(username)
+    const userLikesTweets = await participantsService.getUserLikes(participant, username)
     res.send(userLikesTweets)
   }
   catch(e){
+    console.log("** Error in /participant/getUserLikes **")
     console.log(e)
-    res.sendStatus(500)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
   }
 });
 
@@ -286,6 +333,62 @@ router.post("/unlikeTweet", async (req, res, next) => {
   }
 });
 
+router.post("/follow", async (req, res, next) => {
+  const screenName = req.query.screen_name
+  if (!screenName) {
+    res.status(400).send("No screen name provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const followSuccess = await participantsService.follow(participant, screenName)
+    if(followSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/follow **")
+    console.log(e)
+    if(e.message){ 
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
+router.post("/unfollow", async (req, res, next) => {
+  const screenName = req.query.screen_name
+  if (!screenName) {
+    res.status(400).send("No screen name provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const followSuccess = await participantsService.unfollow(participant, screenName)
+    if(followSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/unfollow **")
+    console.log(e)
+    if(e.message){ 
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
 // For new tweets and comments
 router.post("/publishTweet", async (req, res, next) => {
   /* 
@@ -293,6 +396,8 @@ router.post("/publishTweet", async (req, res, next) => {
     See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update 
     ***** Tweet which is a comment should have the property in_reply_to_status_id
           AND include "@usernameMentioned" at the status text. *****
+    ***** Tweet which is a quote - add the parameter "attachment_url".
+          See https://stackoverflow.com/questions/29680965/how-do-i-properly-retweet-with-a-comment-via-twitters-api
   */
   const tweetParams = req.body
   if (!tweetParams || !tweetParams.status) {
@@ -326,4 +431,52 @@ function encryptToken(token) {
   return bcrypt.hashSync(token, 10)
 }
 
+router.post("/publishRetweet", async (req, res, next) => {
+  const tweetId = req.query.tweetId
+  if (!tweetId) {
+    res.status(400).send("No tweet id provided.")
+    return;
+  }
+  const participant = req.participant
+  try{
+    const retweetSuccess = await participantsService.publishRetweet(participant, tweetId)
+    if(retweetSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/publishRetweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+})
+
+
+/* ----------------------------------------
+    Routes for other resources
+   ---------------------------------------- */
+
+router.post("/getLinkPreview", async (req, res, next) => {
+  const previewUrl = req.body.url
+  if (!previewUrl) {
+    res.status(400).send("No url provided.")
+    return;
+  }
+  try{
+    const metaTagData = await participantsService.getLinkPreview(previewUrl)
+    res.send(metaTagData)
+  }
+  catch(e){
+    console.log(e)
+    res.sendStatus(500)
+  }
+});
 module.exports = router;

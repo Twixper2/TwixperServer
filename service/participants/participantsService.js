@@ -6,8 +6,8 @@ const participantActionsOnTwitter =  require("../../business_logic/participant/p
 
 /** ______Search for participant_____ **/
 
-async function searchTweets(q, participant){
-    let output = await participantSearchInTwitter.searchTweets(q, participant)
+async function searchTweets(q){
+    let output = await participantSearchInTwitter.searchTweets(q)
     return output
 }
 
@@ -24,8 +24,8 @@ async function searchUsers(q){
  * feed for authenticated user
  * @param {*} user 
  */
-async function getFeed(participant){
-    let output = await participantFeed.getFeed(participant)
+async function getFeed(participant, maxId, count){
+    let output = await participantFeed.getFeed(participant, maxId, count)
     return output
 }
 
@@ -40,23 +40,23 @@ async function getTweet(tweetId){
     return output
 }
 
-async function getUserFriends(username){
-    let output = await participantSpecifiedTwitterData.getUserFriends(username)
+async function getUserFriends(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserFriends(participant, username)
     return output
 }
 
-async function getUserFollowers(username){
-    let output = await participantSpecifiedTwitterData.getUserFollowers(username)
+async function getUserFollowers(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserFollowers(participant, username)
     return output
 }
 
-async function getUserTimeline(username){
-    let output = await participantSpecifiedTwitterData.getUserTimeline(username)
+async function getUserTimeline(userId){
+    let output = await participantSpecifiedTwitterData.getUserTimeline(userId)
     return output
 }
 
-async function getUserLikes(username){
-    let output = await participantSpecifiedTwitterData.getUserLikes(username)
+async function getUserLikes(participant, username){
+    let output = await participantSpecifiedTwitterData.getUserLikes(participant, username)
     return output
 }
 
@@ -74,11 +74,25 @@ async function unlikeTweet(participant, tweetId) {
     return output
 }
 
+async function follow(participant, screenName) {
+    let output = await participantActionsOnTwitter.follow(participant, screenName)
+    return output
+}
+
+async function unfollow(participant, screenName) {
+    let output = await participantActionsOnTwitter.unfollow(participant, screenName)
+    return output
+}
+
 async function publishTweet(participant, tweetParams) {
     let output = await participantActionsOnTwitter.publishTweet(participant, tweetParams)
     return output
 }
 
+async function publishRetweet(participant, tweetId) {
+    let output = await participantActionsOnTwitter.publishRetweet(participant, tweetId)
+    return output
+}
 
 /**_____ Participants auth ______ **/
 
@@ -125,7 +139,18 @@ function logParticipantActions(participant, actions){
     return participantActionsOnTwitter.logParticipantActions(participant, actions)
 }
 
+/* ----------------------------------------
+    Other helper functions
+   ---------------------------------------- */
 
+function extractTwitterInfoFromParticipantObj(participant){
+    return participantAuthUtils.extractTwitterInfoFromParticipantObj(participant)
+}
+
+async function getLinkPreview(previewUrl){
+    let output = await participantSpecifiedTwitterData.getLinkPreview(previewUrl)
+    return output
+}
 
 exports.getTwitterRequestToken = getTwitterRequestToken
 exports.getTwitterAccesssToken = getTwitterAccesssToken
@@ -143,7 +168,13 @@ exports.registerParticipant = registerParticipant
 
 exports.likeTweet = likeTweet
 exports.unlikeTweet = unlikeTweet
+exports.follow = follow
+exports.unfollow = unfollow
 exports.publishTweet = publishTweet
+exports.publishRetweet = publishRetweet
 
 exports.validateActionsFields = validateActionsFields
 exports.logParticipantActions = logParticipantActions
+
+exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj
+exports.getLinkPreview = getLinkPreview

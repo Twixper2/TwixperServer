@@ -15,8 +15,8 @@ function validateExpFields(experimentObj) {
  * make experiment active
  * @param {} reqExpObj 
  */
-async function activateNewExperiment(expObj, researcherId){
-    return await experiments.activateNewExperiment(expObj, researcherId)
+async function activateNewExperiment(expObj, researcherObj){
+    return await experiments.activateNewExperiment(expObj, researcherObj)
 }
 
 /**
@@ -38,8 +38,8 @@ async function getResearcher(id) {
  * add new researcher to db
  * @param {unuique id to authenticate the researcher} id 
  */
-async function registerResearcher(id) {
-    return await researcherAuthUtils.registerResearcher(id)
+async function registerResearcher(id, username, email) {
+    return await researcherAuthUtils.registerResearcher(id, username, email)
 }
 
 /**

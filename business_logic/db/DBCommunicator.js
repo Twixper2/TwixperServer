@@ -3,6 +3,7 @@ require("dotenv").config();
 var experimentsCollection = require("./mongodb/experimentsCollection")
 var participantsCollection = require("./mongodb/participantsCollection")
 var researchersCollection = require("./mongodb/researchersCollection")
+var injectionsCollection = require("./mongodb/injectionsCollection")
 
 var fileManager = require("./local_files/fileManager")
 
@@ -55,6 +56,31 @@ function insertActionsArray(expId, actionsArr){
 
 function checkReportRequestExists(expId) {
     fileManager.checkReportRequestExists(expId)
+}
+
+
+/*
+    _____ Injections _____
+*/
+
+async function insertInjectionDocs(injectionObjectsArray) {
+    return await injectionsCollection.insertInjectionDocs(injectionObjectsArray)
+}
+
+async function getInjectionDoc(expId, groupId){
+    return await injectionsCollection.getInjectionDoc(expId, groupId)
+}
+
+async function updateEntitiesState(expId, groupId, newEntitiesState){
+    return await injectionsCollection.updateEntitiesState(expId, groupId, newEntitiesState)
+}
+
+async function replaceInjectionDoc(expId, groupId, docToReplaceWith){
+    return await injectionsCollection.replaceInjectionDoc(expId, groupId, docToReplaceWith)
+}
+
+async function deleteInjectionDocs(expId){
+    return await injectionsCollection.deleteInjectionDocs(expId)
 }
 
 /*
@@ -125,6 +151,10 @@ async function updateExpStatus(expId, status) {
     return await experimentsCollection.updateExpStatus(expId, status);
 }
 
+async function setExpEndDate(expId, endDate) {
+    return await experimentsCollection.setExpEndDate(expId, endDate);
+}
+
 async function createExpMetadata (expId, metadataObj){
     return await fileManager.createExpMetadata(expId, metadataObj);
 }
@@ -142,6 +172,10 @@ module.exports = {
     insertAction: insertAction,
     insertActionsArray: insertActionsArray,
     insertExperiment : insertExperiment,
+    insertInjectionDocs: insertInjectionDocs,
+    replaceInjectionDoc: replaceInjectionDoc,
+    updateEntitiesState: updateEntitiesState,
+    getInjectionDoc: getInjectionDoc,
     getExperimentsByIds: getExperimentsByIds,
     getActionsOfExperiment: getActionsOfExperiment,
     getResearcherExperiments: getResearcherExperiments,
@@ -157,6 +191,8 @@ module.exports = {
     createExpMetadata: createExpMetadata,
     getStreamDictForDownloadReport: getStreamDictForDownloadReport,
     deleteParticipantsFromExp : deleteParticipantsFromExp,
-    updateExpStatus : updateExpStatus
+    deleteInjectionDocs : deleteInjectionDocs,
+    updateExpStatus : updateExpStatus,
+    setExpEndDate: setExpEndDate
 }
 
