@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 const participantsService = require("../../service/participants/participantsService.js");
 const database = require("../../business_logic/db/DBCommunicator.js")
+const bcrypt = require("bcryptjs");
+
 
 /**
  * TODO: every function needs to pass the user to service layer, so manipulations can be applied.
@@ -12,13 +14,18 @@ const database = require("../../business_logic/db/DBCommunicator.js")
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   // if (req.session && req.session.userTwitterToken) {
-  if (req.header('User-Twitter-Token-Enc')) {
+  if (req.header('User-Twitter-Token')) {
     // const token = req.session.userTwitterToken;
-    const token = req.header('User-Twitter-Token-Enc');
-    try{
-      const participant = await database.getParticipantByToken(token);
+    const token = req.header('User-Twitter-Token');
+    const tokenSecret = req.header('User-Twitter-Token-Secret');
 
-      if (participant) {
+    try{
+      const encryptedToken = encryptToken(token) // we encrypt tokens to comapre them to the encrypted tokens in the db. then, we will use the original ones
+      const encryptedTokenSecret = encryptToken(tokenSecret)
+      let participant = await database.getParticipantByToken(encryptedToken);
+      if (participant && (participant.user_twitter_token_secret == encryptedTokenSecret)) {
+        participant.user_twitter_token = token
+        participant.user_twitter_token_secret = tokenSecret
         req.participant = participant; //every method has the user now
         next(); //go to the request
       }
@@ -32,7 +39,7 @@ router.use(async function (req, res, next) {
     }
   }
   else {
-    res.status(428).send("Missing auth header User-Twitter-Token-Enc"); 
+    res.status(428).send("Missing auth header User-Twitter-Token"); 
   }
 });
 
@@ -419,6 +426,10 @@ router.post("/publishTweet", async (req, res, next) => {
     }
   }
 });
+
+function encryptToken(token) {
+  return bcrypt.hashSync(token, 10)
+}
 
 router.post("/publishRetweet", async (req, res, next) => {
   const tweetId = req.query.tweetId
