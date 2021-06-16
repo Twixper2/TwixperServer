@@ -21,6 +21,12 @@ async function getTwitterAccesssToken(token, verifier){
  * @param {*} expId 
  */
 async function registerParticipant(oauthToken, oauthTokenSecret, expCode) {
+    if(oauthToken == null || oauthTokenSecret == null || expCode == null){
+        throw {
+            name: "InvalidArguments",
+            message: "One of the arguments is null."
+        }
+    }
     //checking auth info
     const twitterUser = await getTwitterUserFromTokens(oauthToken, oauthTokenSecret)
     if (!twitterUser) {

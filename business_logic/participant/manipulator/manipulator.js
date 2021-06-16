@@ -16,6 +16,9 @@ const actionsOnTwitter = require("../participant_actions/participantActionsOnTwi
 var moment = require('moment');
 
 async function manipulateTweets(participant, tweets){
+    if(participant == null || tweets == null || participant.group_manipulations == null){
+        throw "At least one of the arguments is null"
+    }
     const manipulations = participant.group_manipulations
     let manipulatedTweets = tweets
     let manipulationLogger = [] // For loging each manipluated tweet as action
@@ -91,7 +94,7 @@ async function injectTweets(currTweets, participant, manipulationLogger){
 }
 
 function removeMediaFromTweets(removeMediaManipulation, tweets, participant, manipulationLogger){
-    const participantUsername = participant.participantUsername
+    const participantUsername = participant.participant_twitter_username
     const usersToRemoveMedia = removeMediaManipulation.users
     const keywordsToRemoveMedia = prepareKeywords(removeMediaManipulation.keywords)
     const keywordsRegexes = getRegexesFromKeywords(keywordsToRemoveMedia)
@@ -124,7 +127,7 @@ function removeMediaFromTweets(removeMediaManipulation, tweets, participant, man
 }
 
 function pixelMediaInTweets(pixelMediaManipulation, tweets, participant, manipulationLogger){
-    const participantUsername = participant.participantUsername
+    const participantUsername = participant.participant_twitter_username
     const usersToPixelMedia = pixelMediaManipulation.users
     const keywordsToPixelMedia = prepareKeywords(pixelMediaManipulation.keywords)
     const keywordsRegexes = getRegexesFromKeywords(keywordsToPixelMedia)
@@ -157,7 +160,7 @@ function pixelMediaInTweets(pixelMediaManipulation, tweets, participant, manipul
 }
 
 function muteTweets(muteManipulation, tweets, participant, manipulationLogger){
-    const participantUsername = participant.participantUsername
+    const participantUsername = participant.participant_twitter_username
     const usersToMute = muteManipulation.users
     const keywordsToMute = prepareKeywords(muteManipulation.keywords)
     
@@ -371,20 +374,22 @@ function prepareKeywords(keywords){
 }
 
 function isUserMentioned(userMentioned, username){
-    userMentioned.forEach(obj => {
+    for (let i = 0; i < userMentioned.length; i++) {
+        const obj = userMentioned[i];
         if(obj.screen_name == username){
             return true
         }
-    });
+    }
     return false
 }
 
 function isKeywordsInHashtags(hashtags, keywords){
-    hashtags.forEach(obj => {
+    for (let i = 0; i < hashtags.length; i++) {
+        const obj = hashtags[i];
         if(keywords.includes(obj.text)){
             return true
         }
-    });
+    }
     return false
 }
 

@@ -14,12 +14,18 @@ async function addExperimentId(resId, expId) {
     throw e
   }
   if(result != null){
-    return true
+    if(result.modifiedCount > 0)
+      return true
+    else
+      return false
   }
   return false
 }
 
 async function addResearcher(researcher) {
+  if(researcher == null){
+    throw "researcher can't be null"
+  }
   const db = await makeDb()
   let result = null
   try {
@@ -50,7 +56,7 @@ async function getResearcher(id) {
 }
 
 //return the experiments id's of the researcher
-async function getResearcherExperiments(id) {
+/*async function getResearcherExperiments(id) {
   const db = await makeDb()
   let result = null
   try {
@@ -66,11 +72,11 @@ async function getResearcherExperiments(id) {
     throw e
   }
   return result;
-}
+}*/
 
 module.exports = {
   getResearcher: getResearcher,
-  getResearcherExperiments: getResearcherExperiments,
+  // getResearcherExperiments: getResearcherExperiments,
   addResearcher: addResearcher,
   addExperimentId: addExperimentId
 

@@ -3,6 +3,9 @@ var makeDb = require("./DBConnector.js").makeDb
 
 // Insert new experiment
 async function insertExperiment(experiment) {
+  if(experiment == null){
+    throw "experiment can't be null"
+  }
   const db = await makeDb()
   let result = null
   try {
@@ -92,6 +95,10 @@ async function insertParticipantToExp(expId, participant) {
       { exp_id: expId },
       { $inc: { num_of_participants: 1, } }
     )
+    if(result != null){
+      if(result.modifiedCount <= 0) // No such exp id
+        return false
+    }
     //we might do this update and the last update in one update but i dont want to take the risk
     result = await collection.updateOne(
       { exp_id: expId, "exp_groups.group_id": groupId },
@@ -144,7 +151,7 @@ async function updateExpStatus(expId, status) {
   catch(e){
     throw(e)
   }
-  if(result != null){
+  if(result && result.lastErrorObject.updatedExisting){
     return true
   }
   return false
