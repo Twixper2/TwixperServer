@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const participantsService = require("../../service/participants/participantsService.js");
+const bcrypt = require("bcryptjs");
 
 /**
  * Requesting the oauth tokens from twitter, by the oauth_callback param
@@ -139,7 +140,8 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     let participant = await database.getParticipantByTwitterId(twitter_id_str)
     // participant already registered to an experiment
     if (participant) {
-      await database.updateParticipantTokens(twitter_id_str, oauthToken, oauthTokenSecret)
+      oauthTokenSecretEnc = encryptToken(oauthTokenSecret)  // we encrypt the token secret
+      await database.updateParticipantTokens(twitter_id_str, oauthToken, oauthTokenSecretEnc)
       const participant_twitter_info = participantsService.extractTwitterInfoFromParticipantObj(participant)
       res.status(200).json({
         twitter_user_found : true,
@@ -219,5 +221,8 @@ router.post("/registerToExperiment", async (req, res, next) => {
   }
 });
 
+function encryptToken(token) {
+  return bcrypt.hashSync(token, 10)
+}
 
 module.exports = router;
