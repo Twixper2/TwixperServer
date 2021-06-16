@@ -140,7 +140,7 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     let participant = await database.getParticipantByTwitterId(twitter_id_str)
     // participant already registered to an experiment
     if (participant) {
-      oauthTokenSecretEnc = encryptToken(oauthTokenSecret)  // we encrypt the token secret
+      let oauthTokenSecretEnc = encryptToken(oauthTokenSecret)  // we encrypt the token secret
       await database.updateParticipantTokens(twitter_id_str, oauthToken, oauthTokenSecretEnc)
       const participant_twitter_info = participantsService.extractTwitterInfoFromParticipantObj(participant)
       res.status(200).json({
