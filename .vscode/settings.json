@@ -4,5 +4,11 @@
         ".vscode{,/**}"
     ],
     "appService.defaultWebAppToDeploy": "/subscriptions/44b18f99-8f1b-4687-9973-d8f8cd87670f/resourceGroups/TwixperAzureResources/providers/Microsoft.Web/sites/twixper-backend",
-    "appService.deploySubpath": "."
+    "appService.deploySubpath": ".",
+    "azureFunctions.deploySubpath": ".",
+    "azureFunctions.scmDoBuildDuringDeployment": true,
+    "azureFunctions.pythonVenv": ".venv",
+    "azureFunctions.projectLanguage": "Python",
+    "azureFunctions.projectRuntime": "~3",
+    "debug.internalConsoleOptions": "neverOpen"
 }
