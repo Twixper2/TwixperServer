@@ -85,9 +85,12 @@ httpsServer.listen(443, () => {
   console.log(`Server running at https://localhost:443/`);
 });
 
+
 // console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
 // app.listen(port, () => {
 //   // Setting up the file manager
 //   fileManager.setupFileManager()
 
+//   console.log(`Server running at http://localhost:${port}/`);
+// });
