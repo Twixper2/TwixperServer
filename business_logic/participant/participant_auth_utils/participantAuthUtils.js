@@ -16,7 +16,7 @@ async function getTwitterAccesssToken(token, verifier){
 }
 
 /**
- * get experiment from db, deside group for praticipant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
+ * get experiment from db, decide group for participant, put inside the participant the data needed from experiment (group's manipulations) and add user to db
  * @param {*} userTwitterToken 
  * @param {*} expId 
  */

@@ -1,6 +1,6 @@
 var config = new Object()
 
-config.isProduction = true // real mode: true
+config.isProduction = false // real mode: true
 
 /* For twitterCommunicator */
 // Get
