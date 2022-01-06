@@ -75,6 +75,7 @@ app.use((req,res) => {
 const port =  process.env.PORT || 3000;
 
 // configure Https
+HEAD
 var fs = require('fs');
 var privateKey  = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\privateKey.key', 'utf8');
 var certificate = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\certificate.crt', 'utf8');
@@ -91,6 +92,7 @@ httpsServer.listen(443, () => {
 // app.listen(port, () => {
 //   // Setting up the file manager
 //   fileManager.setupFileManager()
+
 
 //   console.log(`Server running at http://localhost:${port}/`);
 // });
