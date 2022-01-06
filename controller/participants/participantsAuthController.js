@@ -189,7 +189,6 @@ router.post("/registerToExperiment", async (req, res, next) => {
 
     // const oauthToken = req.session.userTwitterToken
     // const oauthTokenSecret = req.session.userTwitterTokenSecret    
-    
     // TODO: Decrypt tokens
     const oauthToken = req.header('User-Twitter-Token')
     const oauthTokenSecret = req.header('User-Twitter-Token-Secret')    
