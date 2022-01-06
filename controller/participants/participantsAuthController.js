@@ -34,7 +34,7 @@ router.post("/twitterAuthRequestToken", async (req, res, next) => {
 router.post("/twitterAuthAccessToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_token || !params.oauth_verifier){
-    res.status(400).send("No params suplied.")
+    res.status(400).send("No params supplied.")
     return
   }
   try{
