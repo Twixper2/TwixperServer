@@ -15,10 +15,15 @@ require("chromedriver");
 let swd = require("selenium-webdriver");
 let browser = new swd.Builder();
 let tab = browser.forBrowser("chrome").build();
+
+// Define window size
+tab.manage().window().maximize();
   
 // Get the credentials from the JSON file
 var data = require("./CredentialsJSON.js");
-let { user, pass } = data
+var user = data.user;
+var pass = data.pass;
+
   
 // Step 1 - Opening the twitter sign in page
 let tabToOpen =
@@ -34,42 +39,32 @@ tabToOpen
         return findTimeOutP;
     })
     .then(function () {
-
-        // Step 2 - insert username and password
-        // tab.findElement(By.name("text")).sendKeys("Twixper_App");
-        // Go Next
-        // tab.findElement(By.xpath("/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div[6]")).sendKeys(Key.RETURN);
-        // // Insert Password
-        // tab.findElement(By.name("password")).sendKeys("LiadMosheDini");
-        // // Go Login
-        // tab.findElement(By.xpath("/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div/div")).sendKeys(Key.RETURN);
-
-
+        // Return username input
         return tab.findElement(By.name("text"));
     })
     .then(function (usernameBox) {
   
         // Step 3 - Entering the username
         var promiseFillUsername =
-            usernameBox.sendKeys("Twixper_App");
-        // Go Next
+            usernameBox.sendKeys("colabmail");
+        // Click on Next
         tab.findElement(By.xpath("/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div[6]")).sendKeys(Key.RETURN);
         return promiseFillUsername;
     })
     .then(function () {
         console.log(
-            "Username entered successfully in" +
+            "Username entered successfully in " +
             "'login demonstration' for twitter"
         );
   
-        // Step 4 - Finding the password input
+        // Return password input
         let promisePasswordBox =
         tab.findElement(By.name("password")).sendKeys("LiadMosheDini");
         return promisePasswordBox;
     })
     .then(function () {
         console.log(
-            "Password entered successfully in" +
+            "Password entered successfully in " +
             " 'login demonstration' for twitter"
         );
   
@@ -78,16 +73,15 @@ tabToOpen
         return promiseSignInBtn;
     })
     .then(function (signInBtn) {
-  
-        // Step 7 - Clicking the Log In button
-
+        // Wait before log in button pressing
         tab.wait(function(){
             return 3<5;
         },1); 
-
+        // Step 7 - Clicking the Log In button
         let promiseClickSignIn = signInBtn.sendKeys(Key.RETURN);
-    
-        // let promiseClickSignIn = signInBtn.sendKeys(Key.RETURN);
+        tab.manage().getCookies().then(function (cookies) {
+            console.log(cookies);
+        }); 
         return promiseClickSignIn;
     })
     .then(function () {
