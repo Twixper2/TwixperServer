@@ -74,11 +74,20 @@ app.use((req,res) => {
 
 const port =  process.env.PORT || 3000;
 
+// configure Https
+var fs = require('fs');
+var privateKey  = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\privateKey.key', 'utf8');
+var certificate = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\certificate.crt', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+var https = require('https');
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(443, () => {
+  console.log(`Server running at https://localhost:443/`);
+});
+
 // console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
-app.listen(port, () => {
-  // Setting up the file manager
-  fileManager.setupFileManager()
+// app.listen(port, () => {
+//   // Setting up the file manager
+//   fileManager.setupFileManager()
 
-  console.log(`Server running at http://localhost:${port}/`);
-});
