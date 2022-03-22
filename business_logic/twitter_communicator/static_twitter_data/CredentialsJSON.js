@@ -1,7 +1,10 @@
-exports.data = {
-  "user": "Twixper_App",
+var credentials = {
+  "user": "colabmail",
   "pass": "LiadMosheDini"
 };
+
+module.exports = {credentials : credentials};
+
 
 //# You need to fill the area below after checking the header in your browser
 // header = {

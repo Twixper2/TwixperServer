@@ -2,35 +2,35 @@
 // npm install selenium-webdriver
 // npm install chromedriver
 
-// had to download chrome driver 97
+// pip install webdriver-manager
 
-
-const {Builder, By, Key, until} = require('selenium-webdriver');
-// Include the chrome driver
-require("chromedriver");
-  
-
-
-// Include selenium webdriver
-let swd = require("selenium-webdriver");
-let browser = new swd.Builder();
-let tab = browser.forBrowser("chrome").build();
-
-// Define window size
-tab.manage().window().maximize();
-  
-// Get the credentials from the JSON file
-var data = require("./CredentialsJSON.js");
-var user = data.user;
-var pass = data.pass;
+// Solve compatibility problem with following:
+// npm install chromedriver
+// npm install chromedriver --save-dev #if you need it as a dev dependency
+// npm install
 
   
-// Step 1 - Opening the twitter sign in page
-let tabToOpen =
+async function logInProcess(data){
+
+    const {Builder, By, Key, until} = require('selenium-webdriver');
+    // Include the chrome driver
+    require("chromedriver");
+    // Include selenium webdriver
+    let swd = require("selenium-webdriver");
+    let browser = new swd.Builder();
+    let tab = browser.forBrowser("chrome").build();
+    // Define window size
+    tab.manage().window().maximize();
+
+    var user = data.user;
+    var pass = data.pass;
+    var cookies_to_send;
+    // Step 1 - Opening the twitter sign in page
+    let tabToOpen =
     tab.get("https://twitter.com/i/flow/login");
-tabToOpen
+    tabToOpen
     .then(function () {
-  
+
         // Timeout to wait if connection is slow
         let findTimeOutP =
             tab.manage().setTimeouts({
@@ -43,12 +43,13 @@ tabToOpen
         return tab.findElement(By.name("text"));
     })
     .then(function (usernameBox) {
-  
+
         // Step 3 - Entering the username
         var promiseFillUsername =
-            usernameBox.sendKeys("colabmail");
+            usernameBox.sendKeys(user);
         // Click on Next
-        tab.findElement(By.xpath("/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div[6]")).sendKeys(Key.RETURN);
+        var username_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[5]/label/div/div[2]/div/input";
+        tab.findElement(By.xpath(username_x_path)).sendKeys(Key.RETURN);
         return promiseFillUsername;
     })
     .then(function () {
@@ -56,10 +57,10 @@ tabToOpen
             "Username entered successfully in " +
             "'login demonstration' for twitter"
         );
-  
+
         // Return password input
         let promisePasswordBox =
-        tab.findElement(By.name("password")).sendKeys("LiadMosheDini");
+        tab.findElement(By.name("password")).sendKeys(pass);
         return promisePasswordBox;
     })
     .then(function () {
@@ -67,9 +68,10 @@ tabToOpen
             "Password entered successfully in " +
             " 'login demonstration' for twitter"
         );
-  
+
         // Step 6 - Finding the Log In button
-        let promiseSignInBtn = tab.findElement(By.xpath("//html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div"))
+        var signInBtn_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]";
+        let promiseSignInBtn = tab.findElement(By.xpath(signInBtn_x_path))
         return promiseSignInBtn;
     })
     .then(function (signInBtn) {
@@ -79,14 +81,21 @@ tabToOpen
         },1); 
         // Step 7 - Clicking the Log In button
         let promiseClickSignIn = signInBtn.sendKeys(Key.RETURN);
-        tab.manage().getCookies().then(function (cookies) {
-            console.log(cookies);
-        }); 
         return promiseClickSignIn;
     })
     .then(function () {
         console.log("Successfully signed in twitter!");
+        tab.manage().getCookies().then(function (cookies) {
+            // Cookies expire time is:
+            // Time / 24 * 60 * 60 * 1000 = x [days]
+            console.log("got the cookies!");
+            // Send cookies to python - beautifulsoup
+            return cookies;
+        }); 
     })
     .catch(function (err) {
         console.log("Error ", err, " occurred!");
     });
+}
+
+module.exports = {logInProcess : logInProcess};
