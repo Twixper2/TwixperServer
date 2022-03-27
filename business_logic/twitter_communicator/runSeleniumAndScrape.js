@@ -6,9 +6,13 @@ async function mainRun(){
     // Retrieve user credentials
     var user_credentials = credentials.credentials;
     // Log in to twitter and get cookies
-    var port = 5502;
+    
     var cookies = await authorizeUser.logInProcess(user_credentials);
+
     // Next - send cookies to beautifulsoup in Python
+    var port = 5502;
     await scrapeTwitter.dataTransformationToScrape(port,cookies);
+
+
 }
 mainRun();

@@ -1,3 +1,4 @@
+const { json } = require("express");
 var zeromq = require("zeromq");
 var socket = zeromq.createSocket('rep');
 
@@ -11,10 +12,12 @@ async function dataTransformationToScrape(port,selenium_cookies){
 
             socket.on('message', function(envelope, blank, data)
                       {
-                        console.log(envelope.toString('utf8'));
-                        console.log(selenium_cookies);
-                        socket.send(envelope.toString('utf8') + selenium_cookies);
-                        // socket.send(envelope.toString('utf8') + " Blancmange!");
+                        // envelope.toString('utf8') => the message received from the other side
+                        // console.log();
+                        // console.log(selenium_cookies);
+                        var cookies_parsed = JSON.stringify(selenium_cookies);
+                        // socket.send(envelope.toString('utf8') + cookies_parsed);
+                        socket.send(cookies_parsed);
                       });
 
             socket.on('error', function(err) {
@@ -24,5 +27,7 @@ async function dataTransformationToScrape(port,selenium_cookies){
         );
     }  
 }
+
+
 
 module.exports = {dataTransformationToScrape : dataTransformationToScrape};
