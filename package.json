@@ -39,6 +39,7 @@
     "nyc": "^15.1.0",
     "oauth-1.0a": "^2.2.6",
     "prepend-file": "^2.0.0",
+    "puppeteer": "^13.5.1",
     "selenium-webdriver": "^4.1.1",
     "twit": "^2.2.11",
     "uuid": "^8.3.2",

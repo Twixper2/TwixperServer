@@ -10,21 +10,20 @@
 // npm install
 
   
-async function logInProcess(data){
+async function logInProcess(data,tab){
 
     const {Builder, By, Key, until} = require('selenium-webdriver');
-    // Include the chrome driver
-    require("chromedriver");
-    // Include selenium webdriver
-    let swd = require("selenium-webdriver");
-    let browser = new swd.Builder();
-    let tab = browser.forBrowser("chrome").build();
-    // Define window size
-    tab.manage().window().maximize();
+    // // Include the chrome driver
+    // require("chromedriver");
+    // // Include selenium webdriver
+    // let swd = require("selenium-webdriver");
+    // let browser = new swd.Builder();
+    // let tab = browser.forBrowser("chrome").build();
+    // // Define window size
+    // tab.manage().window().maximize();
 
     var user = data.user;
     var pass = data.pass;
-    var cookies_to_send;
     // Step 1 - Opening the twitter sign in page
     var tabToOpen = await tab.get("https://twitter.com/i/flow/login");
     // Timeout to wait if connection is slow
@@ -55,6 +54,7 @@ async function logInProcess(data){
     // Cookies expire time is:
     // Time / 24 * 60 * 60 * 1000 = x [days]
     var cookies = await tab.manage().getCookies();
+    console.log(cookies);
     // Send cookies to python - beautifulsoup
     return cookies;
             

@@ -1,20 +1,9 @@
-var credentials = {
+var credentials_1 = {
   "user": "colabmail",
   "pass": "LiadMosheDini"
 };
-
-module.exports = {credentials : credentials};
-
-
-//# You need to fill the area below after checking the header in your browser
-// header = {
-//   'Host': 'twitter.com',
-//   'User-Agent': ,
-//   'Accept': ,
-//   'Accept-Language': ,
-//   'Accept-Encoding': ,
-//   'X-Requested-With': ,
-//   "Cookie": ",
-//   'Connection': }
-// url = 'http://twitter.com/%s/followers'%(someone)
-// p = requests.get(url, headers=headers)
+var credentials_2 = {
+  "user": "lab_twit",
+  "pass": "LiadMosheDini"
+};
+module.exports = {credentials_1 : credentials_1, credentials_2 : credentials_2};
