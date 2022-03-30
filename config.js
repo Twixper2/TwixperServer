@@ -32,7 +32,14 @@ config.injectionParams = {
     tweetsPerKeyword: 4
 }
 
+
 // Date formats
 config.dateFormat = "MM/DD/YYYY HH:mm:ss UTC"
+
+
+// Save selenium tabs in experiments
+var HashMap = require('hashmap');
+// Hashmap structure : {key = username, value = selenium tab}
+config.tabsHashMap = new HashMap();
 
 module.exports = config;

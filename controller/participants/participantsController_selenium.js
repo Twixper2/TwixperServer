@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 const database = require("../../business_logic/db/DBCommunicator.js")
+const { tabsHashMap } = require("../../config");
 
 
 /* ----------------------------------------
@@ -17,6 +18,12 @@ router.get("/getWhoToFollow", async (req, res, next) => {
     return
   }
   try{
+    // First, Check if there is already a tab open for the user
+    if(tabsHashMap.size == 0 || tabsHashMap.get(params.user) == undefined){
+      res.status(400).send("This user is not authenticated.")
+      return
+    }
+
     const whoToFollowElement = await participantsService_selenium.getWhoToFollow(params);
     res.send(whoToFollowElement);
   }

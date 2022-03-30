@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
+const { tabsHashMap } = require("../../config");
+
 
 /**
  * Requesting user's credentials, and selenium webdriver will log in to it
@@ -15,13 +17,16 @@ const participantsService_selenium = require("../../service/participants/partici
     return
   }
   try{
+
+    // First, Check if there is already a tab open for the user
+    if(tabsHashMap.size > 0 && tabsHashMap.get(params.user) != undefined){
+      res.status(400).send("This user was already authenticated.")
+      return
+    }
+
     const loginRequest = await participantsService_selenium.logInProcess(params);
-    //TODO: If login request is fine -
-    // save credentials so we will not open another tab
-    // for this user
-    //TODO: Also, save tab object on db
-    // so we can continue work with it.
-    res.send(loginRequest[0]);
+    res.send(loginRequest);
+
   }
   catch(e){
     console.log(e)

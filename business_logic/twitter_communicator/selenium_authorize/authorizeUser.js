@@ -61,6 +61,7 @@ async function logInProcess(data,tab){
     // console.log(cookies);
     // Send cookies to python - beautifulsoup
     // return cookies;
+    return "Successfully signed in twitter!";
 }
 
 module.exports = {logInProcess : logInProcess, 
