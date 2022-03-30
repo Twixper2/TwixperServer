@@ -1,6 +1,6 @@
-const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium");
+const participant_data_selenium = require("../../business_logic/participant/selenium_scraping_data/participant_data_selenium");
 
-/** ______Get Login Response_____ **/
+/** ______Login_____ **/
 async function logInProcess(params){
 
     var new_tab = await participantAuthUtils_selenium.createNewTab()
@@ -9,5 +9,15 @@ async function logInProcess(params){
     return [login_response,new_tab]
 } 
 
+async function getWhoToFollow(params){
+
+    //TODO: Get tab to request from
+    var tab = await getTabFromDB(params);
+
+    var whoToFollowElement = await participant_data_selenium.scrapeWhoToFollow(tab)
+    return whoToFollowElement
+} 
+
 
 exports.logInProcess = logInProcess
+exports.getWhoToFollow = getWhoToFollow

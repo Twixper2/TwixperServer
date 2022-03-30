@@ -22,7 +22,6 @@ async function createNewTab(){
     return tab;
 }  
 
-
 async function logInProcess(data,tab){
 
     const {By, Key} = require('selenium-webdriver');

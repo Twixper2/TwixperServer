@@ -2,7 +2,6 @@ var express = require("express");
 var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
-const bcrypt = require("bcryptjs");
 
 /**
  * Requesting user's credentials, and selenium webdriver will log in to it
