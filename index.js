@@ -10,7 +10,6 @@ const bodyParser = require('body-parser');
 const fileManager = require("./business_logic/db/local_files/fileManager")
 const config = require('./config')
 
-
 var app = express();
 
 
@@ -55,12 +54,19 @@ const researchersAuthController = require("./controller/researchers/researchersA
 const participantController  = require("./controller/participants/participantsController");
 const researcherController = require("./controller/researchers/researchersController");
 
+const participantsAuthController_selenium = require("./controller/participants/participantsAuthController_selenium");
+const participantsController_selenium  = require("./controller/participants/participantsController_selenium");
+
+
 app.get("/", (req, res) => res.send("welcome v.1"));
 
 app.use("/participants", participantController);
 app.use("/researchers", researcherController);
 app.use(participantsAuthController);  //participant auth
 app.use(researchersAuthController);  //participant auth
+
+app.use(participantsAuthController_selenium);  //participant auth
+app.use(participantsController_selenium);  //participant auth
 
 
 app.get("/alive", (req, res) => {

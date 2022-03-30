@@ -125,7 +125,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     const actionsDirectoryPath = experimentsDataPath + "\\" + expId 
 
     // reading actions names
-    // TODO: maybe needs to be changed to an implemintation who doesn't require
+    // TODO: maybe needs to be changed to an implementation who doesn't require
     // loading all file names to ram (instead, iterating one by one)
     let actionFileNames = []
     try {
@@ -157,7 +157,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         return false
     }
 
-    // TODO: replace action files with merged file for performance improvments
+    // TODO: replace action files with merged file for performance improvements
     
     // making the file a valid json + writing experiment file
     // Remove last ","
