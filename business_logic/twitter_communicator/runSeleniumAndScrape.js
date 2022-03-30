@@ -1,16 +1,18 @@
 var authorizeUser = require("./selenium_authorize/authorizeUser.js");
-var scrapeTwitter = require("./scrapy_use_auth/scrapeTwitter.js");
+var scrapeTwitter = require("./scrape_process/scrapeTwitter.js");
 var credentials = require("./static_twitter_data/CredentialsJSON.js");
+const {Builder, By, Key, until} = require('selenium-webdriver');
 
 async function userRun(user_credentials){
-
     var tab = await createNewTab();
 
     // Log in to twitter and get cookies
-    var cookies = await authorizeUser.logInProcess(user_credentials,tab);
+    var cookies = await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
+    var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab, By, Key);
+    console.log(whoToFollowElement);
     // Next - send cookies to beautifulsoup in Python
-    var port = 5502;
+    // var port = 5502;
     // await scrapeTwitter.dataTransformationToScrape(port,cookies);
 
 

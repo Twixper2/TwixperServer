@@ -28,6 +28,12 @@ async function dataTransformationToScrape(port,selenium_cookies){
     }  
 }
 
+async function scrapeWhoToFollow(tab){
+    const {Builder, By, Key, until} = require('selenium-webdriver');
+    var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
+    var element = await tab.findElement(By.xpath(whoToFollowElement_x_path));
+    return element.getText();
+}
 
-
-module.exports = {dataTransformationToScrape : dataTransformationToScrape};
+module.exports = {dataTransformationToScrape : dataTransformationToScrape,
+                scrapeWhoToFollow : scrapeWhoToFollow};
