@@ -4,7 +4,9 @@
   "description": "Twixper server side",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --exit"
+    "test": "mocha --exit",
+    "run server": "node index.js",
+    "run server with comment": "nodemon index.js"
   },
   "repository": {
     "type": "git",
