@@ -35,5 +35,16 @@ async function scrapeWhoToFollow(tab){
     return element.getText();
 }
 
+async function get_5_tweets(tab){
+    const {Builder, By, Key, until} = require('selenium-webdriver');
+    var all_tweets_on_page = await tab.findElements(By.css("article"));
+    var profile_img = all_tweets_on_page[0].getAttribute("img")[0];
+    // for(var i =0 ; i< all_tweets_on_page.length(); i++){
+    //     // Tweet's profile img
+    //     var profile_img = all_tweets_on_page[i].findElements(By.css("img")[0]);
+    // }
+    return 5;
+}
+
 module.exports = {dataTransformationToScrape : dataTransformationToScrape,
-                scrapeWhoToFollow : scrapeWhoToFollow};
+                scrapeWhoToFollow : scrapeWhoToFollow, get_5_tweets : get_5_tweets};
