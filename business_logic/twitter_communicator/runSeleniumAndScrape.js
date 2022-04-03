@@ -11,16 +11,16 @@ async function userRun(user_credentials){
 
     // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
     // console.log(whoToFollowElement);
+    var n = 5;
+    var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
+    // console.log(n_first_tweets);
 
-    var get_5_tweets = await scrapeTwitter.get_5_tweets(tab);
-    // console.log(get_5_tweets);
 
+    
 
     // Next - send cookies to beautifulsoup in Python
     // var port = 5502;
     // await scrapeTwitter.dataTransformationToScrape(port,cookies);
-
-
 }
 
 async function createNewTab(){

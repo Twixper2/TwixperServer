@@ -47,51 +47,93 @@ async function scrapeWhoToFollow(tab){
     return profile_names_arr;
 }
 
-async function get_5_tweets(tab){
+async function get_n_first_tweets(tab,n){
     const {Builder, By, Key, until} = require('selenium-webdriver');
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
-    // var profile_img = all_tweets_on_page[0].getAttribute("img")[0];
+    // Validate input n - number of tweets to retrieve
+    if(!(/^\d+$/.test(n) && n > 0 && n <= all_tweets_on_page.length)){
+        return 'Input n failed!';
+    }
     var tweets_arr = new Array();
-    for(var i = 0 ; i < all_tweets_on_page.length; i++){
+    await HelpParseTweets(tweets_arr, all_tweets_on_page, n);
+    return tweets_arr; 
+}
+
+async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
+    // Iterate over each on n tweets
+    for(var i = 0 ; i < n; i++){
         var text = await all_tweets_on_page[i].getText();
         var arr = text.split('\n');
+        var len_arr = arr.length;
+        var after_post_index = 0;
         var post_content_arr = new Array(); 
-        var after_post_index = 4;
-        // First line push
-        post_content_arr.push(arr[4]);
-        
-        // If arr[8] is Promoted -> change values of dict
-        // If arr[0] contains Retweeted -> is it a retweet
 
-        // Iterate over arr to get row length of post content
-        for(var j = 1 ; j < arr.length-1; j++){
+        // variables for json
+        var is_retweet = undefined;
+        var is_promoted = 0;
+        var when_posted = undefined;
+        var user_name = undefined;
+        var user_url_name = undefined;
+        var when_posted = undefined;
+        var comments_amount = undefined;
+        var retweets_amount = undefined;
+        var likes_amount = undefined;
+
+        // Conditions for parsing different tweets
+        if(arr[len_arr-1] === "Promoted"){
+            // Check if tweet is promoted tweet
+            user_name = arr[0];
+            user_url_name = arr[1];
+            after_post_index = 2;
+            is_promoted = 1;
+        }
+        else if(arr[0].includes("Retweeted")){
+            // Check if tweet is Retweet
+            user_name = arr[1];
+            user_url_name = arr[2];
+            when_posted = arr[4];
+            after_post_index = 5;
+            is_retweet = arr[0];
+        }
+        else{
+            // If it is a regular tweet
+            user_name = arr[0];
+            user_url_name = arr[1];
+            when_posted = arr[3];
+            after_post_index = 4;
+        }
+
+        // Push first line of content
+        post_content_arr.push(arr[after_post_index]);
+        // Iterate over arr to get amount of post rows
+        for(var j = 1 ; j < len_arr-1; j++){
             // Get arr range for post content
-            if(!/^\d+$/.test(arr[j+4])){
-                post_content_arr.push(arr[j+4]);
-                after_post_index += 1;
+            if(!/^\d+$/.test(arr[j+after_post_index])){
+                post_content_arr.push(arr[j+after_post_index]);
             }
             else{
+                after_post_index = j+after_post_index;
                 break;
             } 
         }
-        var single_tweet_json = {
-            user_name:arr[0],
-            user_url_name:arr[1],
-            when_posted:arr[3],
+
+        comments_amount = arr[after_post_index]
+        retweets_amount = arr[after_post_index + 1] 
+        likes_amount = arr[after_post_index + 2]  
+
+        tweets_arr.push({
+            user_name:user_name,
+            user_url_name:user_url_name,
+            when_posted:when_posted,
             post_content:post_content_arr,
-            comments_amount:arr[after_post_index+1],
-            retweets_amount:arr[after_post_index+2],
-            likes_amount:arr[after_post_index+3]
-        }
-        tweets_arr.push(single_tweet_json);
+            comments_amount:comments_amount,
+            retweets_amount:retweets_amount,
+            likes_amount:likes_amount,
+            is_retweet:is_retweet,
+            is_promoted:is_promoted
+        });
     }
-    console.log(tweets_arr);
-    // for(var i =0 ; i< all_tweets_on_page.length(); i++){
-    //     // Tweet's profile img
-    //     var profile_img = all_tweets_on_page[i].findElements(By.css("img")[0]);
-    // }
-    return 5;
 }
 
 module.exports = {dataTransformationToScrape : dataTransformationToScrape,
-                scrapeWhoToFollow : scrapeWhoToFollow, get_5_tweets : get_5_tweets};
+                scrapeWhoToFollow : scrapeWhoToFollow, get_n_first_tweets : get_n_first_tweets};
