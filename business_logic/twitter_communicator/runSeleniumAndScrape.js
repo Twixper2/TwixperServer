@@ -9,10 +9,10 @@ async function userRun(user_credentials){
     // Log in to twitter and get cookies
     var cookies = await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
-    var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
-    console.log(whoToFollowElement);
+    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+    // console.log(whoToFollowElement);
 
-    // var get_5_tweets = await scrapeTwitter.get_5_tweets(tab);
+    var get_5_tweets = await scrapeTwitter.get_5_tweets(tab);
     // console.log(get_5_tweets);
 
 
@@ -33,7 +33,7 @@ async function createNewTab(){
     let browser = new swd.Builder();
     let tab = browser.forBrowser("chrome").build();
     // Define window size
-    tab.manage().window();
+    tab.manage().window().maximize();
     return tab;
 }
 
