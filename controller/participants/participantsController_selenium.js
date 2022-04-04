@@ -9,7 +9,7 @@ const { tabsHashMap } = require("../../config");
     Routes for asking for data from Twitter
    ---------------------------------------- */
 
-router.get("/getWhoToFollow", async (req, res, next) => {
+router.get("//getWhoToFollow", async (req, res, next) => {
   const params = req.body
   // If there are no params at all,
   // Or no pass or no user params
@@ -26,22 +26,19 @@ router.get("/getWhoToFollow", async (req, res, next) => {
 
     const whoToFollowElement = await participantsService_selenium.getWhoToFollow(params);
     res.send(whoToFollowElement);
+    return
   }
   catch(e){
-    // Decide for error statuses by the error type.
-    // For example: quota ran out, or internal error
-    console.log("** Error in /participant/getFeed **")
     console.log(e)
-    if(e.message){ // error thrown from the api
-      res.status(502).json(e);
-      /* 
-      502 – The server while acting as a gateway or a proxy, 
-            received an invalid response from the upstream server it accessed
-            in attempting to fulfill the request.
-      */
+    // Chrome is not reachable, remove tab from hashmap
+    if(e.name == "WebDriverError"){
+      tabsHashMap.delete(params.user);
+      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+      return
     }
     else{ // Internal error
       res.sendStatus(500)
+      return;
     }
   }
 });

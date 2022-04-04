@@ -1,33 +1,33 @@
 const { json } = require("express");
-const { ConsoleMessage } = require("puppeteer");
-var zeromq = require("zeromq");
-var socket = zeromq.createSocket('rep');
+// const { ConsoleMessage } = require("puppeteer");
+// var zeromq = require("zeromq");
+// var socket = zeromq.createSocket('rep');
 
-async function dataTransformationToScrape(port,selenium_cookies){
-    if(selenium_cookies != undefined){
-        socket.bind("tcp://127.0.0.1:"+port,
-        function(err)
-        {
-            if (err) throw err;
-            console.log("Bound to port "+port+".");
+// async function dataTransformationToScrape(port,selenium_cookies){
+//     if(selenium_cookies != undefined){
+//         socket.bind("tcp://127.0.0.1:"+port,
+//         function(err)
+//         {
+//             if (err) throw err;
+//             console.log("Bound to port "+port+".");
 
-            socket.on('message', function(envelope, blank, data)
-                      {
-                        // envelope.toString('utf8') => the message received from the other side
-                        // console.log();
-                        // console.log(selenium_cookies);
-                        var cookies_parsed = JSON.stringify(selenium_cookies);
-                        // socket.send(envelope.toString('utf8') + cookies_parsed);
-                        socket.send(cookies_parsed);
-                      });
+//             socket.on('message', function(envelope, blank, data)
+//                       {
+//                         // envelope.toString('utf8') => the message received from the other side
+//                         // console.log();
+//                         // console.log(selenium_cookies);
+//                         var cookies_parsed = JSON.stringify(selenium_cookies);
+//                         // socket.send(envelope.toString('utf8') + cookies_parsed);
+//                         socket.send(cookies_parsed);
+//                       });
 
-            socket.on('error', function(err) {
-                console.log("Error: "+err);
-            });
-        }
-        );
-    }  
-}
+//             socket.on('error', function(err) {
+//                 console.log("Error: "+err);
+//             });
+//         }
+//         );
+//     }  
+// }
 
 async function scrapeWhoToFollow(tab){
     const {Builder, By, Key, until} = require('selenium-webdriver');
@@ -135,5 +135,4 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
     }
 }
 
-module.exports = {dataTransformationToScrape : dataTransformationToScrape,
-                scrapeWhoToFollow : scrapeWhoToFollow, get_n_first_tweets : get_n_first_tweets};
+module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, get_n_first_tweets : get_n_first_tweets};

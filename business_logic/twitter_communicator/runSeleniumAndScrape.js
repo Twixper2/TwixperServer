@@ -38,7 +38,6 @@ async function createNewTab(){
 }
 
 
-
 async function main(){
     // Retrieve user credentials
     var credentials_1 = credentials.credentials_1;

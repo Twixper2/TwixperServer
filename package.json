@@ -46,8 +46,7 @@
     "selenium-webdriver": "^4.1.1",
     "twit": "^2.2.11",
     "uuid": "^8.3.2",
-    "watch": "^1.0.2",
-    "zeromq": "^5.2.8"
+    "watch": "^1.0.2"
   },
   "keywords": [],
   "devDependencies": {

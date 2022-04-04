@@ -58,10 +58,10 @@ const participantsAuthController_selenium = require("./controller/participants/p
 const participantsController_selenium  = require("./controller/participants/participantsController_selenium");
 
 
-app.get("/", (req, res) => res.send("welcome v.1"));
+app.get("//", (req, res) => res.send("welcome v.1"));
 
-app.use("/participants", participantController);
-app.use("/researchers", researcherController);
+app.use("//participants", participantController);
+app.use("//researchers", researcherController);
 app.use(participantsAuthController);  //participant auth
 app.use(researchersAuthController);  //participant auth
 
@@ -69,7 +69,7 @@ app.use(participantsAuthController_selenium);  //participant auth
 app.use(participantsController_selenium);  //participant auth
 
 
-app.get("/alive", (req, res) => {
+app.get("//alive", (req, res) => {
   res.send("I'm alive");
 });
 
