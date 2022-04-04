@@ -25,6 +25,17 @@ async function getWhoToFollow(params){
     return whoToFollowElement
 } 
 
+async function get_n_first_tweets(params){
+
+    // Get tab to request
+    var tab = config.tabsHashMap.get(params.user);
+
+    var get_n_first_tweets = await participant_data_selenium.get_n_first_tweets(tab,params.number_of_tweets)
+    return get_n_first_tweets
+}
+
+
 
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
+exports.get_n_first_tweets = get_n_first_tweets
