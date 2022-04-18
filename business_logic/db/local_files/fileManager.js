@@ -81,8 +81,8 @@ async function createExpMetadata(expId, metadataObj){
         return await azureStorageManager.createExpMetadata(expId, metadataObj)
     }
     else{
-        throw "The funciton 'createExpMetadata' is only supported in production"
-    }
+        return localFileManager.CreateExpMetadataLocal(expId, metadataObj)
+        }
 }
 
 async function getStreamDictForDownloadReport(expId){

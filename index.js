@@ -87,8 +87,11 @@ var certificate = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\certificate
 var credentials = {key: privateKey, cert: certificate};
 var https = require('https');
 var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(443, () => {
-  console.log(`Server running at https://localhost:443/`);
+// httpsServer.listen(443, () => {
+//   console.log(`Server running at https://localhost:443/`);
+// });
+httpsServer.listen(port, () => {
+  console.log(`Server running at https://localhost:`+port);
 });
 
 
