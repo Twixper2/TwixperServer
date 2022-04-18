@@ -9,14 +9,17 @@ async function userRun(user_credentials){
     // Log in to twitter and get cookies
     var cookies = await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
-    var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+    
+
+    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+
     // // console.log(whoToFollowElement);
     // var n = 5;
     // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
     // console.log(n_first_tweets);
 
 
-    
+    var more_tweets = await scrapeTwitter.scrollPage(tab);
 
     // Next - send cookies to beautifulsoup in Python
     // var port = 5502;

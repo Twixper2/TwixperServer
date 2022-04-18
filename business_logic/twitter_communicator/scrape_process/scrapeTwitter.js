@@ -63,6 +63,15 @@ async function get_n_first_tweets(tab,n){
     return tweets_arr; 
 }
 
+async function scrollPage(tab){
+    // Scroll till the end of page
+    await tab.executeScript("console.log(5)");
+    setTimeout(function(){
+        tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        tab.executeScript("console.log(4)");
+    }, 5);
+}
+
 async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
     // Iterate over each on n tweets
     for(var i = 0 ; i < n; i++){
@@ -189,4 +198,6 @@ async function getTweetContent(after_post_index,index_end_post_content,arr,post_
     return after_post_index;
 }
 
-module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, get_n_first_tweets : get_n_first_tweets};
+module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
+                get_n_first_tweets : get_n_first_tweets,
+                scrollPage : scrollPage};

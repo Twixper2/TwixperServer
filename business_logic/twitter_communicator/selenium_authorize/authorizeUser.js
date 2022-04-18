@@ -46,8 +46,9 @@ async function logInProcess(data,tab){
     var promisePasswordBox = await tab.findElement(By.name("password")).sendKeys(pass);
     console.log("Password entered successfully in " + " 'login demonstration' for twitter");
     // Step 6 - Finding the Log In button
-    var signInBtn_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]";
-    var promiseSignInBtn = await tab.findElement(By.xpath(signInBtn_x_path));
+    // var signInBtn_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]";
+    // var promiseSignInBtn = await tab.findElement(By.xpath(signInBtn_x_path));
+    var promiseSignInBtn = await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']"));
     // Wait before log in button pressing
     await tab.wait(function(){
         return 3<5;
