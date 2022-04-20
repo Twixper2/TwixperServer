@@ -64,12 +64,12 @@ async function get_n_first_tweets(tab,n){
 }
 
 async function scrollPage(tab){
+    const {By} = require('selenium-webdriver');
+    // When the first tweet is visible - execute scrollpage
+    let el = await tab.findElement(By.css("[role='article']"));
+    await tab.wait(until.elementIsVisible(el),1);
     // Scroll till the end of page
-    await tab.executeScript("console.log(5)");
-    setTimeout(function(){
-        tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-        tab.executeScript("console.log(4)");
-    }, 5);
+    await tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 }
 
 async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
