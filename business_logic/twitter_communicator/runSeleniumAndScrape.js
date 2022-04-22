@@ -1,7 +1,7 @@
 var authorizeUser = require("./selenium_authorize/authorizeUser.js");
 var scrapeTwitter = require("./scrape_process/scrapeTwitter.js");
 var credentials = require("./static_twitter_data/CredentialsJSON.js");
-const {By, Key} = require('selenium-webdriver');
+const {Builder, By, Key, until} = require('selenium-webdriver');
 
 async function userRun(user_credentials){
     var tab = await createNewTab();
@@ -14,12 +14,14 @@ async function userRun(user_credentials){
     // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
 
     // // console.log(whoToFollowElement);
-    // var n = 5;
-    // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
+    var n = 5;
+    var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
+    await scrapeTwitter.scrollPage(tab);
+    n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
+    // await scrapeTwitter.scrollPage(tab);
+    // await scrapeTwitter.scrollPage(tab);
+    // await scrapeTwitter.scrollPage(tab);
     // console.log(n_first_tweets);
-
-
-    var more_tweets = await scrapeTwitter.scrollPage(tab);
 
     // Next - send cookies to beautifulsoup in Python
     // var port = 5502;
@@ -28,7 +30,6 @@ async function userRun(user_credentials){
 
 async function createNewTab(){
 
-    const {Builder, By, Key, until} = require('selenium-webdriver');
     // Include the chrome driver
     require("chromedriver");
     // Include selenium webdriver

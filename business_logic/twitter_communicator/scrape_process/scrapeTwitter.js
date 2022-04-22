@@ -1,4 +1,5 @@
 const { json } = require("express");
+const {Builder, By, Key, until} = require('selenium-webdriver');
 // var zeromq = require("zeromq");
 // var socket = zeromq.createSocket('rep');
 
@@ -52,30 +53,34 @@ async function scrapeWhoToFollow(tab){
 }
 
 async function get_n_first_tweets(tab,n){
-    const {Builder, By, Key, until} = require('selenium-webdriver');
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
     // Validate input n - number of tweets to retrieve
-    if(!(/^\d+$/.test(n) && n > 0 && n <= all_tweets_on_page.length)){
+    console.log(all_tweets_on_page.length);
+    var cur_num_of_tweets_on_page = all_tweets_on_page.length;
+    if(!(/^\d+$/.test(n) && n > 0)){
         return 'Input n failed!';
     }
     var tweets_arr = new Array();
-    await HelpParseTweets(tweets_arr, all_tweets_on_page, n);
+    await HelpParseTweets(tweets_arr, all_tweets_on_page, cur_num_of_tweets_on_page,tab);
     return tweets_arr; 
 }
 
 async function scrollPage(tab){
-    const {By} = require('selenium-webdriver');
+    await tab.sleep(1);
     // When the first tweet is visible - execute scrollpage
     let el = await tab.findElement(By.css("[role='article']"));
     await tab.wait(until.elementIsVisible(el),1);
     // Scroll till the end of page
     await tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+    await tab.sleep(1);
 }
 
-async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
+async function HelpParseTweets(tweets_arr, all_tweets_on_page, n,tab){
     // Iterate over each on n tweets
+    // all_tweets_on_page_1 = await tab.findElements(By.css("[role='article']"));
     for(var i = 0 ; i < n; i++){
         var text = await all_tweets_on_page[i].getText();
+        // var text = await all_tweets_on_page_1[i].getText();
         var arr = text.split('\n');
         var len_arr = arr.length;
         var index_end_post_content = len_arr -1;
