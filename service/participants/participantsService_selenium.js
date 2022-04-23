@@ -12,6 +12,9 @@ async function logInProcess(params){
         // Save new tab to hashmap of selenium tabs
         config.tabsHashMap.set(params.user,new_tab);
     }
+    else{
+        
+    }
     return login_response
 } 
 

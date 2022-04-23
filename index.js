@@ -58,7 +58,7 @@ const participantsAuthController_selenium = require("./controller/participants/p
 const participantsController_selenium  = require("./controller/participants/participantsController_selenium");
 
 
-app.get("//", (req, res) => res.send("welcome v.1"));
+app.get("//", (req, res) => res.send("welcome v.2"));
 
 app.use("//participants", participantController);
 app.use("//researchers", researcherController);
@@ -91,7 +91,7 @@ var httpsServer = https.createServer(credentials, app);
 //   console.log(`Server running at https://localhost:443/`);
 // });
 httpsServer.listen(port, () => {
-  console.log(`Server running at https://localhost:`+port);
+  console.log(`Server running at https://localhost:`+ port);
 });
 
 

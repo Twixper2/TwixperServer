@@ -8,12 +8,13 @@
 // npm install chromedriver
 // npm install chromedriver --save-dev #if you need it as a dev dependency
 // npm install
-const {By, Key, until, Builder, swd} = require('selenium-webdriver');
+const {By, Key, until, Builder} = require('selenium-webdriver');
 
 async function createNewTab(){
     // Include the chrome driver
     require("chromedriver");
     // Include selenium webdriver
+    let swd = require("selenium-webdriver");
     let browser = new swd.Builder();
     let tab = browser.forBrowser("chrome").build();
     // Define window size
