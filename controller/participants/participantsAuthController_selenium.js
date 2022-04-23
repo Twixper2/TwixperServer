@@ -21,7 +21,7 @@ const { tabsHashMap } = require("../../config");
     if(tabsHashMap.size > 0 && tabsHashMap.get(params.user) != undefined){
       var tab = tabsHashMap.get(params.user);
       await tab.getWindowHandle();
-      res.status(400).send("This user was already authenticated.")
+      res.status(400).send("This user has already been authenticated.")
       return
     }
 

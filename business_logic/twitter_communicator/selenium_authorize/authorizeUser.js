@@ -8,13 +8,12 @@
 // npm install chromedriver
 // npm install chromedriver --save-dev #if you need it as a dev dependency
 // npm install
+const {By, Key, until, Builder, swd} = require('selenium-webdriver');
 
 async function createNewTab(){
-    const {Builder} = require('selenium-webdriver');
     // Include the chrome driver
     require("chromedriver");
     // Include selenium webdriver
-    let swd = require("selenium-webdriver");
     let browser = new swd.Builder();
     let tab = browser.forBrowser("chrome").build();
     // Define window size
@@ -23,8 +22,6 @@ async function createNewTab(){
 }  
 
 async function logInProcess(data,tab){
-
-    const {By, Key} = require('selenium-webdriver');
 
     var user = data.user;
     var pass = data.pass;
@@ -41,13 +38,9 @@ async function logInProcess(data,tab){
     // Click on Next
     var username_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[5]/label/div/div[2]/div/input";
     await tab.findElement(By.xpath(username_x_path)).sendKeys(Key.RETURN);
-    console.log("Username entered successfully in " + "'login demonstration' for twitter");
     // Return password input
     var promisePasswordBox = await tab.findElement(By.name("password")).sendKeys(pass);
-    console.log("Password entered successfully in " + " 'login demonstration' for twitter");
     // Step 6 - Finding the Log In button
-    // var signInBtn_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]";
-    // var promiseSignInBtn = await tab.findElement(By.xpath(signInBtn_x_path));
     var promiseSignInBtn = await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']"));
     // Wait before log in button pressing
     await tab.wait(function(){
@@ -55,14 +48,32 @@ async function logInProcess(data,tab){
     },1); 
     // Step 7 - Clicking the Log In button
     var promiseClickSignIn = await promiseSignInBtn.sendKeys(Key.RETURN);
-    console.log("Successfully signed in twitter!");
-    // Cookies expire time is:
-    // Time / 24 * 60 * 60 * 1000 = x [days]
-    var cookies = await tab.manage().getCookies();
-    // console.log(cookies);
-    // Send cookies to python - beautifulsoup
-    // return cookies;
-    return "Successfully signed in twitter!";
+    // Change timeout so it will not
+    // check for element for too long
+    findTimeOutP = await tab.manage().setTimeouts({
+        implicit: 500, // 0.5 seconds
+    });
+    var validation_result = await isUserCredentialsValid(tab);
+    if(validation_result == true){
+        console.log("Successfully signed in twitter!");
+        return "Successfully signed in twitter!";
+    }
+    else{
+        console.log(validation_result);
+        return validation_result;
+    }
+}
+
+async function isUserCredentialsValid(tab){
+    try{
+        var try_find_alert = await tab.findElement(By.css("[role='alert']")).getText();
+        // There is a 'Wrong Password' alert
+        return try_find_alert;
+    }
+    catch(error){
+        // Error - no such element, so no error alert
+        return true;
+    }
 }
 
 module.exports = {logInProcess : logInProcess, 

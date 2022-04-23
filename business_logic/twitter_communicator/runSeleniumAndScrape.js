@@ -13,12 +13,8 @@ async function userRun(user_credentials){
     // // console.log(whoToFollowElement);
 
     var n = 20;
-    await scrapeTwitter.scrollPost(tab);
     // await scrapeTwitter.scrollPost(tab);
-    // await scrapeTwitter.scrollPost(tab);
-    // await scrapeTwitter.scrollPost(tab);
-    // await scrapeTwitter.scrollPost(tab);
-    var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
+    // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
     
     // var arr = n_first_tweets;
     // arr = arr.concat(n_first_tweets);
