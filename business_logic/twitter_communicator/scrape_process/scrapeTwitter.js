@@ -1,36 +1,8 @@
-const { json } = require("express");
 const {Builder, By, Key, until} = require('selenium-webdriver');
-// var zeromq = require("zeromq");
-// var socket = zeromq.createSocket('rep');
-
-// async function dataTransformationToScrape(port,selenium_cookies){
-//     if(selenium_cookies != undefined){
-//         socket.bind("tcp://127.0.0.1:"+port,
-//         function(err)
-//         {
-//             if (err) throw err;
-//             console.log("Bound to port "+port+".");
-
-//             socket.on('message', function(envelope, blank, data)
-//                       {
-//                         // envelope.toString('utf8') => the message received from the other side
-//                         // console.log();
-//                         // console.log(selenium_cookies);
-//                         var cookies_parsed = JSON.stringify(selenium_cookies);
-//                         // socket.send(envelope.toString('utf8') + cookies_parsed);
-//                         socket.send(cookies_parsed);
-//                       });
-
-//             socket.on('error', function(err) {
-//                 console.log("Error: "+err);
-//             });
-//         }
-//         );
-//     }  
-// }
+const JS_SCROLL_TOP = 'window.scrollTo(0, 0);';
+const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
 
 async function scrapeWhoToFollow(tab){
-    const {Builder, By, Key, until} = require('selenium-webdriver');
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
     var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
     var all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
@@ -53,9 +25,15 @@ async function scrapeWhoToFollow(tab){
 }
 
 async function get_n_first_tweets(tab,n){
+    while(await isDocReady(tab) != true){
+        // wait to load document
+        let x = 0;
+    }
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+    var tweets_1 = await tab.findElements(By.css("article"));
     // Validate input n - number of tweets to retrieve
     console.log(all_tweets_on_page.length);
+    console.log(tweets_1.length);
     var cur_num_of_tweets_on_page = all_tweets_on_page.length;
     if(!(/^\d+$/.test(n) && n > 0)){
         return 'Input n failed!';
@@ -65,17 +43,34 @@ async function get_n_first_tweets(tab,n){
     return tweets_arr; 
 }
 
+async function isDocReady(tab){
+    return await tab.executeScript("return document.readyState") === 'complete';
+}
+
+async function scrollPost(tab){
+    while(await isDocReady(tab) != true){
+        // wait to load document
+        let x = 0;
+    }
+    // When the first tweet is visible - execute scrollpage by one post
+    let el = await tab.findElement(By.css("article"));
+    await tab.wait(until.elementIsVisible(el),1);
+    // Scroll till the end of page
+    // await tab.executeScript("window.scrollBy(0,200)");
+    await tab.executeScript(JS_SCROLL_BOTTOM);
+    await tab.executeScript(JS_SCROLL_TOP);
+
+}
+
 async function scrollPage(tab){
-    await tab.sleep(1);
     // When the first tweet is visible - execute scrollpage
     let el = await tab.findElement(By.css("[role='article']"));
     await tab.wait(until.elementIsVisible(el),1);
     // Scroll till the end of page
     await tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-    await tab.sleep(1);
 }
 
-async function HelpParseTweets(tweets_arr, all_tweets_on_page, n,tab){
+async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
     // Iterate over each on n tweets
     // all_tweets_on_page_1 = await tab.findElements(By.css("[role='article']"));
     for(var i = 0 ; i < n; i++){
@@ -205,4 +200,5 @@ async function getTweetContent(after_post_index,index_end_post_content,arr,post_
 
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 get_n_first_tweets : get_n_first_tweets,
-                scrollPage : scrollPage};
+                scrollPage : scrollPage,
+                scrollPost : scrollPost};
