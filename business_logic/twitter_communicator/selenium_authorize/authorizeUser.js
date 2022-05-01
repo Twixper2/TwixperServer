@@ -34,11 +34,9 @@ async function insertUserName(tab,user){
 async function insertPasswordAndLogin(tab,pass){
     // Return password input
     await tab.findElement(By.name("password")).sendKeys(pass);
-    // Step 6 - Finding the Log In button
-    var promiseSignInBtn = await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']"));
-    // Step 7 - Clicking the Log In button
-    await promiseSignInBtn.sendKeys(Key.RETURN);
-    // Change timeout so it will not check for element for too long
+    // Clicking the Log In button
+    await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']")).sendKeys(Key.RETURN);
+    // Change timeout so it will not stuck while checking for alert element for element for too long
     await tab.manage().setTimeouts({
         implicit: 500, // 0.5 seconds
     });

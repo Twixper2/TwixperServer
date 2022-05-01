@@ -1,6 +1,6 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
-const JS_SCROLL_TOP = 'window.scrollTo(0, 0);';
-const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
+const JS_SCROLL_TOP = 'window.scrollTo(0, 0)';
+const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 
 async function scrapeWhoToFollow(tab){
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
@@ -25,41 +25,32 @@ async function scrapeWhoToFollow(tab){
 }
 
 async function get_n_first_tweets(tab,n){
-    while(await isDocReady(tab) != true){
-        // wait to load document
-        let x = 0;
-    }
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
-    var tweets_1 = await tab.findElements(By.css("article"));
     // Validate input n - number of tweets to retrieve
-    console.log(all_tweets_on_page.length);
-    console.log(tweets_1.length);
     var cur_num_of_tweets_on_page = all_tweets_on_page.length;
     if(!(/^\d+$/.test(n) && n > 0)){
         return 'Input n failed!';
     }
-    var tweets_arr = new Array();
-    await HelpParseTweets(tweets_arr, all_tweets_on_page, cur_num_of_tweets_on_page,tab);
-    return tweets_arr; 
+    return await HelpParseTweets(all_tweets_on_page, cur_num_of_tweets_on_page,tab);
 }
 
-async function isDocReady(tab){
-    return await tab.executeScript("return document.readyState") === 'complete';
+async function tabWait(tab,ms){
+    try{
+        await tab.wait(() => {let x=0;}, ms);
+    }
+    catch{
+        return true;
+    }    
+}
+
+async function reloadPage(tab){
+    tab.navigate().refresh();
 }
 
 async function scrollPost(tab){
-    while(await isDocReady(tab) != true){
-        // wait to load document
-        let x = 0;
-    }
-    // When the first tweet is visible - execute scrollpage by one post
-    let el = await tab.findElement(By.css("article"));
-    await tab.wait(until.elementIsVisible(el),1);
-    // Scroll till the end of page
-    // await tab.executeScript("window.scrollBy(0,200)");
+    await tabWait(tab,2000);
     await tab.executeScript(JS_SCROLL_BOTTOM);
-    await tab.executeScript(JS_SCROLL_TOP);
-
+    await tabWait(tab,8000);
 }
 
 async function scrollPage(tab){
@@ -67,33 +58,34 @@ async function scrollPage(tab){
     let el = await tab.findElement(By.css("[role='article']"));
     await tab.wait(until.elementIsVisible(el),1);
     // Scroll till the end of page
-    await tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+    await tab.executeScript(JS_SCROLL_BOTTOM);
 }
 
-async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
+async function HelpParseTweets(all_tweets_on_page, n, tab){
+    var tweets_arr = new Array();
     // Iterate over each on n tweets
-    // all_tweets_on_page_1 = await tab.findElements(By.css("[role='article']"));
     for(var i = 0 ; i < n; i++){
-        var text = await all_tweets_on_page[i].getText();
-        // var text = await all_tweets_on_page_1[i].getText();
+        var tweet = all_tweets_on_page[i];
+        var text = await tweet.getText();
+        // To identify a poll on tweet
+        // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
         var arr = text.split('\n');
         var len_arr = arr.length;
         var index_end_post_content = len_arr -1;
         var after_post_index = 0;
         var inside_after_post_index = 0;
-        var post_content_arr = new Array(); 
+        var full_text = new Array(); 
 
 
         // variables for json
         var is_retweet = undefined;
         var is_promoted = 0;
-        var when_posted = undefined;
+        var created_at = undefined;
         var user_name = undefined;
         var user_url_name = undefined;
-        var when_posted = undefined;
-        var comments_amount = undefined;
-        var retweets_amount = undefined;
-        var likes_amount = undefined;
+        var comments_count = undefined;
+        var retweets_count = undefined;
+        var likes_count = undefined;
         var shared_tweet = undefined;
 
         // Conditions for parsing different tweets
@@ -137,11 +129,11 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
             shared_tweet = {
                 user_name:inside_user_name,
                 user_url_name:inside_user_url_name,
-                when_posted:inside_when_posted,
-                post_content:inside_post_content_arr,
-                comments_amount:undefined,
-                retweets_amount:undefined,
-                likes_amount:undefined,
+                created_at:inside_when_posted,
+                full_text:inside_post_content_arr,
+                comments_count:undefined,
+                retweets_count:undefined,
+                likes_count:undefined,
                 is_retweet:undefined,
                 is_promoted:undefined,
                 shared_tweet:undefined
@@ -162,23 +154,24 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
         }
         if(len_arr == after_post_index + 3){
             // This means none of comments/retweets/likes is 0
-            comments_amount = arr[after_post_index];
-            retweets_amount = arr[after_post_index + 1];
-            likes_amount = arr[after_post_index + 2];
+            comments_count = arr[after_post_index];
+            retweets_count = arr[after_post_index + 1];
+            likes_count = arr[after_post_index + 2];
         }
         tweets_arr.push({
-            user_name:user_name,
-            user_url_name:user_url_name,
-            when_posted:when_posted,
-            post_content:post_content_arr,
-            comments_amount:comments_amount,
-            retweets_amount:retweets_amount,
-            likes_amount:likes_amount,
-            is_retweet:is_retweet,
-            is_promoted:is_promoted,
-            shared_tweet:shared_tweet
+            user_name,
+            user_url_name,
+            created_at,
+            full_text,
+            comments_count,
+            retweets_count,
+            likes_count,
+            is_retweet,
+            is_promoted,
+            shared_tweet
         });
     }
+    return tweets_arr;
 }
 
 async function getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr){
