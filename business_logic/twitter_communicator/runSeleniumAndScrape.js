@@ -9,16 +9,12 @@ async function userRun(user_credentials){
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
-    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
     // // console.log(whoToFollowElement);
 
     var n = 20;
     await scrapeTwitter.scrollPost(tab);
-    var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
-    
-    // var arr = n_first_tweets;
-    // arr = arr.concat(n_first_tweets);
-    // console.log(arr);
+    // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
+    var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
 }
 
 async function createNewTab(){

@@ -6,6 +6,8 @@ async function scrapeWhoToFollow(tab){
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
     var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
     var all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
+    var all_images = await all_who_to_follow.findElements(By.css("img"));
+    var img_1 = await all_images[0].getAttribute("src");
     var profile_names_arr = new Array();
     for(var i = 0 ; i < all_buttons.length; i++){
         var text = await all_buttons[i].getText();
@@ -19,7 +21,14 @@ async function scrapeWhoToFollow(tab){
     // Adding names collected as username & and username with @ to the object to send
     var profile_names_arr_final = new Array();
     for(var j = 0 ; j < profile_names_arr.length; j = j + 2){
-        profile_names_arr_final.push({"user_name":profile_names_arr[j],"user_name_url":profile_names_arr[j+1]});
+        if(j>0){
+            var img_index = j/2;
+            
+        }
+        else{
+            img_index = j;
+        }
+        profile_names_arr_final.push({"user_name":profile_names_arr[j],"user_name_url":profile_names_arr[j+1],"img":await all_images[img_index].getAttribute("src")});
     }
     return profile_names_arr_final;
 }
@@ -100,7 +109,7 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
             // Check if tweet is Retweet
             user_name = arr[1];
             user_url_name = arr[2];
-            when_posted = arr[4];
+            created_at = arr[4];
             after_post_index = 5;
             is_retweet = arr[0];
         }
@@ -108,7 +117,7 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
             // Check if tweet is tweet sharing (quoting)
             user_name = arr[0];
             user_url_name = arr[1];
-            when_posted = arr[3];
+            created_at = arr[3];
             after_post_index = 4;
             index_end_post_content = arr.indexOf("Quote Tweet");
             is_retweet = 0;
@@ -144,11 +153,11 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
             // If it is a regular tweet
             user_name = arr[0];
             user_url_name = arr[1];
-            when_posted = arr[3];
+            created_at = arr[3];
             after_post_index = 4;
         }
 
-        after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr);
+        after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,full_text);
         if(arr.includes("Quote Tweet")){
             after_post_index = inside_after_post_index +1;
         }
