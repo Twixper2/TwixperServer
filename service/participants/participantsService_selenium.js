@@ -8,7 +8,7 @@ async function logInProcess(params){
     var new_tab = await participantAuthUtils_selenium.createNewTab()
 
     var login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab)
-    if(login_response == "Successfully signed in twitter!"){
+    if(login_response === "Successfully signed in twitter!"){
         // Save new tab to hashmap of selenium tabs
         config.tabsHashMap.set(params.user,new_tab);
     }

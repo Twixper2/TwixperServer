@@ -8,6 +8,7 @@
 // npm install chromedriver
 // npm install chromedriver --save-dev #if you need it as a dev dependency
 // npm install
+
 const {By, Key, until, Builder} = require('selenium-webdriver');
 
 async function createNewTab(){
@@ -23,10 +24,8 @@ async function createNewTab(){
 }  
 
 async function insertUserName(tab,user){
-    // Return username input
-    var usernameBox = await tab.findElement(By.name("text"));
-    // Step 3 - Entering the username
-    var promiseFillUsername = await usernameBox.sendKeys(user);
+    // Entering the username
+    await tab.findElement(By.name("text")).sendKeys(user);
     // Click on Next
     var username_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[5]/label/div/div[2]/div/input";
     await tab.findElement(By.xpath(username_x_path)).sendKeys(Key.RETURN);
