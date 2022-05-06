@@ -1,5 +1,4 @@
-const {Builder, By, Key, until} = require('selenium-webdriver');
-const JS_SCROLL_TOP = 'window.scrollTo(0, 0)';
+const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 
 async function scrapeWhoToFollow(tab){
@@ -43,6 +42,60 @@ async function get_n_first_tweets(tab,n){
     return await HelpParseTweets(all_tweets_on_page, cur_num_of_tweets_on_page,tab);
 }
 
+async function scrollPost(tab){
+    await tabWait(tab,2000);
+    await tab.executeScript(JS_SCROLL_BOTTOM);
+    await tabWait(tab,8000);
+}
+
+async function getProfileContent(tab,tweet_link){
+    await tabWait(tab,200);
+    await tab.get(tweet_link);
+    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+    await getPersonalDetailsFromProfileContent(primary_column);
+    // await getTweetsTabFromProfileContent(primary_column);
+    // await getLikesTabFromProfileContent(primary_column);
+    // tabs of tweets & likes
+}
+
+async function getPersonalDetailsFromProfileContent(primary_column){
+    let json_of_details = {};
+    let cover_and_profile_img = await primary_column.findElements(By.css("img"));
+    try{
+        json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
+        json_of_details.profile_img = await cover_and_profile_img[1].getAttribute("src");
+        json_of_details.username = await primary_column.findElement(By.css("[data-testid='UserName']")).getText();
+        let username = json_of_details.username.split("@")[1];
+        json_of_details.following_count = await primary_column.findElement(By.css(`[href='/${username}/following']`)).getText();
+        json_of_details.followers_count = await primary_column.findElement(By.css(`[href='/${username}/followers']`)).getText();
+        json_of_details.user_description = await primary_column.findElement(By.css("[data-testid='UserDescription']")).getText();
+        json_of_details.user_location = await primary_column.findElement(By.css("[data-testid='UserLocation']")).getText();
+        json_of_details.when_joined = await primary_column.findElement(By.css("[role='presentation']")).getText();
+        json_of_details.user_url = await primary_column.findElement(By.css("[data-testid='UserUrl']")).getText();
+        json_of_details.user_profession = await primary_column.findElement(By.css("[data-testid='UserProfessionalCategory']")).getText();
+    }
+    catch(error){
+        // One of the elements has not been field by the user
+        console.log(error);
+        return json_of_details;
+    }
+    // description of profile
+    // details (followers, following, location, link, when joined)
+}
+
+async function getTweetsTabFromProfileContent(primary_column){
+
+}
+async function getLikesTabFromProfileContent(primary_column){
+    
+}
+
+
+async function getProfileLink(tweet){
+    var tweet_link = await tweet.findElement(By.css("[role='link']"));
+    return await tweet_link.getAttribute("href");
+}
+
 async function tabWait(tab,ms){
     try{
         await tab.wait(() => {let x=0;}, ms);
@@ -56,25 +109,15 @@ async function reloadPage(tab){
     tab.navigate().refresh();
 }
 
-async function scrollPost(tab){
-    await tabWait(tab,2000);
-    await tab.executeScript(JS_SCROLL_BOTTOM);
-    await tabWait(tab,8000);
-}
-
-async function scrollPage(tab){
-    // When the first tweet is visible - execute scrollpage
-    let el = await tab.findElement(By.css("[role='article']"));
-    await tab.wait(until.elementIsVisible(el),1);
-    // Scroll till the end of page
-    await tab.executeScript(JS_SCROLL_BOTTOM);
-}
-
 async function HelpParseTweets(all_tweets_on_page, n, tab){
     var tweets_arr = new Array();
     // Iterate over each on n tweets
     for(var i = 0 ; i < n; i++){
         var tweet = all_tweets_on_page[i];
+
+        // find link to page
+        var tweet_link = await getProfileLink(tweet);
+
         var text = await tweet.getText();
         // To identify a poll on tweet
         // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
@@ -84,7 +127,6 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
         var after_post_index = 0;
         var inside_after_post_index = 0;
         var full_text = new Array(); 
-
 
         // variables for json
         var is_retweet = undefined;
@@ -145,7 +187,7 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
                 likes_count:undefined,
                 is_retweet:undefined,
                 is_promoted:undefined,
-                shared_tweet:undefined
+                shared_tweet:undefined,
             }
             
         }
@@ -177,7 +219,8 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
             likes_count,
             is_retweet,
             is_promoted,
-            shared_tweet
+            shared_tweet,
+            tweet_link
         });
     }
     return tweets_arr;
@@ -200,7 +243,11 @@ async function getTweetContent(after_post_index,index_end_post_content,arr,post_
     return after_post_index;
 }
 
+async function getLinkToProfileFromTweet(tab){
+
+}
+
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 get_n_first_tweets : get_n_first_tweets,
-                scrollPage : scrollPage,
-                scrollPost : scrollPost};
+                scrollPost : scrollPost,
+                getProfileContent : getProfileContent};

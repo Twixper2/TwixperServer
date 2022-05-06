@@ -1,21 +1,8 @@
-// first write in terminal
-// npm install selenium-webdriver
-// npm install chromedriver
-
-// pip install webdriver-manager
-
-// Solve compatibility problem with following:
-// npm install chromedriver
-// npm install chromedriver --save-dev #if you need it as a dev dependency
-// npm install
-
-const {By, Key, until, Builder} = require('selenium-webdriver');
+const {By, Key, until, swd} = require('selenium-webdriver');
 
 async function createNewTab(){
-    // Include the chrome driver
-    require("chromedriver");
     // Include selenium webdriver
-    let swd = require("selenium-webdriver");
+    // let swd = require("selenium-webdriver");
     let browser = new swd.Builder();
     let tab = browser.forBrowser("chrome").build();
     // Define window size
@@ -54,7 +41,6 @@ async function isUserCredentialsValid(tab){
 }
 
 async function logInProcess(data,tab){
-    // Step 1 - Opening the twitter sign in page
     await tab.get("https://twitter.com/i/flow/login");
     // Timeout to wait if connection is slow
     await tab.manage().setTimeouts({
