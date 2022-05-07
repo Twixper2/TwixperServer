@@ -13,7 +13,7 @@ const { tabsHashMap } = require("../../config");
   // If there are no params at all,
   // Or no pass or no user params
   if(!params || !params.user || !params.pass){
-    res.status(400).send("No params supplied.")
+    res.status(401).send("No params supplied.")
     return
   }
   try{
@@ -26,8 +26,12 @@ const { tabsHashMap } = require("../../config");
     }
 
     const loginRequest = await participantsService_selenium.logInProcess(params);
-    res.send(loginRequest);
-
+    if(loginRequest === "Successfully signed in twitter!"){
+      res.status(200).send(loginRequest);
+    }
+    else{
+      res.status(401).send(loginRequest);
+    }
   }
   catch(e){
     console.log(e)
