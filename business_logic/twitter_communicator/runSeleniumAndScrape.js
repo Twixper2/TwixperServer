@@ -13,9 +13,9 @@ async function userRun(user_credentials){
     // await scrapeTwitter.scrollPost(tab);
     // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
     // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
-    let tweet_link = "https://twitter.com/BenCaspit";
-    await scrapeTwitter.getProfileContent(tab,tweet_link);
-
+    let tweet_username = "ng2mjZBFKxF8Y4u";
+    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
+    let y=3;
 }
 
 async function createNewTab(){

@@ -48,11 +48,12 @@ async function scrollPost(tab){
     await tabWait(tab,8000);
 }
 
-async function getProfileContent(tab,tweet_link){
+async function getProfileContent(tab,tweet_username){
     await tabWait(tab,200);
-    await tab.get(tweet_link);
+    await tab.get("https://twitter.com/"+tweet_username);
     let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-    await getPersonalDetailsFromProfileContent(primary_column);
+    let json_details = await getPersonalDetailsFromProfileContent(primary_column);
+    return json_details;
     // await getTweetsTabFromProfileContent(primary_column);
     // await getLikesTabFromProfileContent(primary_column);
     // tabs of tweets & likes
@@ -62,15 +63,14 @@ async function getPersonalDetailsFromProfileContent(primary_column){
     let json_of_details = {};
     let cover_and_profile_img = await primary_column.findElements(By.css("img"));
     try{
-        json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
-        json_of_details.profile_img = await cover_and_profile_img[1].getAttribute("src");
+        await retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img);
         json_of_details.username = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserName']")));
         let username = json_of_details.username.split("@")[1];
         json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/following']`)));
         json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/followers']`)));
         json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserDescription']")));
         json_of_details.user_location = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserLocation']")));
-        json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[1].getText();
+        await retrieveWhenJoinedFromElement(json_of_details,primary_column);
         json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserUrl']")));
         json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserProfessionalCategory']")));
     }
@@ -80,6 +80,26 @@ async function getPersonalDetailsFromProfileContent(primary_column){
     }
     finally{
         return json_of_details;
+    }
+}
+
+async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
+    if(json_of_details.user_location == undefined){
+        json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[0].getText();
+    }
+    else{
+        json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[1].getText();
+    }
+}
+
+async function retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img){
+    if(cover_and_profile_img.length == 1){
+        json_of_details.profile_img = await cover_and_profile_img[0].getAttribute("src");
+        json_of_details.cover_photo = undefined;
+    }
+    else{
+        json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
+        json_of_details.profile_img = await cover_and_profile_img[1].getAttribute("src");
     }
 }
 
