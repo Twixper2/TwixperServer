@@ -39,24 +39,24 @@ async function get_n_first_tweets(tab,n){
     if(!(/^\d+$/.test(n) && n > 0)){
         return 'Input n failed!';
     }
-    return await HelpParseTweets(all_tweets_on_page, cur_num_of_tweets_on_page,tab);
+    return await HelpParseTweets(all_tweets_on_page, cur_num_of_tweets_on_page);
 }
 
 async function scrollPost(tab){
     await tabWait(tab,2000);
-    await tab.executeScript(JS_SCROLL_BOTTOM);
+    await tab.executeScript('window.scrollTo(0, 600)');
     await tabWait(tab,8000);
 }
 
-async function getProfileContent(tab,tweet_username){
+async function getProfileContent(tab,tweet_username,n){
     await tabWait(tab,200);
     await tab.get("https://twitter.com/"+tweet_username);
     let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
     let json_details = await getPersonalDetailsFromProfileContent(primary_column);
-    return json_details;
-    // await getTweetsTabFromProfileContent(primary_column);
-    // await getLikesTabFromProfileContent(primary_column);
-    // tabs of tweets & likes
+    // await getTweetsTabFromProfileContent(tab,n);
+    await getLikesTabFromProfileContent(tab);
+
+    // return json_details;
 }
 
 async function getPersonalDetailsFromProfileContent(primary_column){
@@ -112,17 +112,52 @@ async function retrieveTextFromElement(e){
     }
 }
 
-async function getTweetsTabFromProfileContent(primary_column){
-
-}
-async function getLikesTabFromProfileContent(primary_column){
-    
+async function getTweetsTabFromProfileContent(tab,n){
+    await scrollPost(tab);
+    return await get_n_first_tweets(tab,n);
 }
 
+async function getLikesTabFromProfileContent(tab){
+    let tab_url = await tab.getCurrentUrl();
+    await tab.get(tab_url+"/likes");
+    await tabWait(tab,2000);
+    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+    let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
+    let likes_arr = await helpParseLikes(tab,all_likes_on_page);
+}
+
+async function helpParseLikes(tab,all_likes_on_page){
+    var likes_arr = new Array();
+    for(let i=0; i<all_likes_on_page.length; i++){
+        let like_links_arr = await all_likes_on_page[i].findElements(By.css("[role='link']"));
+        let user_name = await like_links_arr[1].getText();
+        let user_name_url = await like_links_arr[2].getText();
+        let created_at = await like_links_arr[3].getText();
+        
+        let likes_comments_retweets_element = await all_likes_on_page[i].findElement(By.css("[role='group']"));
+        let parent_of_parent = await likes_comments_retweets_element.findElement(By.xpath("../..")).getText();
+        for(let j=0; j<parent_of_parent.length; j++){
+            let x = await parent_of_parent[j].getText();
+            let y=3;
+        }
+        
+    }
+}
 
 async function getProfileLink(tweet){
-    var tweet_link = await tweet.findElement(By.css("[role='link']"));
-    return await tweet_link.getAttribute("href");
+    var profile_link = await tweet.findElement(By.css("[role='link']"));
+    return await profile_link.getAttribute("href");
+}
+
+async function getTweetId(tweet){
+    let links_components = await tweet.findElements(By.css("[role='link']"));
+    for(let i=0; i<links_components.length; i++){
+        let link_comp_url = await links_components[i].getAttribute("href");
+        if(link_comp_url.includes("status")){
+            let split_url_arr = link_comp_url.split("/");
+            return split_url_arr[split_url_arr.length-1];
+        }
+    }
 }
 
 async function tabWait(tab,ms){
@@ -134,18 +169,14 @@ async function tabWait(tab,ms){
     }    
 }
 
-async function reloadPage(tab){
-    tab.navigate().refresh();
-}
-
-async function HelpParseTweets(all_tweets_on_page, n, tab){
+async function HelpParseTweets(all_tweets_on_page, n){
     var tweets_arr = new Array();
     // Iterate over each on n tweets
     for(var i = 0 ; i < n; i++){
         var tweet = all_tweets_on_page[i];
 
-        // find link to page
-        var tweet_link = await getProfileLink(tweet);
+        var profile_link = await getProfileLink(tweet);
+        var tweet_id = await getTweetId(tweet);
 
         var text = await tweet.getText();
         // To identify a poll on tweet
@@ -249,7 +280,8 @@ async function HelpParseTweets(all_tweets_on_page, n, tab){
             is_retweet,
             is_promoted,
             shared_tweet,
-            tweet_link
+            profile_link,
+            tweet_id
         });
     }
     return tweets_arr;
@@ -272,11 +304,10 @@ async function getTweetContent(after_post_index,index_end_post_content,arr,post_
     return after_post_index;
 }
 
-async function getLinkToProfileFromTweet(tab){
-
+async function reloadPage(tab){
+    tab.navigate().refresh();
 }
 
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 get_n_first_tweets : get_n_first_tweets,
-                scrollPost : scrollPost,
                 getProfileContent : getProfileContent};
