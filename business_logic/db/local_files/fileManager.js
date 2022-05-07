@@ -71,19 +71,19 @@ function checkReportRequestExists(expId) {
     }
 }
 
+function createExpMetadata(expId, metadataObj){
+    if(isProduction){
+        return await azureStorageManager.createExpMetadata(expId, metadataObj)
+    }
+    else{
+        return localFileManager.CreateExpMetadataLocal(expId, metadataObj)
+    }
+}
 
 /* ------------------------------------
     Only for azure
     ----------------------------------
 */
-async function createExpMetadata(expId, metadataObj){
-    if(isProduction){
-        return await azureStorageManager.createExpMetadata(expId, metadataObj)
-    }
-    else{
-        throw "The funciton 'createExpMetadata' is only supported in production"
-    }
-}
 
 async function getStreamDictForDownloadReport(expId){
     if(isProduction){
