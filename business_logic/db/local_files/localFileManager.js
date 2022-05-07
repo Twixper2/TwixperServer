@@ -283,6 +283,21 @@ async function CreateExpMetadataLocal(expId, metadataObj) {
     
 
 
+function CreateExpMetadataLocal(expId, metadataObj) {
+    try{
+            const filePath = experimentsDataPath + "\\" + expId + "\\experiment-metadata.json";
+            // Get a reference to a container
+            const fileContent = JSON.stringify(metadataObj);
+            var fs = require('fs');
+            fs.writeFile(filePath, fileContent, function(err) {
+                if (err) throw err;
+                }
+            );
+        }
+    catch(e){
+            console.log(e);
+            };
+    }
 module.exports = {
     setupFileManager: setupFileManager,
     createExperimentFolder: createExperimentFolder,

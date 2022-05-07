@@ -84,6 +84,14 @@ function createExpMetadata(expId, metadataObj){
     Only for azure
     ----------------------------------
 */
+async function createExpMetadata(expId, metadataObj){
+    if(isProduction){
+        return await azureStorageManager.createExpMetadata(expId, metadataObj)
+    }
+    else{
+        return localFileManager.CreateExpMetadataLocal(expId, metadataObj)
+        }
+}
 
 async function getStreamDictForDownloadReport(expId){
     if(isProduction){
