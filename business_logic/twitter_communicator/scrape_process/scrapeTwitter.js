@@ -64,23 +64,32 @@ async function getPersonalDetailsFromProfileContent(primary_column){
     try{
         json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
         json_of_details.profile_img = await cover_and_profile_img[1].getAttribute("src");
-        json_of_details.username = await primary_column.findElement(By.css("[data-testid='UserName']")).getText();
+        json_of_details.username = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserName']")));
         let username = json_of_details.username.split("@")[1];
-        json_of_details.following_count = await primary_column.findElement(By.css(`[href='/${username}/following']`)).getText();
-        json_of_details.followers_count = await primary_column.findElement(By.css(`[href='/${username}/followers']`)).getText();
-        json_of_details.user_description = await primary_column.findElement(By.css("[data-testid='UserDescription']")).getText();
-        json_of_details.user_location = await primary_column.findElement(By.css("[data-testid='UserLocation']")).getText();
-        json_of_details.when_joined = await primary_column.findElement(By.css("[role='presentation']")).getText();
-        json_of_details.user_url = await primary_column.findElement(By.css("[data-testid='UserUrl']")).getText();
-        json_of_details.user_profession = await primary_column.findElement(By.css("[data-testid='UserProfessionalCategory']")).getText();
+        json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/following']`)));
+        json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/followers']`)));
+        json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserDescription']")));
+        json_of_details.user_location = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserLocation']")));
+        json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[1].getText();
+        json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserUrl']")));
+        json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserProfessionalCategory']")));
     }
     catch(error){
         // One of the elements has not been field by the user
         console.log(error);
+    }
+    finally{
         return json_of_details;
     }
-    // description of profile
-    // details (followers, following, location, link, when joined)
+}
+
+async function retrieveTextFromElement(e){
+    if (e.length == 0){
+        return undefined;
+    }
+    else{
+        return await e[0].getText();
+    }
 }
 
 async function getTweetsTabFromProfileContent(primary_column){
