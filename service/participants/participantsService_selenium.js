@@ -13,7 +13,7 @@ async function logInProcess(params){
         config.tabsHashMap.set(params.user,new_tab);
     }
     else{
-        
+        new_tab.close();
     }
     return login_response
 } 

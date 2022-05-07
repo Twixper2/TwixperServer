@@ -22,16 +22,7 @@ async function createNewTab(){
     return tab;
 }  
 
-async function logInProcess(data,tab){
-
-    var user = data.user;
-    var pass = data.pass;
-    // Step 1 - Opening the twitter sign in page
-    var tabToOpen = await tab.get("https://twitter.com/i/flow/login");
-    // Timeout to wait if connection is slow
-    var findTimeOutP = await tab.manage().setTimeouts({
-        implicit: 10000, // 10 seconds
-    });
+async function insertUserName(tab,user){
     // Return username input
     var usernameBox = await tab.findElement(By.name("text"));
     // Step 3 - Entering the username
@@ -39,21 +30,44 @@ async function logInProcess(data,tab){
     // Click on Next
     var username_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[5]/label/div/div[2]/div/input";
     await tab.findElement(By.xpath(username_x_path)).sendKeys(Key.RETURN);
+}
+
+async function insertPasswordAndLogin(tab,pass){
     // Return password input
-    var promisePasswordBox = await tab.findElement(By.name("password")).sendKeys(pass);
+    await tab.findElement(By.name("password")).sendKeys(pass);
     // Step 6 - Finding the Log In button
     var promiseSignInBtn = await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']"));
-    // Wait before log in button pressing
-    await tab.wait(function(){
-        return 3<5;
-    },1); 
     // Step 7 - Clicking the Log In button
-    var promiseClickSignIn = await promiseSignInBtn.sendKeys(Key.RETURN);
-    // Change timeout so it will not
-    // check for element for too long
-    findTimeOutP = await tab.manage().setTimeouts({
+    await promiseSignInBtn.sendKeys(Key.RETURN);
+    // Change timeout so it will not check for element for too long
+    await tab.manage().setTimeouts({
         implicit: 500, // 0.5 seconds
     });
+}
+
+async function isUserCredentialsValid(tab){
+    try{
+        // There is a 'Wrong Password' alert
+        return await tab.findElement(By.css("[role='alert']")).getText();
+    }
+    catch(error){
+        // Error - no such element, so no error alert
+        return true;
+    }
+}
+
+async function logInProcess(data,tab){
+    // Step 1 - Opening the twitter sign in page
+    await tab.get("https://twitter.com/i/flow/login");
+    // Timeout to wait if connection is slow
+    await tab.manage().setTimeouts({
+        implicit: 10000, // 10 seconds
+    });
+    // Step 2 - Entering the username
+    await insertUserName(tab,data.user);
+    // Step 3 - Entering the password
+    await insertPasswordAndLogin(tab,data.pass);
+    // validation of password
     var validation_result = await isUserCredentialsValid(tab);
     if(validation_result == true){
         console.log("Successfully signed in twitter!");
@@ -62,18 +76,6 @@ async function logInProcess(data,tab){
     else{
         console.log(validation_result);
         return validation_result;
-    }
-}
-
-async function isUserCredentialsValid(tab){
-    try{
-        var try_find_alert = await tab.findElement(By.css("[role='alert']")).getText();
-        // There is a 'Wrong Password' alert
-        return try_find_alert;
-    }
-    catch(error){
-        // Error - no such element, so no error alert
-        return true;
     }
 }
 
