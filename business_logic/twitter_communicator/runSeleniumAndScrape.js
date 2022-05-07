@@ -4,21 +4,18 @@ var credentials = require("./static_twitter_data/CredentialsJSON.js");
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
 async function userRun(user_credentials){
-    var tab = await createNewTab();
+    let tab = await createNewTab();
 
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
-    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
-    // // console.log(whoToFollowElement);
-
-    var n = 20;
-    // await scrapeTwitter.scrollPost(tab);
+    let n = 20;
     // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
-    
-    // var arr = n_first_tweets;
-    // arr = arr.concat(n_first_tweets);
-    // console.log(arr);
+    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+    let tweet_username = "BenCaspit";
+    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username,n);
+    console.log(json_details);
+    let y=3;
 }
 
 async function createNewTab(){

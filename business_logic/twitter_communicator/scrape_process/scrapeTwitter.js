@@ -1,11 +1,12 @@
-const {Builder, By, Key, until} = require('selenium-webdriver');
-const JS_SCROLL_TOP = 'window.scrollTo(0, 0);';
-const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight);';
+const {By, Key, until} = require('selenium-webdriver');
+const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 
 async function scrapeWhoToFollow(tab){
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
     var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
     var all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
+    var all_images = await all_who_to_follow.findElements(By.css("img"));
+    var img_1 = await all_images[0].getAttribute("src");
     var profile_names_arr = new Array();
     for(var i = 0 ; i < all_buttons.length; i++){
         var text = await all_buttons[i].getText();
@@ -19,81 +20,183 @@ async function scrapeWhoToFollow(tab){
     // Adding names collected as username & and username with @ to the object to send
     var profile_names_arr_final = new Array();
     for(var j = 0 ; j < profile_names_arr.length; j = j + 2){
-        profile_names_arr_final.push({"user_name":profile_names_arr[j],"user_name_url":profile_names_arr[j+1]});
+        if(j>0){
+            var img_index = j/2;
+            
+        }
+        else{
+            img_index = j;
+        }
+        profile_names_arr_final.push({"user_name":profile_names_arr[j],"user_name_url":profile_names_arr[j+1],"img":await all_images[img_index].getAttribute("src")});
     }
     return profile_names_arr_final;
 }
 
 async function get_n_first_tweets(tab,n){
-    while(await isDocReady(tab) != true){
-        // wait to load document
-        let x = 0;
-    }
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
-    var tweets_1 = await tab.findElements(By.css("article"));
     // Validate input n - number of tweets to retrieve
-    console.log(all_tweets_on_page.length);
-    console.log(tweets_1.length);
     var cur_num_of_tweets_on_page = all_tweets_on_page.length;
     if(!(/^\d+$/.test(n) && n > 0)){
         return 'Input n failed!';
     }
-    var tweets_arr = new Array();
-    await HelpParseTweets(tweets_arr, all_tweets_on_page, cur_num_of_tweets_on_page,tab);
-    return tweets_arr; 
-}
-
-async function isDocReady(tab){
-    return await tab.executeScript("return document.readyState") === 'complete';
+    return await HelpParseTweets(all_tweets_on_page, cur_num_of_tweets_on_page);
 }
 
 async function scrollPost(tab){
-    while(await isDocReady(tab) != true){
-        // wait to load document
-        let x = 0;
+    await tabWait(tab,2000);
+    await tab.executeScript('window.scrollTo(0, 600)');
+    await tabWait(tab,8000);
+}
+
+async function getProfileContent(tab,tweet_username,n){
+    await tabWait(tab,200);
+    await tab.get("https://twitter.com/"+tweet_username);
+    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+    let json_details = await getPersonalDetailsFromProfileContent(primary_column);
+    // await getTweetsTabFromProfileContent(tab,n);
+    await getLikesTabFromProfileContent(tab);
+
+    // return json_details;
+}
+
+async function getPersonalDetailsFromProfileContent(primary_column){
+    let json_of_details = {};
+    let cover_and_profile_img = await primary_column.findElements(By.css("img"));
+    try{
+        await retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img);
+        json_of_details.username = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserName']")));
+        let username = json_of_details.username.split("@")[1];
+        json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/following']`)));
+        json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/followers']`)));
+        json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserDescription']")));
+        json_of_details.user_location = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserLocation']")));
+        await retrieveWhenJoinedFromElement(json_of_details,primary_column);
+        json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserUrl']")));
+        json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserProfessionalCategory']")));
     }
-    // When the first tweet is visible - execute scrollpage by one post
-    let el = await tab.findElement(By.css("article"));
-    await tab.wait(until.elementIsVisible(el),1);
-    // Scroll till the end of page
-    // await tab.executeScript("window.scrollBy(0,200)");
-    await tab.executeScript(JS_SCROLL_BOTTOM);
-    await tab.executeScript(JS_SCROLL_TOP);
-
+    catch(error){
+        // One of the elements has not been field by the user
+        console.log(error);
+    }
+    finally{
+        return json_of_details;
+    }
 }
 
-async function scrollPage(tab){
-    // When the first tweet is visible - execute scrollpage
-    let el = await tab.findElement(By.css("[role='article']"));
-    await tab.wait(until.elementIsVisible(el),1);
-    // Scroll till the end of page
-    await tab.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
+    if(json_of_details.user_location == undefined){
+        json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[0].getText();
+    }
+    else{
+        json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[1].getText();
+    }
 }
 
-async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
+async function retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img){
+    if(cover_and_profile_img.length == 1){
+        json_of_details.profile_img = await cover_and_profile_img[0].getAttribute("src");
+        json_of_details.cover_photo = undefined;
+    }
+    else{
+        json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
+        json_of_details.profile_img = await cover_and_profile_img[1].getAttribute("src");
+    }
+}
+
+async function retrieveTextFromElement(e){
+    if (e.length == 0){
+        return undefined;
+    }
+    else{
+        return await e[0].getText();
+    }
+}
+
+async function getTweetsTabFromProfileContent(tab,n){
+    await scrollPost(tab);
+    return await get_n_first_tweets(tab,n);
+}
+
+async function getLikesTabFromProfileContent(tab){
+    let tab_url = await tab.getCurrentUrl();
+    await tab.get(tab_url+"/likes");
+    await tabWait(tab,2000);
+    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+    let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
+    let likes_arr = await helpParseLikes(tab,all_likes_on_page);
+}
+
+async function helpParseLikes(tab,all_likes_on_page){
+    var likes_arr = new Array();
+    for(let i=0; i<all_likes_on_page.length; i++){
+        let like_links_arr = await all_likes_on_page[i].findElements(By.css("[role='link']"));
+        let user_name = await like_links_arr[1].getText();
+        let user_name_url = await like_links_arr[2].getText();
+        let created_at = await like_links_arr[3].getText();
+        
+        let likes_comments_retweets_element = await all_likes_on_page[i].findElement(By.css("[role='group']"));
+        let parent_of_parent = await likes_comments_retweets_element.findElement(By.xpath("../..")).getText();
+        for(let j=0; j<parent_of_parent.length; j++){
+            let x = await parent_of_parent[j].getText();
+            let y=3;
+        }
+        
+    }
+}
+
+async function getProfileLink(tweet){
+    var profile_link = await tweet.findElement(By.css("[role='link']"));
+    return await profile_link.getAttribute("href");
+}
+
+async function getTweetId(tweet){
+    let links_components = await tweet.findElements(By.css("[role='link']"));
+    for(let i=0; i<links_components.length; i++){
+        let link_comp_url = await links_components[i].getAttribute("href");
+        if(link_comp_url.includes("status")){
+            let split_url_arr = link_comp_url.split("/");
+            return split_url_arr[split_url_arr.length-1];
+        }
+    }
+}
+
+async function tabWait(tab,ms){
+    try{
+        await tab.wait(() => {let x=0;}, ms);
+    }
+    catch{
+        return true;
+    }    
+}
+
+async function HelpParseTweets(all_tweets_on_page, n){
+    var tweets_arr = new Array();
     // Iterate over each on n tweets
-    // all_tweets_on_page_1 = await tab.findElements(By.css("[role='article']"));
     for(var i = 0 ; i < n; i++){
-        var text = await all_tweets_on_page[i].getText();
-        // var text = await all_tweets_on_page_1[i].getText();
+        var tweet = all_tweets_on_page[i];
+
+        var profile_link = await getProfileLink(tweet);
+        var tweet_id = await getTweetId(tweet);
+
+        var text = await tweet.getText();
+        // To identify a poll on tweet
+        // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
         var arr = text.split('\n');
         var len_arr = arr.length;
         var index_end_post_content = len_arr -1;
         var after_post_index = 0;
         var inside_after_post_index = 0;
-        var post_content_arr = new Array(); 
-
+        var full_text = new Array(); 
 
         // variables for json
         var is_retweet = undefined;
         var is_promoted = 0;
-        var when_posted = undefined;
+        var created_at = undefined;
         var user_name = undefined;
         var user_url_name = undefined;
-        var when_posted = undefined;
-        var comments_amount = undefined;
-        var retweets_amount = undefined;
-        var likes_amount = undefined;
+        var comments_count = undefined;
+        var retweets_count = undefined;
+        var likes_count = undefined;
         var shared_tweet = undefined;
 
         // Conditions for parsing different tweets
@@ -108,7 +211,7 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
             // Check if tweet is Retweet
             user_name = arr[1];
             user_url_name = arr[2];
-            when_posted = arr[4];
+            created_at = arr[4];
             after_post_index = 5;
             is_retweet = arr[0];
         }
@@ -116,7 +219,7 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
             // Check if tweet is tweet sharing (quoting)
             user_name = arr[0];
             user_url_name = arr[1];
-            when_posted = arr[3];
+            created_at = arr[3];
             after_post_index = 4;
             index_end_post_content = arr.indexOf("Quote Tweet");
             is_retweet = 0;
@@ -137,14 +240,14 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
             shared_tweet = {
                 user_name:inside_user_name,
                 user_url_name:inside_user_url_name,
-                when_posted:inside_when_posted,
-                post_content:inside_post_content_arr,
-                comments_amount:undefined,
-                retweets_amount:undefined,
-                likes_amount:undefined,
+                created_at:inside_when_posted,
+                full_text:inside_post_content_arr,
+                comments_count:undefined,
+                retweets_count:undefined,
+                likes_count:undefined,
                 is_retweet:undefined,
                 is_promoted:undefined,
-                shared_tweet:undefined
+                shared_tweet:undefined,
             }
             
         }
@@ -152,33 +255,36 @@ async function HelpParseTweets(tweets_arr, all_tweets_on_page, n){
             // If it is a regular tweet
             user_name = arr[0];
             user_url_name = arr[1];
-            when_posted = arr[3];
+            created_at = arr[3];
             after_post_index = 4;
         }
 
-        after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr);
+        after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,full_text);
         if(arr.includes("Quote Tweet")){
             after_post_index = inside_after_post_index +1;
         }
         if(len_arr == after_post_index + 3){
             // This means none of comments/retweets/likes is 0
-            comments_amount = arr[after_post_index];
-            retweets_amount = arr[after_post_index + 1];
-            likes_amount = arr[after_post_index + 2];
+            comments_count = arr[after_post_index];
+            retweets_count = arr[after_post_index + 1];
+            likes_count = arr[after_post_index + 2];
         }
         tweets_arr.push({
-            user_name:user_name,
-            user_url_name:user_url_name,
-            when_posted:when_posted,
-            post_content:post_content_arr,
-            comments_amount:comments_amount,
-            retweets_amount:retweets_amount,
-            likes_amount:likes_amount,
-            is_retweet:is_retweet,
-            is_promoted:is_promoted,
-            shared_tweet:shared_tweet
+            user_name,
+            user_url_name,
+            created_at,
+            full_text,
+            comments_count,
+            retweets_count,
+            likes_count,
+            is_retweet,
+            is_promoted,
+            shared_tweet,
+            profile_link,
+            tweet_id
         });
     }
+    return tweets_arr;
 }
 
 async function getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr){
@@ -198,7 +304,10 @@ async function getTweetContent(after_post_index,index_end_post_content,arr,post_
     return after_post_index;
 }
 
+async function reloadPage(tab){
+    tab.navigate().refresh();
+}
+
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 get_n_first_tweets : get_n_first_tweets,
-                scrollPage : scrollPage,
-                scrollPost : scrollPost};
+                getProfileContent : getProfileContent};
