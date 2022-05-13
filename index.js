@@ -66,7 +66,7 @@ app.use(participantsAuthController);  //participant auth
 app.use(researchersAuthController);  //participant auth
 
 app.use(participantsAuthController_selenium);  //participant auth
-app.use(participantsController_selenium);  //participant auth
+app.use(participantsController_selenium);  //participant 
 
 
 app.get("//alive", (req, res) => {

@@ -21,6 +21,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
     if(tabsHashMap.size > 0 && tabsHashMap.get(params.user) != undefined){
       var tab = tabsHashMap.get(params.user);
       await tab.getWindowHandle();
+      // Return 200 with the details on the user
       res.status(400).send("This user has already been authenticated.")
       return
     }
@@ -42,7 +43,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       return
     }
     if(e.message){ // error thrown from the api
-      res.status(502).json(e);
+      res.status(500).json(e);
       return;
     }
     else{ // Internal error
