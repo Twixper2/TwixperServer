@@ -1,16 +1,9 @@
 var express = require("express");
 var router = express.Router();
-const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
-// const database = require("../../business_logic/db/DBCommunicator.js")
 const { tabsHashMap } = require("../../config");
+const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 
 
-/* ----------------------------------------
-    Routes for asking for data from Twitter
-   ---------------------------------------- */
-
-
-   
 /* Make sure user is authenticated by checking if tab is active
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
@@ -34,13 +27,13 @@ router.use(async function (req, res, next) {
 /* ----------------------------------------
     Routes for asking for data from Twitter
    ---------------------------------------- */
-router.get("//getWhoToFollow", async (req, res, next) => {
+router.get("/getWhoToFollow", async (req, res, next) => {
   const params = req.body
 
   try{
     const whoToFollowElement = await participantsService_selenium.getWhoToFollow(params);
     res.send(whoToFollowElement);
-    return
+    return;
   }
   catch(e){
     console.log(e)
@@ -48,7 +41,7 @@ router.get("//getWhoToFollow", async (req, res, next) => {
     if(e.name == "WebDriverError"){
       tabsHashMap.delete(params.user);
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
-      return
+      return;
     }
     else{ // Internal error
       res.sendStatus(500)
@@ -57,12 +50,11 @@ router.get("//getWhoToFollow", async (req, res, next) => {
   }
 });
 
-router.get("//getFeed", async (req, res, next) => {
+router.get("/getFeed", async (req, res, next) => {
   const params = req.body
   try{
-    const get_n_first_tweets = await participantsService_selenium.get_n_first_tweets(params);
-    res.send(get_n_first_tweets);
-    return
+    const getFeed = await participantsService_selenium.getFeed(params);
+    res.send(getFeed);
   }
   catch(e){
     console.log(e)

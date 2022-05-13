@@ -32,13 +32,17 @@ async function scrapeWhoToFollow(tab){
     return profile_names_arr_final;
 }
 
-async function get_n_first_tweets(tab){
+async function getFeed(tab){
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
     return await HelpParseTweets(all_tweets_on_page);
 }
 
-async function getUser(tab){
+async function getUserEntityData(tab){
     // This will be operated after first login of user
+    let acc_menu = await tab.findElement(By.css("[aria-label='Account menu']"));
+    let profile_img = await acc_menu.findElement(By.css("img")).getAttribute("src");
+    let text = await acc_menu.getText();
+    let y=3;
 }
 
 async function scrollPost(tab){
@@ -113,7 +117,7 @@ async function retrieveTextFromElement(e){
 
 async function getTweetsTabFromProfileContent(tab,n){
     await scrollPost(tab);
-    return await get_n_first_tweets(tab,n);
+    return await getFeed(tab,n);
 }
 
 async function getLikesTabFromProfileContent(tab){
@@ -307,8 +311,8 @@ async function reloadPage(tab){
     tab.navigate().refresh();
 }
 
-module.exports = {getUser : getUser,
-                scrapeWhoToFollow : scrapeWhoToFollow, 
-                get_n_first_tweets : get_n_first_tweets,
+module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
+                getFeed : getFeed,
                 getProfileContent : getProfileContent,
+                getUserEntityData : getUserEntityData,
                 scrollPost : scrollPost};

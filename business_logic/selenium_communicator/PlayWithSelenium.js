@@ -1,6 +1,6 @@
 var authorizeUser = require("./selenium_authorize/authorizeUser.js");
 var scrapeTwitter = require("./scrape_process/scrapeTwitter.js");
-var credentials = require("./static_twitter_data/CredentialsJSON.js");
+var credentials = require("../twitter_communicator/static_twitter_data/CredentialsJSON.js");
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
 async function userRun(user_credentials){
@@ -12,10 +12,12 @@ async function userRun(user_credentials){
     let n = 20;
     // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
     // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
-    let tweet_username = "BenCaspit";
-    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username,n);
-    console.log(json_details);
-    let y=3;
+    // let tweet_username = "BenCaspit";
+    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username,n);
+    // console.log(json_details);
+    // let y=3;
+
+    let x = await scrapeTwitter.getUserEntityData(tab);
 }
 
 async function createNewTab(){

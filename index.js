@@ -60,13 +60,13 @@ const participantsController_selenium  = require("./controller/participants/part
 
 app.get("//", (req, res) => res.send("welcome v.2"));
 
-app.use("//participants", participantController);
-app.use("//researchers", researcherController);
-app.use(participantsAuthController);  //participant auth
+// app.use("//participants", participantController);
+app.use("/researchers", researcherController);
+// app.use(participantsAuthController);  //participant auth
 app.use(researchersAuthController);  //participant auth
 
+app.use("//participants", participantsController_selenium);
 app.use(participantsAuthController_selenium);  //participant auth
-app.use(participantsController_selenium);  //participant 
 
 
 app.get("//alive", (req, res) => {

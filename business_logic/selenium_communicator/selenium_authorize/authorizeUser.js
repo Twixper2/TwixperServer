@@ -1,4 +1,5 @@
 const {By, Key, until} = require('selenium-webdriver');
+const homepage_url = "https://twitter.com/i/flow/login";
 
 async function createNewTab(){
     // Include selenium webdriver
@@ -42,7 +43,7 @@ async function isUserCredentialsValid(tab){
 }
 
 async function logInProcess(data,tab){
-    await tab.get("https://twitter.com/i/flow/login");
+    await tab.get(homepage_url);
     // Timeout to wait if connection is slow
     await tab.manage().setTimeouts({
         implicit: 10000, // 10 seconds
@@ -55,11 +56,11 @@ async function logInProcess(data,tab){
     var validation_result = await isUserCredentialsValid(tab);
     if(validation_result == true){
         console.log("Successfully signed in twitter!");
-        return "Successfully signed in twitter!";
+        return true;
     }
     else{
         console.log(validation_result);
-        return validation_result;
+        return false;
     }
 }
 
