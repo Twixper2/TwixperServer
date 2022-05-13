@@ -8,7 +8,7 @@ const { tabsHashMap } = require("../../config");
 /**
  * Requesting user's credentials, and selenium webdriver will log in to it
  */
- router.post("//twitterSeleniumAuth", async (req, res, next) => {
+router.post("//twitterSeleniumAuth", async (req, res, next) => {
   const params = req.body
   // If there are no params at all,
   // Or no pass or no user params
@@ -52,5 +52,70 @@ const { tabsHashMap } = require("../../config");
   }
 })
 
+
+/*
+Need to implement the endpoint below
+*/
+
+// router.post("//registerToExperiment", async (req, res, next) => {
+//   try {
+//     // validate request params and cookies
+//     const expCode = req.body.exp_code
+//     if (!expCode) {
+//       res.status(400).send("No experiment code provided.")
+//       return;
+//     }
+
+//     if(!req.header('User-Twitter-Token') || !req.header('User-Twitter-Token-Secret')){
+//       res.status(428).send("Missing auth headers (User-Twitter-Token, User-Twitter-Token-Secret)");
+//       return;
+//       /*
+//         The HTTP 428 Precondition Required response status code indicates that the server requires
+//         the request to be conditional. Typically, this means that a required precondition header, 
+//         such as If-Match , is missing.
+//       */
+//     }
+//     /*if (!req.session || !req.session.userTwitterToken || !req.session.userTwitterTokenSecret) {
+//       res.status(401).send("Login with twitter first.");
+//       return;
+//     }*/
+
+//     // const oauthToken = req.session.userTwitterToken
+//     // const oauthTokenSecret = req.session.userTwitterTokenSecret    
+    
+//     // TODO: Decrypt tokens
+//     const oauthToken = req.header('User-Twitter-Token')
+//     const oauthTokenSecret = req.header('User-Twitter-Token-Secret')    
+    
+//     // trying registering user
+//     let participant  = null
+//     try {
+//       participant = await participantsService.registerParticipant(oauthToken, oauthTokenSecret, expCode)
+//     }
+//     catch (e) {
+//       // if it is an error with message, we respond with the error object containing "name" and "message" keys
+//       console.log(e)
+//       if (e.message) { 
+//         res.status(400).json(e);
+//         return;
+//       }
+//       throw e
+//     }
+//     if (!participant) { //registration failed
+//       res.sendStatus(500);
+//       return;
+//     }
+//     const participant_twitter_info = participantsService.extractTwitterInfoFromParticipantObj(participant)
+//     res.status(200).json({"participant_twitter_info": participant_twitter_info}); //success
+//   } // end try
+//   catch(e) {
+//     console.log(e)
+//     res.sendStatus(500);
+//   }
+// });
+
+// function encryptToken(token) {
+//   return bcrypt.hashSync(token, 10)
+// }
 
 module.exports = router;

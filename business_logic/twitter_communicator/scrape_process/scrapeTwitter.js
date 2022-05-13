@@ -32,28 +32,27 @@ async function scrapeWhoToFollow(tab){
     return profile_names_arr_final;
 }
 
-async function get_n_first_tweets(tab,n){
+async function get_n_first_tweets(tab){
     var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
-    // Validate input n - number of tweets to retrieve
-    var cur_num_of_tweets_on_page = all_tweets_on_page.length;
-    if(!(/^\d+$/.test(n) && n > 0)){
-        return 'Input n failed!';
-    }
-    return await HelpParseTweets(all_tweets_on_page, cur_num_of_tweets_on_page);
+    return await HelpParseTweets(all_tweets_on_page);
+}
+
+async function getUser(tab){
+    // This will be operated after first login of user
 }
 
 async function scrollPost(tab){
     await tabWait(tab,2000);
     await tab.executeScript('window.scrollTo(0, 600)');
-    await tabWait(tab,8000);
+    await tabWait(tab,6000);
 }
 
-async function getProfileContent(tab,tweet_username,n){
+async function getProfileContent(tab,tweet_username){
     await tabWait(tab,200);
     await tab.get("https://twitter.com/"+tweet_username);
     let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
     let json_details = await getPersonalDetailsFromProfileContent(primary_column);
-    // await getTweetsTabFromProfileContent(tab,n);
+    // await getTweetsTabFromProfileContent(tab);
     await getLikesTabFromProfileContent(tab);
 
     // return json_details;
@@ -169,10 +168,10 @@ async function tabWait(tab,ms){
     }    
 }
 
-async function HelpParseTweets(all_tweets_on_page, n){
+async function HelpParseTweets(all_tweets_on_page){
     var tweets_arr = new Array();
     // Iterate over each on n tweets
-    for(var i = 0 ; i < n; i++){
+    for(var i = 0 ; i < all_tweets_on_page.length; i++){
         var tweet = all_tweets_on_page[i];
 
         var profile_link = await getProfileLink(tweet);
@@ -308,6 +307,8 @@ async function reloadPage(tab){
     tab.navigate().refresh();
 }
 
-module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
+module.exports = {getUser : getUser,
+                scrapeWhoToFollow : scrapeWhoToFollow, 
                 get_n_first_tweets : get_n_first_tweets,
-                getProfileContent : getProfileContent};
+                getProfileContent : getProfileContent,
+                scrollPost : scrollPost};
