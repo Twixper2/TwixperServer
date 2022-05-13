@@ -1,8 +1,9 @@
-const {By, Key, until, swd} = require('selenium-webdriver');
+const {By, Key, until} = require('selenium-webdriver');
 
 async function createNewTab(){
     // Include selenium webdriver
-    // let swd = require("selenium-webdriver");
+    require('chromedriver');
+    let swd = require("selenium-webdriver");
     let browser = new swd.Builder();
     let tab = browser.forBrowser("chrome").build();
     // Define window size
