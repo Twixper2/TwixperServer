@@ -1,3 +1,4 @@
+const { query } = require("express");
 const scrapeTwitter = require("../selenium_communicator/scrape_process/scrapeTwitter.js")
 const scrapeTwitter_moshe = require("../selenium_communicator/scrape_process/scrapeTwitter_moshe")
 const homepage_url = "https://twitter.com/i/flow/login";
@@ -22,6 +23,22 @@ async function getProfileContent(tab,tweet_username){
     return await scrapeTwitter.getProfileContent(tab,tweet_username);
 }
 
+async function getTop_TweetsSearchResult(tab,q){
+    return await scrapeTwitter_moshe.searchTwitterTweets(tab,q,"top");
+}
+
+async function getLatest_TweetsSearchResult(tab,q){
+    return await scrapeTwitter_moshe.searchTwitterTweets(tab,q,"live");
+}
+
+async function getPeople_SearchResult(tab,q){
+    return await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
+}
+
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
 exports.getProfileContent = getProfileContent
+exports.getTop_TweetsSearchResult = getTop_TweetsSearchResult
+exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
+exports.getPeople_SearchResult = getPeople_SearchResult
+

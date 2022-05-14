@@ -59,15 +59,33 @@ async function getProfileContent(tab,tweet_username){
     // return json_details;
 }
 
-async function searchTwitterTweets(tab,query,count=40){
+/**
+ * 
+ * @param {*} tab 
+ * @param {*} query 
+ * @param {*} count 
+ * @returns 
+ */
+async function searchTwitterTweets(tab,query,mode="top"){
     console.log("starting search");
     await tabWait(tab,200);
-    await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f=top");
+    await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f="+ mode);
+    //Waiting for the search result to load
     await tabWait(tab,2000);
-    let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+    //Brings the elements of the tweets
+    let all_tweets_on_page =+ await tab.findElements(By.css("[role='article']"));
+    scrollPost(tab)
+    all_tweets_on_page =+ await tab.findElements(By.css("[role='article']"));
     return await HelpParseTweets(all_tweets_on_page);
 }
 
+/**
+ * 
+ * @param {*} tab 
+ * @param {*} query 
+ * @param {*} count 
+ * @returns 
+ */
 async function searchTwitterPeople(tab,query,count=40){
     console.log("starting search");
     await tabWait(tab,200);
@@ -197,9 +215,9 @@ async function searchPeopleParse_Data(User_on_page){
     var Users_arr = new Array();
     // Iterate over each on n User
     for(var k = 0 ; k < User_on_page.length; k++){
-        var all_who_to_follow = User_on_page[k];
-        var all_buttons = await all_who_to_follow?.findElements(By.css("[role='button']"));
-        var all_images = await all_who_to_follow?.findElements(By.css("img"));
+        var user = User_on_page[k];
+        var all_buttons = await user?.findElements(By.css("[role='button']"));
+        var all_images = await user?.findElements(By.css("img"));
         var img_1 = await all_images[0]?.getAttribute("src");
         for(var i = 0 ; i < all_buttons.length; i++){
             var text = await all_buttons[i]?.getText();
@@ -211,6 +229,7 @@ async function searchPeopleParse_Data(User_on_page){
     }
     return Users_arr;
 }
+
 async function HelpParseTweets(all_tweets_on_page){
     var tweets_arr = new Array();
     // Iterate over each on n tweets

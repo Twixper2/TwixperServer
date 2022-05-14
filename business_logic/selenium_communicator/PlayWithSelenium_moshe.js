@@ -14,10 +14,10 @@ async function userRun(user_credentials){
 
     // Let the games begin moses
     let q = "Moshe Biran";
-    let count=40
-    // let searchResult1 = await scrapeTwitter_moshe.searchTwitter_tweets(tab,q,count);
-    let searchResult = await scrapeTwitter_moshe.searchTwitter_people(tab,q,count);
-    console.log(searchResult);
+    let mode="top"
+    let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
+    // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
+    console.log(searchResult1);
 
     // let n = 20;
     // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);
