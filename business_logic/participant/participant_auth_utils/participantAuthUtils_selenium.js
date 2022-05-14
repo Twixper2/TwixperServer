@@ -1,4 +1,4 @@
-const authorizeUser = require("../../twitter_communicator/selenium_authorize/authorizeUser")
+const authorizeUser = require("../../selenium_communicator/selenium_authorize/authorizeUser.js")
 const database = require("../../db/DBCommunicator.js");
 
 

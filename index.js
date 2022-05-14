@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 // const session = require("client-sessions");
 const fileManager = require("./business_logic/db/local_files/fileManager")
 const config = require('./config')
-
+var liad_isProd = false;
 var app = express();
 
 
@@ -60,13 +60,13 @@ const participantsController_selenium  = require("./controller/participants/part
 
 app.get("//", (req, res) => res.send("welcome v.2"));
 
-app.use("//participants", participantController);
-app.use("//researchers", researcherController);
-app.use(participantsAuthController);  //participant auth
+// app.use("//participants", participantController);
+app.use("/researchers", researcherController);
+// app.use(participantsAuthController);  //participant auth
 app.use(researchersAuthController);  //participant auth
 
+app.use("//participants", participantsController_selenium);
 app.use(participantsAuthController_selenium);  //participant auth
-app.use(participantsController_selenium);  //participant 
 
 
 app.get("//alive", (req, res) => {
@@ -80,26 +80,30 @@ app.use((req,res) => {
 
 const port =  process.env.PORT || 3000;
 
-// configure Https
-var fs = require('fs');
-var privateKey  = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\privateKey.key', 'utf8');
-var certificate = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\certificate.crt', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
-var https = require('https');
-var httpsServer = https.createServer(credentials, app);
-// httpsServer.listen(443, () => {
-//   console.log(`Server running at https://localhost:443/`);
-// });
-httpsServer.listen(port, () => {
-  console.log(`Server running at https://localhost:`+ port);
-});
+
+if(liad_isProd){
+  // configure Https
+  let fs = require('fs');
+  let privateKey  = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\privateKey.key', 'utf8');
+  let certificate = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\certificate.crt', 'utf8');
+  let credentials = {key: privateKey, cert: certificate};
+  let https = require('https');
+  let httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(443, () => {
+    // Setting up the file manager
+    fileManager.setupFileManager()
+    console.log(`Server running at https://localhost:443/`);
+  });
+}
+else{  
+  app.listen(port, () => {
+    // Setting up the file manager
+    fileManager.setupFileManager()
+    console.log(`Server running at http://localhost:${port}/`);
+  });
+}
 
 
 // console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
-// app.listen(port, () => {
-//   // Setting up the file manager
-//   fileManager.setupFileManager()
 
-//   console.log(`Server running at http://localhost:${port}/`);
-// });
