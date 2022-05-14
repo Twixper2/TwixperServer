@@ -1,6 +1,8 @@
 var authorizeUser = require("./selenium_authorize/authorizeUser.js");
 var scrapeTwitter_moshe = require("./scrape_process/scrapeTwitter_moshe.js");
-var credentials = require("./static_twitter_data/CredentialsJSON.js");
+var credentials = require("../twitter_communicator/static_twitter_data/CredentialsJSON.js");
+const twitterInnerApiGet = require("../twitter_communicator/twitter_internal_api/twitterInnerApiGet")
+
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
 async function userRun(user_credentials){
@@ -11,13 +13,17 @@ async function userRun(user_credentials){
 
 
     // Let the games begin moses
-
+    let q = "Moshe Biran";
+    let count=40
+    // let searchResult1 = await scrapeTwitter_moshe.searchTwitter_tweets(tab,q,count);
+    let searchResult = await scrapeTwitter_moshe.searchTwitter_people(tab,q,count);
+    console.log(searchResult);
 
     // let n = 20;
-    // // var n_first_tweets = await scrapeTwitter.get_n_first_tweets(tab,n);
-    // // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+    // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);
+    // var whoToFollowElement = await scrapeTwitter_moshe.scrapeWhoToFollow(tab);
     // let tweet_username = "BenCaspit";
-    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username,n);
+    // let json_details = await scrapeTwitter_moshe.getProfileContent(tab,tweet_username,n);
     // console.log(json_details);
     // let y=3;
 }

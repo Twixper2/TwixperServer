@@ -1,5 +1,6 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
+const twitterInnerApiUrl = "https://twitter.com/i/api/2"
 
 async function scrapeWhoToFollow(tab){
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
@@ -57,6 +58,25 @@ async function getProfileContent(tab,tweet_username){
 
     // return json_details;
 }
+
+async function searchTwitterTweets(tab,query,count=40){
+    console.log("starting search");
+    await tabWait(tab,200);
+    await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f=top");
+    await tabWait(tab,2000);
+    let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+    return await HelpParseTweets(all_tweets_on_page);
+}
+
+async function searchTwitterPeople(tab,query,count=40){
+    console.log("starting search");
+    await tabWait(tab,200);
+    await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f=user");
+    await tabWait(tab,2000);
+    let all_tweets_on_page = await tab.findElements(By.css("[data-testid='cellInnerDiv']"));
+    return await searchPeopleParse_Data(all_tweets_on_page);
+}
+
 
 async function getPersonalDetailsFromProfileContent(primary_column){
     let json_of_details = {};
@@ -168,6 +188,29 @@ async function tabWait(tab,ms){
     }    
 }
 
+/**
+ * This function receives div tags with raw information about the search users and extracts the relevant information.
+ * @param {*} User_on_page - A list of the div's that contain the raw information about the users
+ * @returns - Information about the users who came up in the search
+ */
+async function searchPeopleParse_Data(User_on_page){
+    var Users_arr = new Array();
+    // Iterate over each on n User
+    for(var k = 0 ; k < User_on_page.length; k++){
+        var all_who_to_follow = User_on_page[k];
+        var all_buttons = await all_who_to_follow?.findElements(By.css("[role='button']"));
+        var all_images = await all_who_to_follow?.findElements(By.css("img"));
+        var img_1 = await all_images[0]?.getAttribute("src");
+        for(var i = 0 ; i < all_buttons.length; i++){
+            var text = await all_buttons[i]?.getText();
+            var arr = text.split('\n');
+            if(arr.length>1){
+                Users_arr.push({"user_name":arr[0],"user_name_url":arr[1],"img":img_1,"FollowingStatus":arr[2]});
+            }
+        }
+    }
+    return Users_arr;
+}
 async function HelpParseTweets(all_tweets_on_page){
     var tweets_arr = new Array();
     // Iterate over each on n tweets
@@ -307,8 +350,13 @@ async function reloadPage(tab){
     tab.navigate().refresh();
 }
 
-module.exports = {getUser : getUser,
+
+module.exports = {
+                getUser : getUser,
                 scrapeWhoToFollow : scrapeWhoToFollow, 
                 get_n_first_tweets : get_n_first_tweets,
                 getProfileContent : getProfileContent,
-                scrollPost : scrollPost};
+                scrollPost : scrollPost,
+                searchTwitterTweets : searchTwitterTweets,
+                searchTwitterPeople : searchTwitterPeople
+                };
