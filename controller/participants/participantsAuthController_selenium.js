@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
+const bcrypt = require("bcryptjs");
 const participantsService_new = require("../../service/participants/participantsService_new.js");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 const { tabsHashMap } = require("../../config");
@@ -10,7 +11,7 @@ const { tabsHashMap } = require("../../config");
  * Requesting user's credentials, and selenium webdriver will log in to it
  */
 router.post("//twitterSeleniumAuth", async (req, res, next) => {
-  const params = req.body
+  const params = req.body;
   // If there are no params at all,
   // Or no pass or no user params
   if(!params || !params.user || !params.pass){
@@ -22,21 +23,13 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
     let user_value_from_hashmap = tabsHashMap.get(user_and_pass_encrypted);
     // First, Check if there is already a tab open for the user
     if(tabsHashMap.size > 0 && user_value_from_hashmap != undefined){
-      // return user_value_from_hashmap[1];
+      // return profile dets etc.
       res.status(200).send(user_value_from_hashmap);
     }
 
-    // if(tabsHashMap.size > 0 && tabsHashMap.get(params.user) != undefined){
-    //   var tab = tabsHashMap.get(params.user);
-    //   await tab.getWindowHandle();
-    //   res.status(400).send("This user has already been authenticated.")
-    //   return
-    // }
-
-    const loginRequest = await participantsService_selenium.logInProcess(params);
-    if(loginRequest != undefined){
-      // Get User entity
-      res.status(200).send(loginRequest);
+    const login_response = await participantsService_selenium.logInProcess(params,user_and_pass_encrypted);
+    if(login_response != undefined){
+      res.status(200).send(login_response);
     }
     else{
       res.status(401).send("Login has not been completed, please try again.");

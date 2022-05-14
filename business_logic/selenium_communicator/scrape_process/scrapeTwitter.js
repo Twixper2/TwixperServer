@@ -41,7 +41,10 @@ async function getUserEntityData(tab){
     // This will be operated after first login of user
     let acc_menu = await tab.findElement(By.css("[aria-label='Account menu']"));
     let profile_img = await acc_menu.findElement(By.css("img")).getAttribute("src");
-    let text = await acc_menu.getText();
+    let text_on_button = await acc_menu.findElements(By.css("span"));
+    let amout_of_text_on_button = text_on_button.length;
+    let screen_name = await retrieveTextFromElement(text_on_button[amout_of_text_on_button-2]);
+    let user_name = await retrieveTextFromElement(text_on_button[amout_of_text_on_button-1]);
     let y=3;
 }
 
@@ -52,14 +55,14 @@ async function scrollPost(tab){
 }
 
 async function getProfileContent(tab,tweet_username){
-    await tabWait(tab,200);
+    await tabWait(tab,1500);
     await tab.get("https://twitter.com/"+tweet_username);
     let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
     let json_details = await getPersonalDetailsFromProfileContent(primary_column);
     // await getTweetsTabFromProfileContent(tab);
-    await getLikesTabFromProfileContent(tab);
+    // await getLikesTabFromProfileContent(tab);
 
-    // return json_details;
+    return json_details;
 }
 
 async function getPersonalDetailsFromProfileContent(primary_column){
@@ -111,7 +114,14 @@ async function retrieveTextFromElement(e){
         return undefined;
     }
     else{
-        return await e[0].getText();
+        let text_to_return = undefined;
+        if (e instanceof Array){
+            text_to_return = await e[0].getText();
+        }
+        else{
+            text_to_return = await e.getText();
+        }
+        return text_to_return;
     }
 }
 

@@ -3,56 +3,94 @@ const participantAuthUtils_selenium = require("../../business_logic/participant/
 const manipulator = require("../../business_logic/participant/manipulator/manipulator.js")
 const config = require("../../config");
 
+
 /** ______Login_____ **/
-async function logInProcess(params){
+async function logInProcess(params,access_token){
+    let new_tab = await participantAuthUtils_selenium.createNewTab();
 
-    let new_tab = await participantAuthUtils_selenium.createNewTab()
-
-    let login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab)
+    let login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
+    let final_resp = undefined;
     if(login_response){
-        let user_entity_data = await getUserEntityData(new_tab);
+        let user = params.user;
+        // Get initial content for participant
+        let initial_content = await getInitialContentOfParticipant(new_tab,user);
+        let dets_to_save = {tab: new_tab,user : user};
         // Save new tab to hashmap of selenium tabs
-        config.tabsHashMap.set(encryptToken(params.user + params.pass),[new_tab,user_entity_data]);
+        final_resp = {...dets_to_save, ...initial_content};
+        config.tabsHashMap.set(access_token, final_resp);
     }
     else{
         new_tab.close();
     }
-    return login_response
+    return final_resp
 } 
+
+
+/** ______User's initial content_____ **/
+async function getInitialContentOfParticipant(tab,tweet_username){
+    let feed = await getFeed(undefined,tab);
+    let whoToFollowElement = await getWhoToFollow(undefined,tab);
+    let user_profile_content = await getProfileContent(tweet_username,undefined,tab);
+    return {user_profile_content,feed,whoToFollowElement};
+}
 
 /** ______User's data_____ **/
-async function getWhoToFollow(params){
+async function getWhoToFollow(params=undefined,tab_from_calling_function=undefined){
+    if (params != undefined || tab_from_calling_function != undefined){
+        let tab_to_use = undefined;
 
-    // Get tab to request
-    let tab = config.tabsHashMap.get(params.user);
+        if (tab_from_calling_function != undefined){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
 
-    let whoToFollowElement = await selenium_communicator.scrapeWhoToFollow(tab)
-    return whoToFollowElement
+        let whoToFollowElement = await selenium_communicator.scrapeWhoToFollow(tab_to_use)
+        return whoToFollowElement;
+    }
+    return null;
 } 
 
-async function getUserEntityData(tab){
-    let userEntityData = await selenium_communicator.getUserEntityData(tab)
-    return userEntityData
-}
+async function getFeed(params=undefined,tab_from_calling_function=undefined){
+    if (params != undefined || tab_from_calling_function != undefined){
+        let tab_to_use = undefined;
 
-async function getFeed(params){
+        if (tab_from_calling_function != undefined){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
 
-    // Get tab to request
-    var tab = config.tabsHashMap.get(params.user);
-
-    let getFeed = await selenium_communicator.getFeed(tab)
-    if (getFeed) {
-        getFeed = await manipulator.manipulateTweets(participant, getFeed)
-        return twitterFeedTweets
+        let getFeed = await selenium_communicator.getFeed(tab_to_use)
+        return getFeed;
+        // if (getFeed) {
+        //     getFeed = await manipulator.manipulateTweets(participant, getFeed)
+        //     return twitterFeedTweets
+        // }
     }
-    return null
+    return null;
 }
 
-function encryptToken(token) {
-    return bcrypt.hashSync(token, 10);
-}
+async function getProfileContent(tweet_username,params = undefined,tab_from_calling_function = undefined){
+    if (params != undefined || tab_from_calling_function != undefined){
+        let tab_to_use = undefined;
 
+        if (tab_from_calling_function != undefined){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
+
+        let getProfileContent = await selenium_communicator.getProfileContent(tab_to_use,tweet_username);
+        return getProfileContent;
+    }
+    return null;
+}
 
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
+exports.getProfileContent = getProfileContent
