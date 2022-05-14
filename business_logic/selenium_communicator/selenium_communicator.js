@@ -1,10 +1,18 @@
+const { Target } = require("puppeteer");
 const scrapeTwitter = require("../selenium_communicator/scrape_process/scrapeTwitter.js")
 const scrapeTwitter_moshe = require("../selenium_communicator/scrape_process/scrapeTwitter_moshe")
-const homepage_url = "https://twitter.com/i/flow/login";
-
+const homepage_url = "https://twitter.com/home";
 // const database = require("../../db/DBCommunicator.js");
 
+async function redirectToHomePageIfNeeded(tab){
+    if(await tab.getCurrentUrl() !== homepage_url){
+        await tab.get(homepage_url);
+        await scrapeTwitter.tabWait(tab,1000);
+    }
+}
+
 async function scrapeWhoToFollow(tab){
+    await redirectToHomePageIfNeeded(tab);
     return await scrapeTwitter.scrapeWhoToFollow(tab);
 }
 
@@ -13,7 +21,7 @@ async function getUserEntityData(tab){
 }
 
 async function getFeed(tab){
-    // await tab.get(homepage_url);
+    await redirectToHomePageIfNeeded(tab);
     await scrapeTwitter.scrollPost(tab);
     return await scrapeTwitter.getFeed(tab);
 }

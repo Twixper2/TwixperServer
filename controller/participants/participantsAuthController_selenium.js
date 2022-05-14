@@ -18,17 +18,31 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
     res.status(401).send("No params supplied.")
     return
   }
-  try{
-    let user_and_pass_encrypted = encryptToken(params.user + params.pass);
-    let user_value_from_hashmap = tabsHashMap.get(user_and_pass_encrypted);
-    // First, Check if there is already a tab open for the user
-    if(tabsHashMap.size > 0 && user_value_from_hashmap != undefined){
+  try{    
+    let user_value_from_hashmap = null;
+
+    if(tabsHashMap.size > 0){
+      for (var entry of tabsHashMap.entries()) {
+        let key = entry[0],
+            value = entry[1];
+        if(bcrypt.compareSync(params.user + params.pass, key)){
+          // Found tab open
+          user_value_from_hashmap = value;
+        }
+      }
+    }
+    if(user_value_from_hashmap != null){
       // return profile dets etc.
-      res.status(200).send(user_value_from_hashmap);
+      resp_without_tab_and_user = Object.assign({}, user_value_from_hashmap);
+      delete resp_without_tab_and_user.tab;
+      delete resp_without_tab_and_user.user;
+      res.status(200).send(resp_without_tab_and_user);
+      return;
     }
 
+    let user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
     const login_response = await participantsService_selenium.logInProcess(params,user_and_pass_encrypted);
-    if(login_response != undefined){
+    if(login_response != null){
       res.status(200).send(login_response);
     }
     else{
@@ -41,7 +55,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
     if(e.name == "WebDriverError"){
       tabsHashMap.delete(params.user);
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
-      return
+      return;
     }
     else{ // Internal error
       res.sendStatus(500)

@@ -2,6 +2,8 @@ var authorizeUser = require("./selenium_authorize/authorizeUser.js");
 var scrapeTwitter = require("./scrape_process/scrapeTwitter.js");
 var credentials = require("../twitter_communicator/static_twitter_data/CredentialsJSON.js");
 const {Builder, By, Key, until} = require('selenium-webdriver');
+const bcrypt = require("bcryptjs");
+
 
 async function userRun(user_credentials){
     let tab = await createNewTab();

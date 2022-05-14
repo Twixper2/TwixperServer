@@ -21,8 +21,7 @@ async function scrapeWhoToFollow(tab){
     var profile_names_arr_final = new Array();
     for(var j = 0 ; j < profile_names_arr.length; j = j + 2){
         if(j>0){
-            var img_index = j/2;
-            
+            var img_index = j/2; 
         }
         else{
             img_index = j;
@@ -49,13 +48,14 @@ async function getUserEntityData(tab){
 }
 
 async function scrollPost(tab){
-    await tabWait(tab,2000);
+    await tabWait(tab,500);
     await tab.executeScript('window.scrollTo(0, 600)');
     await tabWait(tab,6000);
 }
 
 async function getProfileContent(tab,tweet_username){
-    await tabWait(tab,1500);
+    // await tabWait(tab,2000);
+    await reloadPage(tab);
     await tab.get("https://twitter.com/"+tweet_username);
     let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
     let json_details = await getPersonalDetailsFromProfileContent(primary_column);
@@ -90,7 +90,7 @@ async function getPersonalDetailsFromProfileContent(primary_column){
 }
 
 async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
-    if(json_of_details.user_location == undefined){
+    if(json_of_details.user_location == null){
         json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[0].getText();
     }
     else{
@@ -101,7 +101,7 @@ async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
 async function retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img){
     if(cover_and_profile_img.length == 1){
         json_of_details.profile_img = await cover_and_profile_img[0].getAttribute("src");
-        json_of_details.cover_photo = undefined;
+        json_of_details.cover_photo = null;
     }
     else{
         json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
@@ -111,10 +111,10 @@ async function retrieveCoverAndProfileImagesFromElement(json_of_details,cover_an
 
 async function retrieveTextFromElement(e){
     if (e.length == 0){
-        return undefined;
+        return null;
     }
     else{
-        let text_to_return = undefined;
+        let text_to_return = null;
         if (e instanceof Array){
             text_to_return = await e[0].getText();
         }
@@ -175,7 +175,7 @@ async function getTweetId(tweet){
 
 async function tabWait(tab,ms){
     try{
-        await tab.wait(() => {let x=0;}, ms);
+        await tab.wait(() => {let x=null;}, ms);
     }
     catch{
         return true;
@@ -202,15 +202,15 @@ async function HelpParseTweets(all_tweets_on_page){
         var full_text = new Array(); 
 
         // variables for json
-        var is_retweet = undefined;
+        var is_retweet = null;
         var is_promoted = 0;
-        var created_at = undefined;
-        var user_name = undefined;
-        var user_url_name = undefined;
-        var comments_count = undefined;
-        var retweets_count = undefined;
-        var likes_count = undefined;
-        var shared_tweet = undefined;
+        var created_at = null;
+        var user_name = null;
+        var user_url_name = null;
+        var comments_count = null;
+        var retweets_count = null;
+        var likes_count = null;
+        var shared_tweet = null;
 
         // Conditions for parsing different tweets
         if(arr[len_arr-1] === "Promoted"){
@@ -255,12 +255,12 @@ async function HelpParseTweets(all_tweets_on_page){
                 user_url_name:inside_user_url_name,
                 created_at:inside_when_posted,
                 full_text:inside_post_content_arr,
-                comments_count:undefined,
-                retweets_count:undefined,
-                likes_count:undefined,
-                is_retweet:undefined,
-                is_promoted:undefined,
-                shared_tweet:undefined,
+                comments_count:null,
+                retweets_count:null,
+                likes_count:null,
+                is_retweet:null,
+                is_promoted:null,
+                shared_tweet:null,
             }
             
         }
@@ -325,4 +325,5 @@ module.exports = {scrapeWhoToFollow : scrapeWhoToFollow,
                 getFeed : getFeed,
                 getProfileContent : getProfileContent,
                 getUserEntityData : getUserEntityData,
-                scrollPost : scrollPost};
+                scrollPost : scrollPost,
+                tabWait : tabWait};

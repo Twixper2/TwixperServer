@@ -8,19 +8,21 @@ const participantsService_selenium = require("../../service/participants/partici
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   try{
-    const header_params = req.header
+    const header_params = req.headers
     const access_token = header_params.access_token;
     if(!header_params || !access_token || !header_params.user){
       res.status(400).send("No params supplied.")
       return
     }
     let entity_details = tabsHashMap.get(access_token);
-    if(tabsHashMap.size == 0 || tab == undefined){
+    if(tabsHashMap.size == 0 || entity_details == undefined){
       res.status(401).send("This user is not authenticated.")
       return
     }
-    res.locals.access_token = access_token;
-    res.locals.tab = entity_details.tab;
+    // res.locals.access_token = access_token;
+    // res.locals.tab = entity_details.tab;
+    req.server_sends_access_token = access_token;
+    req.server_sends_tab = entity_details.tab;
     next();
   }
   catch(e){
@@ -32,10 +34,10 @@ router.use(async function (req, res, next) {
     Routes for asking for data from Twitter
    ---------------------------------------- */
 router.get("/getWhoToFollow", async (req, res, next) => {
-  const params = req.body
-
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
   try{
-    const whoToFollowElement = await participantsService_selenium.getWhoToFollow(tab_from_calling_function = res.locals.tab);
+    const whoToFollowElement = await participantsService_selenium.getWhoToFollow(null,tab);
     res.send(whoToFollowElement);
     return;
   }
@@ -43,7 +45,7 @@ router.get("/getWhoToFollow", async (req, res, next) => {
     console.log(e)
     // Chrome is not reachable, remove tab from hashmap
     if(e.name == "WebDriverError"){
-      tabsHashMap.delete(res.locals.access_token);
+      tabsHashMap.delete(access_token);
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
       return;
     }
@@ -55,16 +57,17 @@ router.get("/getWhoToFollow", async (req, res, next) => {
 });
 
 router.get("/getFeed", async (req, res, next) => {
-  const params = req.body
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
   try{
-    const getFeed = await participantsService_selenium.getFeed(tab_from_calling_function = res.locals.tab);
+    const getFeed = await participantsService_selenium.getFeed(null,tab);
     res.send(getFeed);
   }
   catch(e){
     console.log(e)
     // Chrome is not reachable, remove tab from hashmap
     if(e.name == "WebDriverError"){
-      tabsHashMap.delete(res.locals.access_token);
+      tabsHashMap.delete(access_token);
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
       return
     }
@@ -76,19 +79,21 @@ router.get("/getFeed", async (req, res, next) => {
 });
 
 router.get("/getUserProfile", async (req, res, next) => {
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
   try{
     let params = req.body;
     if(!params.user){
       res.status(400).json("user field is empty.")
     }
-    const getProfileContent = await participantsService_selenium.getProfileContent(params.user,tab_from_calling_function = res.locals.tab);
+    const getProfileContent = await participantsService_selenium.getProfileContent(params.user,null,tab);
     res.send(getProfileContent);
   }
   catch(e){
     console.log(e)
     // Chrome is not reachable, remove tab from hashmap
     if(e.name == "WebDriverError"){
-      tabsHashMap.delete(res.locals.access_token);
+      tabsHashMap.delete(access_token);
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
       return
     }
