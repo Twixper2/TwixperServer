@@ -58,7 +58,13 @@ async function getProfileContent(tab,tweet_username){
 
     // return json_details;
 }
-
+async function postTweets(tab,tweet){
+    console.log("starting search");
+    await tabWait(tab,2000);
+    await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(tweet);
+    await tabWait(tab,200);
+    await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
+}
 /**
  * 
  * @param {*} tab 
@@ -73,9 +79,7 @@ async function searchTwitterTweets(tab,query,mode="top"){
     //Waiting for the search result to load
     await tabWait(tab,2000);
     //Brings the elements of the tweets
-    let all_tweets_on_page =+ await tab.findElements(By.css("[role='article']"));
-    scrollPost(tab)
-    all_tweets_on_page =+ await tab.findElements(By.css("[role='article']"));
+    let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
     return await HelpParseTweets(all_tweets_on_page);
 }
 
@@ -377,5 +381,7 @@ module.exports = {
                 getProfileContent : getProfileContent,
                 scrollPost : scrollPost,
                 searchTwitterTweets : searchTwitterTweets,
-                searchTwitterPeople : searchTwitterPeople
+                searchTwitterPeople : searchTwitterPeople,
+                postTweets: postTweets
+
                 };

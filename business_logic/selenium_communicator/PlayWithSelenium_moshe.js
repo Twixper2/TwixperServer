@@ -12,13 +12,16 @@ async function userRun(user_credentials){
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
 
-    // Let the games begin moses
-    let q = "Moshe Biran";
-    let mode="top"
-    let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
+    // search
+    // let q = "Moshe Biran";
+    // let mode="top"
+    // let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
     // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
-    console.log(searchResult1);
+    // console.log(searchResult1);
 
+    //post
+    let tweet = "hello world!";
+    await scrapeTwitter_moshe.postTweets(tab,tweet);
     // let n = 20;
     // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);
     // var whoToFollowElement = await scrapeTwitter_moshe.scrapeWhoToFollow(tab);
