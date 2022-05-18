@@ -1,5 +1,6 @@
 const {By, Key, until} = require('selenium-webdriver');
 const homepage_url = "https://twitter.com/i/flow/login";
+const userCookiesDB = require("../../db/mongodb/userCookiesCollection");
 
 async function createNewTab(){
     // Include selenium webdriver
@@ -42,6 +43,30 @@ async function isUserCredentialsValid(tab){
     }
 }
 
+async function loadUserCookie(tab, username){
+    try{
+        let allCookies = await userCookiesDB.getCookiesByTwitterUserName(username);
+        allCookies.forEach(element => {
+            tab.manage().addCookie(element)
+        });
+        return tab;
+    }catch(e){
+        return null;
+    }
+
+}
+
+async function saveUserCookie(tab, username){
+    try{
+        let allCookies = await tab.manage().getCookies();
+        await userCookiesDB.insertUserCookies(username,allCookies);
+        return true;
+    }catch(e){
+        return false;
+    }
+
+}
+
 async function logInProcess(data,tab){
     await tab.get(homepage_url);
     // Timeout to wait if connection is slow
@@ -56,6 +81,8 @@ async function logInProcess(data,tab){
     var validation_result = await isUserCredentialsValid(tab);
     if(validation_result == true){
         console.log("Successfully signed in twitter!");
+        await new Promise(r => setTimeout(r, 2000));
+        await saveUserCookie(tab, data.user)
         return true;
     }
     else{
@@ -64,5 +91,10 @@ async function logInProcess(data,tab){
     }
 }
 
-module.exports = {logInProcess : logInProcess, 
-                createNewTab : createNewTab};
+module.exports = 
+    {
+            logInProcess : logInProcess, 
+            createNewTab : createNewTab,
+            saveUserCookie : saveUserCookie,
+            loadUserCookie : loadUserCookie
+    };

@@ -2,6 +2,7 @@ var authorizeUser = require("./selenium_authorize/authorizeUser.js");
 var scrapeTwitter_moshe = require("./scrape_process/scrapeTwitter_moshe.js");
 var credentials = require("../twitter_communicator/static_twitter_data/CredentialsJSON.js");
 const twitterInnerApiGet = require("../twitter_communicator/twitter_internal_api/twitterInnerApiGet")
+const homepage_url = "https://twitter.com/home";
 
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
@@ -10,8 +11,13 @@ async function userRun(user_credentials){
 
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
-    console.log(tab.d)
+    let tab2 =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
 
+    // let allCookies = await tab.manage().getCookies();
+    // allCookies.forEach(element => {
+    //     tab2.manage().addCookie(element)
+    // });
+    await tab2.get(homepage_url);
     // search
     // let q = "Moshe Biran";
     // let mode="top"
@@ -21,7 +27,7 @@ async function userRun(user_credentials){
 
     //post
     let tweet = "hello world!";
-    await scrapeTwitter_moshe.postTweets(tab,tweet);
+    // await scrapeTwitter_moshe.postTweets(tab,tweet);
     // let n = 20;
     // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);
     // var whoToFollowElement = await scrapeTwitter_moshe.scrapeWhoToFollow(tab);
