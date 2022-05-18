@@ -58,6 +58,7 @@ async function getProfileContent(tab,tweet_username){
 
     // return json_details;
 }
+
 async function postTweets(tab,tweet){
     console.log("starting search");
     await tabWait(tab,2000);

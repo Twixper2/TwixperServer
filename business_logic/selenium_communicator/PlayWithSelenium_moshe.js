@@ -10,7 +10,7 @@ async function userRun(user_credentials){
 
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
-
+    console.log(tab.d)
 
     // search
     // let q = "Moshe Biran";
