@@ -7,7 +7,6 @@ async function scrapeWhoToFollow(tab){
         var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
         var all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
         var all_images = await all_who_to_follow.findElements(By.css("img"));
-        var img_1 = await all_images[0].getAttribute("src");
         var profile_names_arr = new Array();
         for(var i = 0 ; i < all_buttons.length; i++){
             var text = await all_buttons[i].getText();
@@ -146,12 +145,17 @@ async function getTweetsTabFromProfileContent(tab,n){
 }
 
 async function getLikesTabFromProfileContent(tab){
-    let tab_url = await tab.getCurrentUrl();
-    await tab.get(tab_url+"/likes");
-    await tabWait(tab,2000);
-    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-    let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
-    let likes_arr = await helpParseLikes(tab,all_likes_on_page);
+    try{
+        let tab_url = await tab.getCurrentUrl();
+        await tab.get(tab_url+"/likes");
+        await tabWait(tab,2000);
+        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+        let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
+        let likes_arr = await helpParseLikes(tab,all_likes_on_page);
+    }
+    catch(error){
+        console.log(error);
+    }
 }
 
 async function helpParseLikes(tab,all_likes_on_page){
@@ -172,39 +176,68 @@ async function helpParseLikes(tab,all_likes_on_page){
     }
 }
 
-async function getProfileLink(tweet){
-    var profile_link = await tweet.findElement(By.css("[role='link']"));
-    return await profile_link.getAttribute("href");
+async function getProfileLink_ImageUrl(tweet,tweet_id){
+    let link_href = null;
+    let profile_img_url = null;
+    try{
+        let profile_link = await tweet.findElement(By.css("[role='link']"));
+        link_href = await profile_link.getAttribute("href");
+        let profile_img = await profile_link.findElement(By.css("img"));
+        profile_img_url = await profile_img.getAttribute("src");
+    }
+    catch(error){
+        console.log(error);
+    }
+    finally{
+        return {link_href,profile_img_url};
+    }
 }
 
 async function getTweetId(tweet){
+    let res = null;
+    try{
     let links_components = await tweet.findElements(By.css("[role='link']"));
     for(let i=0; i<links_components.length; i++){
         let link_comp_url = await links_components[i].getAttribute("href");
         if(link_comp_url.includes("status")){
             let split_url_arr = link_comp_url.split("/");
-            return split_url_arr[split_url_arr.length-1];
+            res = split_url_arr[split_url_arr.length-1];
+            return res;
         }
+    }
+    }
+    catch(error){
+        console.log(error);
+    }
+    finally{
+        return res;
     }
 }
 
 async function getTweetRepliesRetweetsLikes(tweet){
-    let group_of_buttons = await tweet.findElement(By.css("[role='group']"));
-    let text_with_dets = await group_of_buttons.getAttribute("aria-label");
-    let split_text_to_different_actions = text_with_dets.split(',');
     let replies_num = 0;
     let retweets_num = 0;
     let likes_num = 0;
-    if(split_text_to_different_actions[0].includes('replies')){
-        replies_num = split_text_to_different_actions[0].split(' ')[0];
+    try{
+        let group_of_buttons = await tweet.findElement(By.css("[role='group']"));
+        let text_with_dets = await group_of_buttons.getAttribute("aria-label");
+        let split_text_to_different_actions = text_with_dets.split(',');
+        if(split_text_to_different_actions[0].includes('replies')){
+            replies_num = split_text_to_different_actions[0].split(' ')[0];
+        }
+        if(split_text_to_different_actions[1].includes('Retweets')){
+            retweets_num = split_text_to_different_actions[1].split(' ')[1];
+        }
+        if(split_text_to_different_actions[2].includes('likes')){
+            likes_num = split_text_to_different_actions[2].split(' ')[1];
+        }
     }
-    if(split_text_to_different_actions[1].includes('Retweets')){
-        retweets_num = split_text_to_different_actions[1].split(' ')[1];
+    catch(error){
+        console.log(error);
     }
-    if(split_text_to_different_actions[2].includes('likes')){
-        likes_num = split_text_to_different_actions[2].split(' ')[1];
+    finally{
+        return {replies_num,retweets_num,likes_num};
     }
-    return {replies_num,retweets_num,likes_num};
 }
 
 async function tabWait(tab,ms){
@@ -222,14 +255,17 @@ async function HelpParseTweets(all_tweets_on_page){
     for(let i = 0 ; i < all_tweets_on_page.length; i++){
         let tweet = all_tweets_on_page[i];
 
-        let profile_link = await getProfileLink(tweet);
         let tweet_id = await getTweetId(tweet);
+        let profile_link_img_url = await getProfileLink_ImageUrl(tweet,tweet_id);
         let replies_retweets_likes = await getTweetRepliesRetweetsLikes(tweet);
 
         let text = await tweet.getText();
         // To identify a poll on tweet
         // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
         let arr = text.split('\n');
+        if(arr[2] == "See more"){
+            continue;
+        }
         let len_arr = arr.length;
         let index_end_post_content = len_arr -1;
         let after_post_index = 0;
@@ -288,6 +324,7 @@ async function HelpParseTweets(all_tweets_on_page){
             shared_tweet = {
                 user_name:inside_user_name,
                 user_url_name:inside_user_url_name,
+                //profile_img_url,
                 created_at:inside_when_posted,
                 full_text:inside_post_content_arr,
                 comments_count:null,
@@ -313,6 +350,7 @@ async function HelpParseTweets(all_tweets_on_page){
         tweets_arr.push({
             user_name,
             user_url_name,
+            profile_img_url: profile_link_img_url.profile_img_url,
             created_at,
             full_text,
             comments_count,
@@ -321,7 +359,7 @@ async function HelpParseTweets(all_tweets_on_page){
             is_retweet,
             is_promoted,
             shared_tweet,
-            profile_link,
+            profile_link: profile_link_img_url.link_href,
             tweet_id
         });
     }
