@@ -111,7 +111,7 @@ router.get("/searchTweets", async (req, res, next) => {
   }
   catch(e){
     console.log(e)
-    if(e.message == "inner-api-error"){ // error thrown from the api
+    if(e.message == "search-tweets-error"){ // error thrown from the api
       res.status(502).json(e);
     }
     else{
@@ -132,7 +132,7 @@ router.get("/searchPeople", async (req, res, next) => {
   }
   catch(e){
     console.log(e)
-    if(e.message == "inner-api-error"){ // error thrown from the api
+    if(e.message == "search-people-error"){ // error thrown from the api
       res.status(502).json(e);
     }
     else{
