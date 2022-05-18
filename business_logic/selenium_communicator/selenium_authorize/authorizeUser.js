@@ -1,20 +1,33 @@
-const {By, Key, until} = require('selenium-webdriver');
+const {By, Key, until,Builder} = require('selenium-webdriver');
 const login_url = "https://twitter.com/i/flow/login";
+const headless = true;
 
 async function createNewTab(){
     // Include selenium webdriver
     require('chromedriver');
     let swd = require("selenium-webdriver");
-    let browser = new swd.Builder();
-    let tab = browser.forBrowser("chrome").build();
-    // Define window size
+    let tab = null;
+
+    if(headless){
+        const chrome = require('selenium-webdriver/chrome');
+        tab = new Builder().forBrowser('chrome')
+        .setChromeOptions(new chrome.Options().addArguments('--headless'))
+        .build()
+    }
+    else{
+        let browser = new swd.Builder();
+        tab = browser.forBrowser("chrome").build();
+    }
+
     tab.manage().window().maximize();
+
     return tab;
 }  
 
 async function insertUserName(tab,user){
     // Entering the username
-    await tab.findElement(By.name("text")).sendKeys(user);
+    // await tab.findElement(By.name("text")).sendKeys(user);
+    let test = await tab.findElement(By.name("text")).sendKeys(user);
     // Click on Next
     var username_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[5]/label/div/div[2]/div/input";
     await tab.findElement(By.xpath(username_x_path)).sendKeys(Key.RETURN);

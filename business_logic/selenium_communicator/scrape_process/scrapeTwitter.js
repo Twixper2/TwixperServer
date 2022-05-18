@@ -2,33 +2,39 @@ const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 
 async function scrapeWhoToFollow(tab){
-    var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
-    var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
-    var all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
-    var all_images = await all_who_to_follow.findElements(By.css("img"));
-    var img_1 = await all_images[0].getAttribute("src");
-    var profile_names_arr = new Array();
-    for(var i = 0 ; i < all_buttons.length; i++){
-        var text = await all_buttons[i].getText();
-        var arr = text.split('\n'); 
-        for(var j = 0 ; j < arr.length; j++){
-            if(arr[j] != "Follow" & arr[j] != "Promoted"){
-                profile_names_arr.push(arr[j]);
+    try{
+        var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
+        var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
+        var all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
+        var all_images = await all_who_to_follow.findElements(By.css("img"));
+        var img_1 = await all_images[0].getAttribute("src");
+        var profile_names_arr = new Array();
+        for(var i = 0 ; i < all_buttons.length; i++){
+            var text = await all_buttons[i].getText();
+            var arr = text.split('\n'); 
+            for(var j = 0 ; j < arr.length; j++){
+                if(arr[j] != "Follow" & arr[j] != "Promoted"){
+                    profile_names_arr.push(arr[j]);
+                }
             }
         }
-    }
-    // Adding names collected as username & and username with @ to the object to send
-    var profile_names_arr_final = new Array();
-    for(var j = 0 ; j < profile_names_arr.length; j = j + 2){
-        if(j>0){
-            var img_index = j/2; 
+        // Adding names collected as username & and username with @ to the object to send
+        var profile_names_arr_final = new Array();
+        for(var j = 0 ; j < profile_names_arr.length; j = j + 2){
+            if(j>0){
+                var img_index = j/2; 
+            }
+            else{
+                img_index = j;
+            }
+            profile_names_arr_final.push({"user_name":profile_names_arr[j],"user_name_url":profile_names_arr[j+1],"img":await all_images[img_index].getAttribute("src")});
         }
-        else{
-            img_index = j;
-        }
-        profile_names_arr_final.push({"user_name":profile_names_arr[j],"user_name_url":profile_names_arr[j+1],"img":await all_images[img_index].getAttribute("src")});
+        return profile_names_arr_final;
     }
-    return profile_names_arr_final;
+    catch(error){
+        // One of the elements has not been field by the user
+        console.log(error);
+    }
 }
 
 async function getFeed(tab){
@@ -36,21 +42,21 @@ async function getFeed(tab){
     return await HelpParseTweets(all_tweets_on_page);
 }
 
-async function getUserEntityData(tab){
-    // This will be operated after first login of user
-    let acc_menu = await tab.findElement(By.css("[aria-label='Account menu']"));
-    let profile_img = await acc_menu.findElement(By.css("img")).getAttribute("src");
-    let text_on_button = await acc_menu.findElements(By.css("span"));
-    let amout_of_text_on_button = text_on_button.length;
-    let screen_name = await retrieveTextFromElement(text_on_button[amout_of_text_on_button-2]);
-    let user_name = await retrieveTextFromElement(text_on_button[amout_of_text_on_button-1]);
-    let y=3;
-}
+// async function getUserEntityData(tab){
+//     // This will be operated after first login of user
+//     let acc_menu = await tab.findElement(By.css("[aria-label='Account menu']"));
+//     let profile_img = await acc_menu.findElement(By.css("img")).getAttribute("src");
+//     let text_on_button = await acc_menu.findElements(By.css("span"));
+//     let amout_of_text_on_button = text_on_button.length;
+//     let screen_name = await retrieveTextFromElement(text_on_button[amout_of_text_on_button-2]);
+//     let user_name = await retrieveTextFromElement(text_on_button[amout_of_text_on_button-1]);
+//     let y=3;
+// }
 
 async function scrollPost(tab){
     await tabWait(tab,500);
     await tab.executeScript('window.scrollTo(0, 600)');
-    await tabWait(tab,6000);
+    await tabWait(tab,5000);
 }
 
 async function getProfileContent(tab,tweet_username){
@@ -324,6 +330,5 @@ async function reloadPage(tab){
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 getFeed : getFeed,
                 getProfileContent : getProfileContent,
-                getUserEntityData : getUserEntityData,
                 scrollPost : scrollPost,
                 tabWait : tabWait};
