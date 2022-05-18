@@ -11,41 +11,27 @@ async function userRun(user_credentials){
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
-    await tabWait(tab,6000);
-    var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
-    console.log(whoToFollowElement);
+    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+    // console.log(whoToFollowElement);
 
-
+    await tabWait(tab,5000);
     var n_first_tweets = await scrapeTwitter.getFeed(tab);
     console.log(n_first_tweets);
 
 
-    let tweet_username = "BenCaspit";
-    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
-    console.log(json_details);
+    // let tweet_username = "BenCaspit";
+    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
+    // console.log(json_details);
 
 }   
 
 async function createNewTab(){
 
-    // Include the chrome driver
-    require("chromedriver");
     // Include selenium webdriver
+    require('chromedriver');
     let swd = require("selenium-webdriver");
     let browser = new swd.Builder();
-    // let tab = browser.forBrowser("chrome").build();
-    const chrome = require('selenium-webdriver/chrome');
-
-    // let tab = new Builder()
-    // .forBrowser('chrome')
-    // .setChromeOptions(new chrome.Options().headless().windowSize(screen))
-    // .build();
-
-    let tab = new Builder().forBrowser('chrome')
-    .setChromeOptions(new chrome.Options().addArguments('--headless'))
-    .build()
-    
-    // Define window size
+    let tab = browser.forBrowser("chrome").build();
     tab.manage().window().maximize();
     return tab;
 }

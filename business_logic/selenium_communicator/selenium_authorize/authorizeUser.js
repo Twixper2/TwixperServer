@@ -1,6 +1,6 @@
 const {By, Key, until,Builder} = require('selenium-webdriver');
 const login_url = "https://twitter.com/i/flow/login";
-const headless = true;
+const headless = false;
 
 async function createNewTab(){
     // Include selenium webdriver

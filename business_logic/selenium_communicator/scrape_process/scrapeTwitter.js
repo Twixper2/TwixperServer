@@ -32,14 +32,18 @@ async function scrapeWhoToFollow(tab){
         return profile_names_arr_final;
     }
     catch(error){
-        // One of the elements has not been field by the user
         console.log(error);
     }
 }
 
 async function getFeed(tab){
-    var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
-    return await HelpParseTweets(all_tweets_on_page);
+    try{
+        var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+        return await HelpParseTweets(all_tweets_on_page);
+    }
+    catch(error){
+        console.log(error);
+    }
 }
 
 // async function getUserEntityData(tab){
@@ -60,15 +64,20 @@ async function scrollPost(tab){
 }
 
 async function getProfileContent(tab,tweet_username){
-    // await tabWait(tab,2000);
-    await reloadPage(tab);
-    await tab.get("https://twitter.com/"+tweet_username);
-    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-    let json_details = await getPersonalDetailsFromProfileContent(primary_column);
-    // await getTweetsTabFromProfileContent(tab);
-    // await getLikesTabFromProfileContent(tab);
+    try{
+        // await tabWait(tab,2000);
+        await reloadPage(tab);
+        await tab.get("https://twitter.com/"+tweet_username);
+        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+        let json_details = await getPersonalDetailsFromProfileContent(primary_column);
+        // await getTweetsTabFromProfileContent(tab);
+        // await getLikesTabFromProfileContent(tab);
 
-    return json_details;
+        return json_details;
+    }
+    catch(error){
+        console.log(error);
+    }
 }
 
 async function getPersonalDetailsFromProfileContent(primary_column){
@@ -179,6 +188,25 @@ async function getTweetId(tweet){
     }
 }
 
+async function getTweetRepliesRetweetsLikes(tweet){
+    let group_of_buttons = await tweet.findElement(By.css("[role='group']"));
+    let text_with_dets = await group_of_buttons.getAttribute("aria-label");
+    let split_text_to_different_actions = text_with_dets.split(',');
+    let replies_num = 0;
+    let retweets_num = 0;
+    let likes_num = 0;
+    if(split_text_to_different_actions[0].includes('replies')){
+        replies_num = split_text_to_different_actions[0].split(' ')[0];
+    }
+    if(split_text_to_different_actions[1].includes('Retweets')){
+        retweets_num = split_text_to_different_actions[1].split(' ')[1];
+    }
+    if(split_text_to_different_actions[2].includes('likes')){
+        likes_num = split_text_to_different_actions[2].split(' ')[1];
+    }
+    return {replies_num,retweets_num,likes_num};
+}
+
 async function tabWait(tab,ms){
     try{
         await tab.wait(() => {let x=null;}, ms);
@@ -191,32 +219,33 @@ async function tabWait(tab,ms){
 async function HelpParseTweets(all_tweets_on_page){
     var tweets_arr = new Array();
     // Iterate over each on n tweets
-    for(var i = 0 ; i < all_tweets_on_page.length; i++){
-        var tweet = all_tweets_on_page[i];
+    for(let i = 0 ; i < all_tweets_on_page.length; i++){
+        let tweet = all_tweets_on_page[i];
 
-        var profile_link = await getProfileLink(tweet);
-        var tweet_id = await getTweetId(tweet);
+        let profile_link = await getProfileLink(tweet);
+        let tweet_id = await getTweetId(tweet);
+        let replies_retweets_likes = await getTweetRepliesRetweetsLikes(tweet);
 
-        var text = await tweet.getText();
+        let text = await tweet.getText();
         // To identify a poll on tweet
         // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
-        var arr = text.split('\n');
-        var len_arr = arr.length;
-        var index_end_post_content = len_arr -1;
-        var after_post_index = 0;
-        var inside_after_post_index = 0;
-        var full_text = new Array(); 
+        let arr = text.split('\n');
+        let len_arr = arr.length;
+        let index_end_post_content = len_arr -1;
+        let after_post_index = 0;
+        let inside_after_post_index = 0;
+        let full_text = new Array(); 
 
         // variables for json
-        var is_retweet = null;
-        var is_promoted = 0;
-        var created_at = null;
-        var user_name = null;
-        var user_url_name = null;
-        var comments_count = null;
-        var retweets_count = null;
-        var likes_count = null;
-        var shared_tweet = null;
+        let is_retweet = null;
+        let is_promoted = 0;
+        let created_at = null;
+        let user_name = null;
+        let user_url_name = null;
+        let comments_count = replies_retweets_likes.replies_num;
+        let retweets_count = replies_retweets_likes.retweets_num;
+        let likes_count = replies_retweets_likes.likes_num;
+        let shared_tweet = null;
 
         // Conditions for parsing different tweets
         if(arr[len_arr-1] === "Promoted"){
@@ -268,7 +297,6 @@ async function HelpParseTweets(all_tweets_on_page){
                 is_promoted:null,
                 shared_tweet:null,
             }
-            
         }
         else{
             // If it is a regular tweet
@@ -281,12 +309,6 @@ async function HelpParseTweets(all_tweets_on_page){
         after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,full_text);
         if(arr.includes("Quote Tweet")){
             after_post_index = inside_after_post_index +1;
-        }
-        if(len_arr == after_post_index + 3){
-            // This means none of comments/retweets/likes is 0
-            comments_count = arr[after_post_index];
-            retweets_count = arr[after_post_index + 1];
-            likes_count = arr[after_post_index + 2];
         }
         tweets_arr.push({
             user_name,
