@@ -8,12 +8,9 @@ async function insertUserCookies(username, userCookies) {
     let result = null
     try{
         let collection = db.collection("Cookies")
-        let user = {undefined}
-        user.username = username;
-        user.cookies = userCookies;
 
-        result = await collection.save(
-            { _id: username ,
+        result = await collection.save({
+             _id: username ,
              cookies: userCookies
             });
     }
@@ -42,41 +39,6 @@ async function getCookiesByTwitterUserName(username) {
     }
     return result?.cookies
 }
-
-
-async function updateUserCookies(tId,token,token_secret) {
-    const db = await makeDb()
-    let result = null
-    try{
-        let collection = db.collection("Participants")
-        result = await collection.findOneAndUpdate({participant_twitter_id_str: tId}, {$set: {user_twitter_token: token,user_twitter_token_secret :token_secret}}, {upsert: true});  
-        // result = await result.toArray()
-        // result = result[0]
-    }
-    catch(e){
-        throw(e)
-    }
-    if(result != null){
-        return true
-    }
-    return false
-}
-
-/*async function deleteParticipants() {
-    const db = await makeDb()
-    let result = null
-    try{
-        let collection = db.collection("Participants")
-        result = await collection.deleteMany({})
-    }
-    catch(e){
-        return false
-    }
-    if (result) {
-        return true
-    }
-    return false
-}*/
 
 
 
