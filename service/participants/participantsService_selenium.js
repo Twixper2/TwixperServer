@@ -92,7 +92,40 @@ async function getProfileContent(tweet_username,params = null,tab_from_calling_f
     return null;
 }
 
+async function searchTweets(q,params = undefined,tab_from_calling_function = undefined){
+    if (params != undefined || tab_from_calling_function != undefined){
+        let tab_to_use = undefined;
+
+        if (tab_from_calling_function != undefined){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
+
+        let getProfileContent = await selenium_communicator.getTop_TweetsSearchResult(tab_to_use,q);
+        return getProfileContent;
+    }
+}
+
+async function searchPeople(q,params = undefined,tab_from_calling_function = undefined){
+    if (params != undefined || tab_from_calling_function != undefined){
+        let tab_to_use = undefined;
+
+        if (tab_from_calling_function != undefined){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
+
+        let getProfileContent = await selenium_communicator.getPeople_SearchResult(tab_to_use,q);
+        return getProfileContent;
+    }
+}
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
 exports.getProfileContent = getProfileContent
+exports.searchTweets = searchTweets
+exports.searchPeople = searchPeople

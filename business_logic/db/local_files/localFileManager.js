@@ -258,6 +258,30 @@ function getNdjsonFromArray(arrOfObjects){
 	}
     return result.join("")
 }
+/**
+ * Creates exp metadata.json file under the exp's container.
+ * Exp id should be in "req.query.expId"
+ * Metadata Json should be in "req.body"
+*/
+
+async function CreateExpMetadataLocal(expId, metadataObj) {
+    try{
+            const filePath = experimentsDataPath + "\\" + expId + "\\experiment-metadata.json";
+            // Get a reference to a container
+            const fileContent = JSON.stringify(metadataObj);
+            var fs = require('fs');
+            fs.writeFile(filePath, fileContent, function(err) {
+                if (err) throw err;
+                }
+            );
+        }
+    catch(e){
+            console.log(e);
+            };
+    }
+
+    
+
 
 function CreateExpMetadataLocal(expId, metadataObj) {
     try{

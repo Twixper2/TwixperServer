@@ -71,6 +71,14 @@ function checkReportRequestExists(expId) {
     }
 }
 
+function createExpMetadata(expId, metadataObj){
+    if(isProduction){
+        // return await azureStorageManager.createExpMetadata(expId, metadataObj)
+    }
+    else{
+        return localFileManager.CreateExpMetadataLocal(expId, metadataObj)
+    }
+}
 
 /* ------------------------------------
     Only for azure

@@ -104,6 +104,47 @@ router.get("/getUserProfile", async (req, res, next) => {
   }
 });
 
+router.get("/searchTweets", async (req, res, next) => {
+  const q = req.query.q
+  if (!q || q=="") {
+    res.status(400).send("search query not provided")
+    return
+  }
+  try{
+    const tweetsSearchResults = await participantsService_selenium.searchTweets(q,tab_from_calling_function = res.locals.tab)
+    res.send(tweetsSearchResults)
+  }
+  catch(e){
+    console.log(e)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+});
+
+router.get("/searchPeople", async (req, res, next) => {
+  const q = req.query.q
+  if (!q || q=="") {
+    res.status(400).send("search query not provided")
+    return
+  }
+  try{
+    const PeopleSearchResults = await participantsService_selenium.searchPeople(q,tab_from_calling_function = res.locals.tab)
+    res.send(PeopleSearchResults)
+  }
+  catch(e){
+    console.log(e)
+    if(e.message == "inner-api-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+});
 /*
 Need to implement the endpoints below
 */

@@ -176,7 +176,7 @@ async function helpParseLikes(tab,all_likes_on_page){
     }
 }
 
-async function getProfileLink_ImageUrl(tweet,tweet_id){
+async function getProfileLink_ImageUrl(tweet){
     let link_href = null;
     let profile_img_url = null;
     try{
@@ -256,7 +256,7 @@ async function HelpParseTweets(all_tweets_on_page){
         let tweet = all_tweets_on_page[i];
 
         let tweet_id = await getTweetId(tweet);
-        let profile_link_img_url = await getProfileLink_ImageUrl(tweet,tweet_id);
+        let profile_link_img_url = await getProfileLink_ImageUrl(tweet);
         let replies_retweets_likes = await getTweetRepliesRetweetsLikes(tweet);
 
         let text = await tweet.getText();

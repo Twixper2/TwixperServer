@@ -1,6 +1,8 @@
-const {By, Key, until,Builder} = require('selenium-webdriver');
-const login_url = "https://twitter.com/i/flow/login";
+const {By, Key, until} = require('selenium-webdriver');
+const homepage_url = "https://twitter.com/i/flow/login";
+const userCookiesDB = require("../../db/mongodb/userCookiesCollection");
 const headless = false;
+
 
 async function createNewTab(){
     // Include selenium webdriver
@@ -54,6 +56,41 @@ async function isUserCredentialsValid(tab){
         return true;
     }
 }
+ /**
+  * The function receives a new page and insert the user cookies of the page he logged in from
+  * @param {*} tab - chrome web driver
+  * @param {*} username - user tweeter name 
+  * @returns chrome web driver with user cookies inside
+  */
+async function loadUserCookie(tab, username){
+    try{
+        let allCookies = await userCookiesDB.getCookiesByTwitterUserName(username);
+        allCookies.forEach(element => {
+            tab.manage().addCookie(element)
+        });
+        return tab;
+    }catch(e){
+        return null;
+    }
+
+}
+
+/**
+ * The function receives the page from which the user logged in and retrieves the cookies from it
+ * @param {*} tab - chrome web driver
+ * @param {*} username - user tweeter name 
+ * @returns boolean val of the oppression 
+ */
+async function saveUserCookie(tab, username){
+    try{
+        let allCookies = await tab.manage().getCookies();
+        await userCookiesDB.insertUserCookies(username,allCookies);
+        return true;
+    }catch(e){
+        return false;
+    }
+
+}
 
 async function logInProcess(data,tab){
     await tab.get(login_url);
@@ -69,6 +106,11 @@ async function logInProcess(data,tab){
     var validation_result = await isUserCredentialsValid(tab);
     if(validation_result == true){
         console.log("Successfully signed in twitter!");
+        //Waiting for the home page with the cookies to load before pulling them out
+        await new Promise(r => setTimeout(r, 2000));
+
+        await saveUserCookie(tab, data.user)
+        
         return true;
     }
     else{
@@ -77,5 +119,10 @@ async function logInProcess(data,tab){
     }
 }
 
-module.exports = {logInProcess : logInProcess, 
-                createNewTab : createNewTab};
+module.exports = 
+    {
+            logInProcess : logInProcess, 
+            createNewTab : createNewTab,
+            saveUserCookie : saveUserCookie,
+            loadUserCookie : loadUserCookie
+    };
