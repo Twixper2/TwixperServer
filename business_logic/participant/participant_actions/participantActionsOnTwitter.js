@@ -105,7 +105,7 @@ function logRegisteredToExperiment(participant){
 }
 
 function logParticipantActions(participant, actions){
-    // Add fileds to each action
+    // Add fields to each action
     actions.forEach(actionObj => {
         actionObj.participant_twitter_username = participant.participant_twitter_username
         actionObj.participant_group_id = participant.group_id
@@ -128,7 +128,7 @@ function validateActionsFields(actions){
         return false
     }
     actions.forEach((actionObj) => {
-        if (!typeof actionObj === 'object') {    // not an obj
+        if (!typeof actionObj === 'object') {  // not an obj
             return false
         }
         // Checking required fields

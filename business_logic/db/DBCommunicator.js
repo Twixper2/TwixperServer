@@ -4,7 +4,6 @@ var experimentsCollection = require("./mongodb/experimentsCollection")
 var participantsCollection = require("./mongodb/participantsCollection")
 var researchersCollection = require("./mongodb/researchersCollection")
 var injectionsCollection = require("./mongodb/injectionsCollection")
-
 var fileManager = require("./local_files/fileManager")
 
 

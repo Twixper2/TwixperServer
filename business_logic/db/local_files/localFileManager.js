@@ -125,7 +125,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
     const actionsDirectoryPath = experimentsDataPath + "\\" + expId 
 
     // reading actions names
-    // TODO: maybe needs to be changed to an implemintation who doesn't require
+    // TODO: maybe needs to be changed to an implementation who doesn't require
     // loading all file names to ram (instead, iterating one by one)
     let actionFileNames = []
     try {
@@ -157,7 +157,7 @@ async function handleCreatedReportRequest(reportRequestFilePath){
         return false
     }
 
-    // TODO: replace action files with merged file for performance improvments
+    // TODO: replace action files with merged file for performance improvements
     
     // making the file a valid json + writing experiment file
     // Remove last ","
@@ -258,7 +258,46 @@ function getNdjsonFromArray(arrOfObjects){
 	}
     return result.join("")
 }
+/**
+ * Creates exp metadata.json file under the exp's container.
+ * Exp id should be in "req.query.expId"
+ * Metadata Json should be in "req.body"
+*/
 
+async function CreateExpMetadataLocal(expId, metadataObj) {
+    try{
+            const filePath = experimentsDataPath + "\\" + expId + "\\experiment-metadata.json";
+            // Get a reference to a container
+            const fileContent = JSON.stringify(metadataObj);
+            var fs = require('fs');
+            fs.writeFile(filePath, fileContent, function(err) {
+                if (err) throw err;
+                }
+            );
+        }
+    catch(e){
+            console.log(e);
+            };
+    }
+
+    
+
+
+function CreateExpMetadataLocal(expId, metadataObj) {
+    try{
+            const filePath = experimentsDataPath + "\\" + expId + "\\experiment-metadata.json";
+            // Get a reference to a container
+            const fileContent = JSON.stringify(metadataObj);
+            var fs = require('fs');
+            fs.writeFile(filePath, fileContent, function(err) {
+                if (err) throw err;
+                }
+            );
+        }
+    catch(e){
+            console.log(e);
+            };
+    }
 module.exports = {
     setupFileManager: setupFileManager,
     createExperimentFolder: createExperimentFolder,
@@ -266,5 +305,6 @@ module.exports = {
     insertActionsArray: insertActionsArray,
     createReportRequest: createReportRequest,
     getReportPath : getReportPath,
-    checkReportRequestExists : checkReportRequestExists
+    checkReportRequestExists : checkReportRequestExists,
+    CreateExpMetadataLocal : CreateExpMetadataLocal
 }

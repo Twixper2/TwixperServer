@@ -4,8 +4,11 @@ coverage
 .nyc_output
 /dist
 .env
-.vscode
+/.vscode
 
 # local env files
 .env.local
 .env.*.loca
+.python_packages
+__pycache__
+.venv

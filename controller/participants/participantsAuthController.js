@@ -7,10 +7,10 @@ const bcrypt = require("bcryptjs");
 /**
  * Requesting the oauth tokens from twitter, by the oauth_callback param
  */
-router.post("/twitterAuthRequestToken", async (req, res, next) => {
+router.post("//twitterAuthRequestToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_callback){
-    res.status(400).send("No params suplied.")
+    res.status(400).send("No params supplied.")
     return
   }
   try{
@@ -31,7 +31,7 @@ router.post("/twitterAuthRequestToken", async (req, res, next) => {
 /**
  * Requesting the access token from twitter
  */
-router.post("/twitterAuthAccessToken", async (req, res, next) => {
+router.post("//twitterAuthAccessToken", async (req, res, next) => {
   const params = req.body
   if(!params || !params.oauth_token || !params.oauth_verifier){
     res.status(400).send("No params supplied.")
@@ -56,7 +56,7 @@ router.post("/twitterAuthAccessToken", async (req, res, next) => {
 /**
  * Check if participant has a valid session in db (the participant with the same token exists)
  */
-router.post("/participantValidateSession", async (req, res, next) => {
+router.post("//participantValidateSession", async (req, res, next) => {
   // if (req.session && req.session.userTwitterToken) {
   if (req.header('User-Twitter-Token')&&req.header('User-Twitter-Token-Secret') ) {
     // const token = req.session.userTwitterToken;
@@ -87,18 +87,18 @@ router.post("/participantValidateSession", async (req, res, next) => {
  * Gets oauth token and oauth token secret, returns two fields:
  * twitter_user_found - is this a real valid twitter user?
  * user_registered_to_experiment - is the user already registered to experiment? 
- * In case of real twitter user, we responde with the tokens in the header for the client to put them in the headers of it's requests
+ * In case of real twitter user, we respond with the tokens in the header for the client to put them in the headers of it's requests
  * (cookie-like implementation)
  */
 // if { twitter_user_found : true, user_registered_to_experiment : true }  give cookie with CURRENT tokens (if needed kill old cookies and give new)
 // if { twitter_user_found : true, user_registered_to_experiment : false } give cookies (regular new user registration)
 // if { twitter_user_found : false } do nothing, respond code 400
-router.post("/checkUserByCredentials", async (req, res, next) => {
+router.post("//checkUserByCredentials", async (req, res, next) => {
   try {
     const oauthToken = req.body.oauth_token
     const oauthTokenSecret = req.body.oauth_token_secret
     if (!oauthToken || !oauthTokenSecret) {
-      res.status(400).send("Not all params from oauth supllied.")
+      res.status(400).send("Not all params from oauth supplied.")
       return;
     } 
     
@@ -115,7 +115,7 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
     }
 
     /*
-    // deleting old cookies if they are differnt
+    // deleting old cookies if they are different
     if ((req.session &&  req.session.userTwitterToken && req.session.userTwitterToken!=oauthToken)
       || (req.session &&  req.session.userTwitterTokenSecret && req.session.userTwitterTokenSecret!=oauthTokenSecret)) {
         req.session.reset();
@@ -164,7 +164,7 @@ router.post("/checkUserByCredentials", async (req, res, next) => {
 }); 
 
 
-router.post("/registerToExperiment", async (req, res, next) => {
+router.post("//registerToExperiment", async (req, res, next) => {
   try {
     // validate request params and cookies
     const expCode = req.body.exp_code
