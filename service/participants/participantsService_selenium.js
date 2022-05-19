@@ -77,7 +77,7 @@ async function validateAccessToken(params=null){
     let userInfo = undefined; 
     if ( params != null ){
         userInfo = await participantAuthUtils_selenium.validateAccessToken_utils(params?.user);
-        if(bcrypt.compareSync(params.user + params.pass, userInfo.access_token)){
+        if(userInfo?.access_token && bcrypt.compareSync(params.user + params.pass, userInfo.access_token)){
             return userInfo;
         }
     }
