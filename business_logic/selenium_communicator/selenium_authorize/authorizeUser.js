@@ -1,5 +1,6 @@
 const {By, Key, until} = require('selenium-webdriver');
-const homepage_url = "https://twitter.com/i/flow/login";
+const login_url = "https://twitter.com/i/flow/login";
+const homepage_url = "https://twitter.com/home";
 const userCookiesDB = require("../../db/mongodb/userCookiesCollection");
 const headless = false;
 
