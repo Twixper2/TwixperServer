@@ -1,5 +1,7 @@
 const {By, Key, until} = require('selenium-webdriver');
-const homepage_url = "https://twitter.com/i/flow/login";
+const login_url = "https://twitter.com/i/flow/login";
+const home_url = "https://twitter.com/home";
+
 const userCookiesDB = require("../../db/mongodb/userCookiesCollection");
 const headless = false;
 
@@ -62,17 +64,17 @@ async function isUserCredentialsValid(tab){
   * @param {*} username - user tweeter name 
   * @returns chrome web driver with user cookies inside
   */
-async function loadUserCookie(tab, username){
+async function loadUserCookie(tab, username, allCookies=undefined){
     try{
-        let allCookies = await userCookiesDB.getCookiesByTwitterUserName(username);
+        if(!allCookies)
+            allCookies = await userCookiesDB.getCookiesByTwitterUserName(username);
         allCookies.forEach(element => {
             tab.manage().addCookie(element)
         });
         return tab;
     }catch(e){
-        return null;
+        return tab;
     }
-
 }
 
 /**
@@ -81,8 +83,9 @@ async function loadUserCookie(tab, username){
  * @param {*} username - user tweeter name 
  * @returns boolean val of the oppression 
  */
-async function saveUserCookie(tab, username){
+async function saveUserCookie(tab, username,allCookies=undefined){
     try{
+        
         let allCookies = await tab.manage().getCookies();
         await userCookiesDB.insertUserCookies(username,allCookies);
         return true;
@@ -91,8 +94,21 @@ async function saveUserCookie(tab, username){
     }
 
 }
-
+async function userLogInReq(data,tab){
+    try{
+        let allCookies = data.cookies; 
+        let username = data.user;   
+        await loadUserCookie(tab, username, allCookies);
+        await tab.get(home_url);
+        console.log("Successfully signed in twitter!");
+        
+        return true;
+    }catch(e){
+        return false;
+    }
+}
 async function logInProcess(data,tab){
+    
     await tab.get(login_url);
     // Timeout to wait if connection is slow
     await tab.manage().setTimeouts({
@@ -107,10 +123,6 @@ async function logInProcess(data,tab){
     if(validation_result == true){
         console.log("Successfully signed in twitter!");
         //Waiting for the home page with the cookies to load before pulling them out
-        await new Promise(r => setTimeout(r, 2000));
-
-        await saveUserCookie(tab, data.user)
-        
         return true;
     }
     else{
@@ -124,5 +136,6 @@ module.exports =
             logInProcess : logInProcess, 
             createNewTab : createNewTab,
             saveUserCookie : saveUserCookie,
-            loadUserCookie : loadUserCookie
+            loadUserCookie : loadUserCookie,
+            userLogInReq : userLogInReq
     };

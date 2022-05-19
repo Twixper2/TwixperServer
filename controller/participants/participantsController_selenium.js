@@ -105,13 +105,13 @@ router.get("/getUserProfile", async (req, res, next) => {
 });
 
 router.get("/searchTweets", async (req, res, next) => {
-  const q = req.query.q
+  const q = req.query.query
   if (!q || q=="") {
     res.status(400).send("search query not provided")
     return
   }
   try{
-    const tweetsSearchResults = await participantsService_selenium.searchTweets(q,tab_from_calling_function = res.locals.tab)
+    const tweetsSearchResults = await participantsService_selenium.searchTweets(req.server_sends_tab, q)
     res.send(tweetsSearchResults)
   }
   catch(e){
@@ -126,13 +126,13 @@ router.get("/searchTweets", async (req, res, next) => {
 });
 
 router.get("/searchPeople", async (req, res, next) => {
-  const q = req.query.q
+  const q = req.query.query
   if (!q || q=="") {
     res.status(400).send("search query not provided")
     return
   }
   try{
-    const PeopleSearchResults = await participantsService_selenium.searchPeople(q,tab_from_calling_function = res.locals.tab)
+    const PeopleSearchResults = await participantsService_selenium.searchPeople(req.server_sends_tab, q)
     res.send(PeopleSearchResults)
   }
   catch(e){
