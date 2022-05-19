@@ -222,13 +222,13 @@ async function getTweetRepliesRetweetsLikes(tweet){
         let group_of_buttons = await tweet.findElement(By.css("[role='group']"));
         let text_with_dets = await group_of_buttons.getAttribute("aria-label");
         let split_text_to_different_actions = text_with_dets.split(',');
-        if(split_text_to_different_actions[0].includes('replies')){
+        if(split_text_to_different_actions[0]?.includes('replies')){
             replies_num = split_text_to_different_actions[0].split(' ')[0];
         }
-        if(split_text_to_different_actions[1].includes('Retweets')){
+        if(split_text_to_different_actions[1]?.includes('Retweets')){
             retweets_num = split_text_to_different_actions[1].split(' ')[1];
         }
-        if(split_text_to_different_actions[2].includes('likes')){
+        if(split_text_to_different_actions[2]?.includes('likes')){
             likes_num = split_text_to_different_actions[2].split(' ')[1];
         }
     }

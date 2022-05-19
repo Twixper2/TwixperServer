@@ -11,6 +11,7 @@ async function userRun(user_credentials){
 
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
+    // await authorizeUser.userLogInReq(user_credentials,tab, By, Key);
 
     //-----------------------open second web driver with user cookies------------------------------------
     // let tab2 =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
