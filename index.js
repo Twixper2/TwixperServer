@@ -103,7 +103,6 @@ else{
   });
 }
 
-
 // console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
 
