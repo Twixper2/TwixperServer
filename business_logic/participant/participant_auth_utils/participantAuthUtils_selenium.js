@@ -12,7 +12,7 @@ async function userLogInReq(params,tab){
     return login_response;
 }
 
-async function validateAccessToken_utils(user=null){
+async function getUserInfo_utils(user=null){
     if ( user != null ){
         return await database.getInfoByTwitterUserName(user);
     }
@@ -26,5 +26,5 @@ async function createNewTab(){
 
 exports.logInProcess = logInProcess
 exports.createNewTab = createNewTab
-exports.validateAccessToken_utils = validateAccessToken_utils
+exports.validateAccessToken_utils = getUserInfo_utils
 exports.userLogInReq = userLogInReq
