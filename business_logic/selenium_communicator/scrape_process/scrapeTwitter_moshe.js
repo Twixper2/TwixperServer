@@ -1,7 +1,7 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 const twitterInnerApiUrl = "https://twitter.com/i/api/2"
-
+var searchTwitterTweetsIndex = 0;
 async function scrapeWhoToFollow(tab){
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
     var all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
@@ -66,6 +66,7 @@ async function postTweets(tab,tweet){
     await tabWait(tab,200);
     await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
 }
+
 /**
  * 
  * @param {*} tab 
@@ -75,11 +76,11 @@ async function postTweets(tab,tweet){
  */
 async function searchTwitterTweets(tab,query,mode="top"){
     // let searchTweetsUrl = "search?q="+query+"&src=typed_query&f="+ mode;
-    //open new tab - search page
+    // open new tab - search page
     // await tab.executeScript(`window.open("${searchTweetsUrl}");`);
-    //save all open tabs handles
+    // save all open tabs handles
     // const windowTab = await tab.getAllWindowHandles();
-    //switch to the new tab
+    // switch to the new tab
     // await tab.switchTo().window(windowTab[1]);
     
     console.log("starting search");
@@ -93,7 +94,6 @@ async function searchTwitterTweets(tab,query,mode="top"){
     // await tab.close();
     // go back to original window
     // await tab.switchTo().window(windowTab[0]);
-
     return tweets;
 }
 
@@ -106,13 +106,56 @@ async function searchTwitterTweets(tab,query,mode="top"){
  */
 async function searchTwitterPeople(tab,query,count=40){
     console.log("starting search");
-    await new Promise(r => setTimeout(r, 200));
+    // await new Promise(r => setTimeout(r, 200));
     await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f=user");
     await jumpToBottom(tab);
     let all_People_on_page = await tab.findElements(By.css("[data-testid='cellInnerDiv']"));
     return await searchPeopleParse_Data(all_People_on_page);
 }
 
+/*-------------------------------------search twitter--------------------------------------------*/
+
+async function openSearchTweetsTab(tab,query,mode="top"){
+    console.log("starting new search");
+    let searchTweetsUrl = "search?q="+query+"&src=typed_query&f="+ mode;
+    // open new tab - search page
+    await tab.executeScript(`window.open("${searchTweetsUrl}");`);
+    // save all open tabs handles
+    const windowTab = await tab.getAllWindowHandles();
+    // switch to the new tab
+    await tab.switchTo().window(windowTab[1]);
+    await jumpToBottom(tab)
+    //Brings the elements of the tweets
+    let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+    // parseTweets element
+    let tweets =  await HelpParseTweets(all_tweets_on_page);
+    searchTwitterTweetsIndex = tweets.length;
+    return tweets;
+}
+
+async function getMoreSearchTweets(tab){
+    await jumpToBottom(tab)
+    //Brings the elements of the tweets
+    let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+    // parseTweets element
+    let tweets =  await (await HelpParseTweets(all_tweets_on_page)).slice(searchTwitterTweetsIndex);
+    searchTwitterTweetsIndex = tweets.length;
+    return tweets;
+}
+
+
+async function closeSearchTweets(tab){
+    searchTwitterTweetsIndex = 0;
+    //close search page
+    await tab.close();
+    // go back to original window
+    await tab.switchTo().window(windowTab[0]);
+}
+
+
+
+
+/*-------------------------------------------help func ----------------------------------------------
 /**
  * 
  * @param {*} tab 
@@ -120,10 +163,9 @@ async function searchTwitterPeople(tab,query,count=40){
  */
 async function jumpToBottom(tab){
     console.log("starting jumpToBottom");
-    await new Promise(r => setTimeout(r, 5000));
-    await tab.executeScript("window.scrollBy(0,document.body.scrollHeight)");
     await new Promise(r => setTimeout(r, 2000));
-
+    await tab.executeScript("window.scrollBy(0,document.body.scrollHeight)");
+    await new Promise(r => setTimeout(r, 3000));
     console.log("ending jumpToBottom");
 
 }
@@ -413,6 +455,8 @@ module.exports = {
                 scrollPost : scrollPost,
                 searchTwitterTweets : searchTwitterTweets,
                 searchTwitterPeople : searchTwitterPeople,
-                postTweets: postTweets
-
+                postTweets: postTweets,
+                openSearchTweetsTab:openSearchTweetsTab,
+                getMoreSearchTweets:getMoreSearchTweets,
+                closeSearchTweets:closeSearchTweets
                 };

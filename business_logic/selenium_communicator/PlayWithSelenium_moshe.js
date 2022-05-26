@@ -20,12 +20,7 @@ async function userRun(user_credentials){
     //------------------------------------------ search ------------------------------------------
     let q = "ukraine";
     let mode="live"
-    let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode)
-    console.log(TweetsGlobalVariable);
-    searchResult1.slice(TweetsGlobalVariable);
-    TweetsGlobalVariable = searchResult1.length;
-    console.log(TweetsGlobalVariable);
-
+    let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
     // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
     console.log(searchResult1.length);
 
