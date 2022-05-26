@@ -26,5 +26,5 @@ async function createNewTab(){
 
 exports.logInProcess = logInProcess
 exports.createNewTab = createNewTab
-exports.validateAccessToken_utils = getUserInfo_utils
+exports.getUserInfo_utils = getUserInfo_utils
 exports.userLogInReq = userLogInReq

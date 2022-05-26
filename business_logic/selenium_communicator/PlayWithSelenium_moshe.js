@@ -5,24 +5,29 @@ const twitterInnerApiGet = require("../twitter_communicator/twitter_internal_api
 const homepage_url = "https://twitter.com/home";
 
 const {Builder, By, Key, until} = require('selenium-webdriver');
-
+var TweetsGlobalVariable = 0
 async function userRun(user_credentials){
-    let tab = await createNewTab();
+    // let tab = await createNewTab();
 
     // Log in to twitter and get cookies
-    await authorizeUser.logInProcess(user_credentials,tab, By, Key);
+    // await authorizeUser.logInProcess(user_credentials,tab, By, Key);
     // await authorizeUser.userLogInReq(user_credentials,tab, By, Key);
 
-    //-----------------------open second web driver with user cookies------------------------------------
-    // let tab2 =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
-    // await tab2.get(homepage_url);
+    // -----------------------open second web driver with user cookies------------------------------------
+    let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
+    await tab.get(homepage_url);
 
     //------------------------------------------ search ------------------------------------------
-    // let q = "Moshe Biran";
-    // let mode="top"
-    // let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
+    let q = "ukraine";
+    let mode="live"
+    let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode)
+    console.log(TweetsGlobalVariable);
+    searchResult1.slice(TweetsGlobalVariable);
+    TweetsGlobalVariable = searchResult1.length;
+    console.log(TweetsGlobalVariable);
+
     // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
-    // console.log(searchResult1);
+    console.log(searchResult1.length);
 
     ////------------------------------------------ post ------------------------------------------
     // let tweet = "hello world!";
