@@ -198,7 +198,7 @@ async function openTweetsSearchTab(tab,query,mode="live"){
         return tweets;
     }catch(error){
         console.log(error);
-        closeSearchTweets(tab);
+        closeSearchTab(tab);
     }
 }
 
