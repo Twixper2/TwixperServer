@@ -3,7 +3,6 @@ var router = express.Router();
 const { tabsHashMap } = require("../../config");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 
-
 /* Make sure user is authenticated by checking if tab is active
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
@@ -104,6 +103,49 @@ router.get("/getUserProfile", async (req, res, next) => {
   }
 });
 
+// router.get("/searchTweets", async (req, res, next) => {
+//   const q = req.query.query
+//   if (!q || q=="") {
+//     res.status(400).send("search query not provided")
+//     return
+//   }
+//   try{
+//     const tweetsSearchResults = await participantsService_selenium.searchTweets(req.server_sends_tab, q)
+//     res.send(tweetsSearchResults)
+//   }
+//   catch(e){
+//     console.log(e)
+//     if(e.message == "search-tweets-error"){ // error thrown from the api
+//       res.status(502).json(e);
+//     }
+//     else{
+//       res.sendStatus(500)
+//     }
+//   }
+// });
+
+// router.get("/searchPeople", async (req, res, next) => {
+//   const q = req.query.query
+//   if (!q || q=="") {
+//     res.status(400).send("search query not provided")
+//     return
+//   }
+//   try{
+//     const PeopleSearchResults = await participantsService_selenium.searchPeople(req.server_sends_tab, q)
+//     res.send(PeopleSearchResults)
+//   }
+//   catch(e){
+//     console.log(e)
+//     if(e.message == "search-people-error"){ // error thrown from the api
+//       res.status(502).json(e);
+//     }
+//     else{
+//       res.sendStatus(500)
+//     }
+//   }
+// });
+/*-------------------*/
+
 router.get("/searchTweets", async (req, res, next) => {
   const q = req.query.query
   if (!q || q=="") {
@@ -111,7 +153,7 @@ router.get("/searchTweets", async (req, res, next) => {
     return
   }
   try{
-    const tweetsSearchResults = await participantsService_selenium.searchTweets(req.server_sends_tab, q)
+    const tweetsSearchResults = await participantsService_selenium.newSearch(req.server_sends_tab, q)
     res.send(tweetsSearchResults)
   }
   catch(e){
@@ -125,26 +167,48 @@ router.get("/searchTweets", async (req, res, next) => {
   }
 });
 
-router.get("/searchPeople", async (req, res, next) => {
-  const q = req.query.query
-  if (!q || q=="") {
-    res.status(400).send("search query not provided")
-    return
-  }
-  try{
-    const PeopleSearchResults = await participantsService_selenium.searchPeople(req.server_sends_tab, q)
-    res.send(PeopleSearchResults)
-  }
-  catch(e){
-    console.log(e)
-    if(e.message == "search-people-error"){ // error thrown from the api
-      res.status(502).json(e);
+router.get("/searchTweets/getMoreSearchTweets", async (req, res, next) => {
+  let x = (await req.server_sends_tab.getAllWindowHandles()).length;
+
+    if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
+      res.status(400).send("Search page does not exist, try opening a new search")
+      return
     }
-    else{
-      res.sendStatus(500)
+    try{
+      const tweetsSearchResults = await participantsService_selenium.getMoreSearchTweets(req.server_sends_tab)
+      res.send(tweetsSearchResults)
     }
-  }
-});
+    catch(e){
+      console.log(e)
+      if(e.message == "search-tweets-error"){ // error thrown from the api
+        res.status(502).json(e);
+      }
+      else{
+        res.sendStatus(500)
+      }
+    }
+  });
+
+  router.get("/searchTweets/closeSearchTweets", async (req, res, next) => {
+    if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
+      res.status(400).send("Search page does not exist, try opening a new search")
+      return
+    }
+    try{
+      const tweetsSearchResults = await participantsService_selenium.closeSearchTweets(req.server_sends_tab)
+      res.send(tweetsSearchResults)
+    }
+    catch(e){
+      console.log(e)
+      if(e.message == "search-tweets-error"){ // error thrown from the api
+        res.status(502).json(e);
+      }
+      else{
+        res.sendStatus(500)
+      }
+    }
+  });
+
 /*
 Need to implement the endpoints below
 */

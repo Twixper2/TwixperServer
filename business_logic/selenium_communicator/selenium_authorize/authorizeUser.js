@@ -93,6 +93,12 @@ async function saveUserCookie(tab, username,allCookies=undefined){
     }
 
 }
+/**
+ * 
+ * @param {*} data - The information the been givin in the req 
+ * @param {*} tab - Current web page
+ * @returns interest the user's tab session information from the database (if its not is first conation)
+ */
 async function userLogInReq(data,tab){
     try{
         let allCookies = data.cookies; 
@@ -100,7 +106,6 @@ async function userLogInReq(data,tab){
         await loadUserCookie(tab, username, allCookies);
         await tab.get(home_url);
         console.log("Successfully signed in twitter!");
-        
         return true;
     }catch(e){
         return false;

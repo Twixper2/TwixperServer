@@ -16,8 +16,6 @@ async function searchUsers(q){
     return output
 }
 
-
-
 /**_______ Get data from twitter ______ **/
 
 /**

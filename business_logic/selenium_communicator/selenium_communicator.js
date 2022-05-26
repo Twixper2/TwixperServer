@@ -27,7 +27,7 @@ async function getFeed(tab){
 }
 
 async function getProfileContent(tab,tweet_username){
-    return await scrapeTwitter.getProfileContent(tab,tweet_username);
+    return await scrapeTwitter_moshe.getProfileContent(tab,tweet_username);
 }
 
 async function getTop_TweetsSearchResult(tab,q){
@@ -42,10 +42,21 @@ async function getPeople_SearchResult(tab,q){
     return await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
 }
 
+async function newSearch(tab,q){
+    return await scrapeTwitter_moshe.openSearchTweetsTab(tab,q);
+}
+async function getMoreSearchTweets(tab){
+    return await scrapeTwitter_moshe.getMoreSearchTweets(tab);
+}
+async function closeSearchTweets(tab){
+    return await scrapeTwitter_moshe.closeSearchTweets(tab);
+}
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
 exports.getProfileContent = getProfileContent
 exports.getTop_TweetsSearchResult = getTop_TweetsSearchResult
 exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
 exports.getPeople_SearchResult = getPeople_SearchResult
-
+exports.newSearch = newSearch
+exports.getMoreSearchTweets = getMoreSearchTweets
+exports.closeSearchTweets = closeSearchTweets

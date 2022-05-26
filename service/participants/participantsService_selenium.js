@@ -4,6 +4,7 @@ const manipulator = require("../../business_logic/participant/manipulator/manipu
 const config = require("../../config");
 const userCookiesDB = require("../../business_logic/db/mongodb/userCookiesCollection");
 const bcrypt = require("bcryptjs");
+const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator")
 
 
 /** ______Login_____ **/
@@ -27,9 +28,10 @@ async function logInProcess(params,access_token){
             await userCookiesDB.insertUserCookies(user,allCookies,access_token)
         }
     }
-
     let final_resp_without_tab = null;
     if(login_response){
+        //open user profile page
+        await new_tab.executeScript(`window.open("${user}");`);
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
@@ -136,6 +138,28 @@ async function searchPeople(tab_from_calling_function,q){
         return getProfileContent;
     }
 }
+
+/** ______Search for participant 2_____ **/
+
+async function newSearch(tab_from_calling_function,q){
+    if (tab_from_calling_function != undefined){
+        let searchResult = await selenium_communicator.newSearch(tab_from_calling_function,q);
+        return searchResult;
+    }
+}
+async function getMoreSearchTweets(tab_from_calling_function){
+    if (tab_from_calling_function != undefined){
+        let searchResult = await selenium_communicator.getMoreSearchTweets(tab_from_calling_function);
+        return searchResult;
+    }
+}
+async function closeSearchTweets(tab_from_calling_function){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.closeSearchTweets(tab_from_calling_function);
+        return true;
+    }
+}
+
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
@@ -143,3 +167,6 @@ exports.getProfileContent = getProfileContent
 exports.searchTweets = searchTweets
 exports.searchPeople = searchPeople
 exports.validateAccessToken = validateAccessToken
+exports.newSearch = newSearch
+exports.getMoreSearchTweets = getMoreSearchTweets
+exports.closeSearchTweets = closeSearchTweets
