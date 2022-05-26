@@ -105,6 +105,7 @@ router.get("/getUserProfile", async (req, res, next) => {
   }
 });
 
+//old searchTweets
 // router.get("/searchTweets", async (req, res, next) => {
 //   const q = req.query.query
 //   if (!q || q=="") {
@@ -170,16 +171,13 @@ router.get("/search/closeSearchTab", async (req, res, next) => {
   }
 });
 
-/**
- * 
- */
 router.get("/search/:searchMode", async (req, res, next) => {
 
   const q = req.query?.query;
 
   // searchMode - tweets or people
   const mode = req.params?.searchMode;
-  
+
   if (!q || q==""|| mode=="") {
     res.status(400).send("search query not provided")
     return
