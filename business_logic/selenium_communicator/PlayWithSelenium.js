@@ -15,13 +15,13 @@ async function userRun(user_credentials){
     // console.log(whoToFollowElement);
 
     await tabWait(tab,5000);
-    var n_first_tweets = await scrapeTwitter.getFeed(tab);
-    console.log(n_first_tweets);
+    // var n_first_tweets = await scrapeTwitter.getFeed(tab);
+    // console.log(n_first_tweets);
 
 
-    // let tweet_username = "BenCaspit";
-    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
-    // console.log(json_details);
+    let tweet_username = "elonmusk";
+    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
+    console.log(json_details);
 
 }   
 
