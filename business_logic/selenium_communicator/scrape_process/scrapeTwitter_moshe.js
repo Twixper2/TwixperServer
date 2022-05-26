@@ -1,6 +1,7 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 const twitterInnerApiUrl = "https://twitter.com/i/api/2"
+const {HelpParseTweets} = require("./scrapeTwitter");
 
 
 async function scrapeWhoToFollow(tab){
@@ -389,144 +390,144 @@ async function searchPeopleParse_Data(User_on_page){
     return Users_arr;
 }
 
-async function HelpParseTweets(all_tweets_on_page){
-    var tweets_arr = new Array();
-    // Iterate over each on n tweets
-    for(var i = 0 ; i < all_tweets_on_page.length; i++){
-        var tweet = all_tweets_on_page[i];
+// async function HelpParseTweets(all_tweets_on_page){
+//     var tweets_arr = new Array();
+//     // Iterate over each on n tweets
+//     for(var i = 0 ; i < all_tweets_on_page.length; i++){
+//         var tweet = all_tweets_on_page[i];
 
-        var profile_link = await getProfileLink(tweet);
-        var tweet_id = await getTweetId(tweet);
+//         var profile_link = await getProfileLink(tweet);
+//         var tweet_id = await getTweetId(tweet);
 
-        var text = await tweet.getText();
-        // To identify a poll on tweet
-        // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
-        var arr = text.split('\n');
-        var len_arr = arr.length;
-        var index_end_post_content = len_arr -1;
-        var after_post_index = 0;
-        var inside_after_post_index = 0;
-        var full_text = new Array(); 
+//         var text = await tweet.getText();
+//         // To identify a poll on tweet
+//         // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
+//         var arr = text.split('\n');
+//         var len_arr = arr.length;
+//         var index_end_post_content = len_arr -1;
+//         var after_post_index = 0;
+//         var inside_after_post_index = 0;
+//         var full_text = new Array(); 
 
-        // variables for json
-        var is_retweet = undefined;
-        var is_promoted = 0;
-        var created_at = undefined;
-        var user_name = undefined;
-        var user_url_name = undefined;
-        var comments_count = undefined;
-        var retweets_count = undefined;
-        var likes_count = undefined;
-        var shared_tweet = undefined;
+//         // variables for json
+//         var is_retweet = undefined;
+//         var is_promoted = 0;
+//         var created_at = undefined;
+//         var user_name = undefined;
+//         var user_url_name = undefined;
+//         var comments_count = undefined;
+//         var retweets_count = undefined;
+//         var likes_count = undefined;
+//         var shared_tweet = undefined;
 
-        // Conditions for parsing different tweets
-        if(arr[len_arr-1] === "Promoted"){
-            // Check if tweet is promoted tweet
-            user_name = arr[0];
-            user_url_name = arr[1];
-            after_post_index = 2;
-            is_promoted = 1;
-        }
-        else if(arr[0].includes("Retweeted")){
-            // Check if tweet is Retweet
-            user_name = arr[1];
-            user_url_name = arr[2];
-            created_at = arr[4];
-            after_post_index = 5;
-            is_retweet = arr[0];
-        }
-        else if(arr.includes("Quote Tweet")){
-            // Check if tweet is tweet sharing (quoting)
-            user_name = arr[0];
-            user_url_name = arr[1];
-            created_at = arr[3];
-            after_post_index = 4;
-            index_end_post_content = arr.indexOf("Quote Tweet");
-            is_retweet = 0;
+//         // Conditions for parsing different tweets
+//         if(arr[len_arr-1] === "Promoted"){
+//             // Check if tweet is promoted tweet
+//             user_name = arr[0];
+//             user_url_name = arr[1];
+//             after_post_index = 2;
+//             is_promoted = 1;
+//         }
+//         else if(arr[0].includes("Retweeted")){
+//             // Check if tweet is Retweet
+//             user_name = arr[1];
+//             user_url_name = arr[2];
+//             created_at = arr[4];
+//             after_post_index = 5;
+//             is_retweet = arr[0];
+//         }
+//         else if(arr.includes("Quote Tweet")){
+//             // Check if tweet is tweet sharing (quoting)
+//             user_name = arr[0];
+//             user_url_name = arr[1];
+//             created_at = arr[3];
+//             after_post_index = 4;
+//             index_end_post_content = arr.indexOf("Quote Tweet");
+//             is_retweet = 0;
 
-            // Now, figure out shared tweet's details
+//             // Now, figure out shared tweet's details
 
-            // Getting ready inside tweet to load inside the json
-            var inside_user_name = arr[index_end_post_content+1];
-            var inside_user_url_name = arr[index_end_post_content+2];
-            var inside_when_posted = arr[index_end_post_content+3].split(' ')[2];
-            inside_after_post_index = index_end_post_content+4;
-            var inside_post_content_arr = new Array();
+//             // Getting ready inside tweet to load inside the json
+//             var inside_user_name = arr[index_end_post_content+1];
+//             var inside_user_url_name = arr[index_end_post_content+2];
+//             var inside_when_posted = arr[index_end_post_content+3].split(' ')[2];
+//             inside_after_post_index = index_end_post_content+4;
+//             var inside_post_content_arr = new Array();
 
-            await getTweetContent(inside_after_post_index, len_arr, arr, inside_post_content_arr);
+//             await getTweetContent(inside_after_post_index, len_arr, arr, inside_post_content_arr);
             
-            // Modify pointer for comments, likes, retweets
+//             // Modify pointer for comments, likes, retweets
 
-            shared_tweet = {
-                user_name:inside_user_name,
-                user_url_name:inside_user_url_name,
-                created_at:inside_when_posted,
-                full_text:inside_post_content_arr,
-                comments_count:undefined,
-                retweets_count:undefined,
-                likes_count:undefined,
-                is_retweet:undefined,
-                is_promoted:undefined,
-                shared_tweet:undefined,
-            }
+//             shared_tweet = {
+//                 user_name:inside_user_name,
+//                 user_url_name:inside_user_url_name,
+//                 created_at:inside_when_posted,
+//                 full_text:inside_post_content_arr,
+//                 comments_count:undefined,
+//                 retweets_count:undefined,
+//                 likes_count:undefined,
+//                 is_retweet:undefined,
+//                 is_promoted:undefined,
+//                 shared_tweet:undefined,
+//             }
             
-        }
-        else{
-            // If it is a regular tweet
-            user_name = arr[0];
-            user_url_name = arr[1];
-            created_at = arr[3];
-            after_post_index = 4;
-        }
+//         }
+//         else{
+//             // If it is a regular tweet
+//             user_name = arr[0];
+//             user_url_name = arr[1];
+//             created_at = arr[3];
+//             after_post_index = 4;
+//         }
 
-        after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,full_text);
-        if(arr.includes("Quote Tweet")){
-            after_post_index = inside_after_post_index +1;
-        }
-        if(len_arr == after_post_index + 3){
-            // This means none of comments/retweets/likes is 0
-            comments_count = arr[after_post_index];
-            retweets_count = arr[after_post_index + 1];
-            likes_count = arr[after_post_index + 2];
-        }
-        tweets_arr.push({
-            user_name,
-            user_url_name,
-            created_at,
-            full_text,
-            comments_count,
-            retweets_count,
-            likes_count,
-            is_retweet,
-            is_promoted,
-            shared_tweet,
-            profile_link,
-            tweet_id
-        });
-    }
-    return tweets_arr;
-}
+//         after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,full_text);
+//         if(arr.includes("Quote Tweet")){
+//             after_post_index = inside_after_post_index +1;
+//         }
+//         if(len_arr == after_post_index + 3){
+//             // This means none of comments/retweets/likes is 0
+//             comments_count = arr[after_post_index];
+//             retweets_count = arr[after_post_index + 1];
+//             likes_count = arr[after_post_index + 2];
+//         }
+//         tweets_arr.push({
+//             user_name,
+//             user_url_name,
+//             created_at,
+//             full_text,
+//             comments_count,
+//             retweets_count,
+//             likes_count,
+//             is_retweet,
+//             is_promoted,
+//             shared_tweet,
+//             profile_link,
+//             tweet_id
+//         });
+//     }
+//     return tweets_arr;
+// }
 
-async function getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr){
-    // Push first line of content
-    post_content_arr.push(arr[after_post_index]);
-    // Iterate over arr to get amount of post rows
-    for(var j = 1 ; j < index_end_post_content; j++){
-        // Get arr range for post content
-        if(!/^\d+$/.test(arr[j+after_post_index]) && arr[j+after_post_index] != "Quote Tweet"){
-            post_content_arr.push(arr[j+after_post_index]);
-        }
-        else{
-            after_post_index = j+after_post_index;
-            break;
-        } 
-    }
-    return after_post_index;
-}
+// async function getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr){
+//     // Push first line of content
+//     post_content_arr.push(arr[after_post_index]);
+//     // Iterate over arr to get amount of post rows
+//     for(var j = 1 ; j < index_end_post_content; j++){
+//         // Get arr range for post content
+//         if(!/^\d+$/.test(arr[j+after_post_index]) && arr[j+after_post_index] != "Quote Tweet"){
+//             post_content_arr.push(arr[j+after_post_index]);
+//         }
+//         else{
+//             after_post_index = j+after_post_index;
+//             break;
+//         } 
+//     }
+//     return after_post_index;
+// }
 
-async function reloadPage(tab){
-    tab.navigate().refresh();
-}
+// async function reloadPage(tab){
+//     tab.navigate().refresh();
+// }
 
 
 module.exports = {

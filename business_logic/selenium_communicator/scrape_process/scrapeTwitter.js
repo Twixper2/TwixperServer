@@ -438,4 +438,5 @@ module.exports = {scrapeWhoToFollow : scrapeWhoToFollow,
                 getFeed : getFeed,
                 getProfileContent : getProfileContent,
                 scrollPost : scrollPost,
-                tabWait : tabWait};
+                tabWait : tabWait,
+                HelpParseTweets:HelpParseTweets};
