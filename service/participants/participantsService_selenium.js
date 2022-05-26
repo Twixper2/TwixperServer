@@ -141,21 +141,27 @@ async function searchPeople(tab_from_calling_function,q){
 
 /** ______Search for participant 2_____ **/
 
-async function newSearch(tab_from_calling_function,q){
+async function newTweetsSearch(tab_from_calling_function,q){
     if (tab_from_calling_function != undefined){
-        let searchResult = await selenium_communicator.newSearch(tab_from_calling_function,q);
+        let searchResult = await selenium_communicator.newTweetsSearch(tab_from_calling_function,q);
         return searchResult;
     }
 }
-async function getMoreSearchTweets(tab_from_calling_function){
+async function newPeopleSearch(tab_from_calling_function,q){
     if (tab_from_calling_function != undefined){
-        let searchResult = await selenium_communicator.getMoreSearchTweets(tab_from_calling_function);
+        let searchResult = await selenium_communicator.newPeopleSearch(tab_from_calling_function,q);
         return searchResult;
     }
 }
-async function closeSearchTweets(tab_from_calling_function){
+async function getMoreSearchResult(tab_from_calling_function,mode){
     if (tab_from_calling_function != undefined){
-        await selenium_communicator.closeSearchTweets(tab_from_calling_function);
+        let searchResult = await selenium_communicator.getMoreSearchResult(tab_from_calling_function,mode);
+        return searchResult;
+    }
+}
+async function closeSearchTab(tab_from_calling_function){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.closeSearchTab(tab_from_calling_function);
         return true;
     }
 }
@@ -167,6 +173,8 @@ exports.getProfileContent = getProfileContent
 exports.searchTweets = searchTweets
 exports.searchPeople = searchPeople
 exports.validateAccessToken = validateAccessToken
-exports.newSearch = newSearch
-exports.getMoreSearchTweets = getMoreSearchTweets
-exports.closeSearchTweets = closeSearchTweets
+exports.newTweetsSearch = newTweetsSearch
+exports.newPeopleSearch = newPeopleSearch
+
+exports.getMoreSearchResult = getMoreSearchResult
+exports.closeSearchTab = closeSearchTab

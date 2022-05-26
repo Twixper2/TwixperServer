@@ -42,14 +42,19 @@ async function getPeople_SearchResult(tab,q){
     return await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
 }
 
-async function newSearch(tab,q){
-    return await scrapeTwitter_moshe.openSearchTweetsTab(tab,q);
+async function newTweetsSearch(tab,q){
+    return await scrapeTwitter_moshe.openTweetsSearchTab(tab,q);
 }
-async function getMoreSearchTweets(tab){
-    return await scrapeTwitter_moshe.getMoreSearchTweets(tab);
+
+async function newPeopleSearch(tab,q){
+    return await scrapeTwitter_moshe.openPeopleSearchTab(tab,q);
 }
-async function closeSearchTweets(tab){
-    return await scrapeTwitter_moshe.closeSearchTweets(tab);
+
+async function getMoreSearchResult(tab,mode){
+    return await scrapeTwitter_moshe.getMoreSearchResult(tab,mode);
+}
+async function closeSearchTab(tab){
+    return await scrapeTwitter_moshe.closeSearchTab(tab);
 }
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
@@ -57,6 +62,8 @@ exports.getProfileContent = getProfileContent
 exports.getTop_TweetsSearchResult = getTop_TweetsSearchResult
 exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
 exports.getPeople_SearchResult = getPeople_SearchResult
-exports.newSearch = newSearch
-exports.getMoreSearchTweets = getMoreSearchTweets
-exports.closeSearchTweets = closeSearchTweets
+exports.newTweetsSearch = newTweetsSearch
+exports.newPeopleSearch = newPeopleSearch
+
+exports.getMoreSearchResult = getMoreSearchResult
+exports.closeSearchTab = closeSearchTab

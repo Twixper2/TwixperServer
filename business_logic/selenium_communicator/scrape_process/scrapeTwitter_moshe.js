@@ -2,7 +2,6 @@ const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 const twitterInnerApiUrl = "https://twitter.com/i/api/2"
 
-var searchTwitterTweetsTab = "";
 
 async function scrapeWhoToFollow(tab){
     var whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
@@ -136,19 +135,19 @@ async function searchTwitterPeople(tab,query,count=40){
  * @param {*} mode - live/top {live- recent tweets || top- most popular tweets}
  * @returns The tweets received from the search
  */
-async function openSearchTweetsTab(tab,query,mode="live"){
+async function openTweetsSearchTab(tab,query,mode="live"){
     try{
-        let searchTweetsUrl = "search?q="+query+"&src=typed_query&f="+ mode;
+        let searchUrl = "search?q="+query+"&src=typed_query&f="+ mode;
         console.log("starting new search");
-        if(    searchTwitterTweetsTab === "" ){
+        if((await tab.getAllWindowHandles()).length != 2 ){
             // open new tab - search page
-            await tab.executeScript(`window.open("${searchTweetsUrl}");`);
+            await tab.executeScript(`window.open("${searchUrl}");`);
+        }else{
+            tab.get("https://twitter.com/"+ searchUrl)
         }
             
         // save all open tabs handles
         const windowTab = await tab.getAllWindowHandles();
-        // save current search page id
-        searchTwitterTweetsTab = windowTab[1];
     
         // switch to the new tab
         await tab.switchTo().window(windowTab[1]);
@@ -157,7 +156,6 @@ async function openSearchTweetsTab(tab,query,mode="live"){
         let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
         // parseTweets element
         let tweets =  await HelpParseTweets(all_tweets_on_page);
-        searchTwitterTweetsIndex = tweets.length;
         return tweets;
     }catch(error){
         console.log(error);
@@ -169,16 +167,61 @@ async function openSearchTweetsTab(tab,query,mode="live"){
 /**
  * 
  * @param {*} tab - The user's current webdriver
+ * @param {*} query - rep params
+ * @param {*} mode - live/top {live- recent tweets || top- most popular tweets}
+ * @returns The tweets received from the search
+ */
+ async function openPeopleSearchTab(tab,query){
+    try{
+        let searchUrl = "search?q="+query+"&src=typed_query&f=user";
+        console.log("starting new search");
+        if((await tab.getAllWindowHandles()).length != 2 ){
+            // open new tab - search page
+            await tab.executeScript(`window.open("${searchUrl}");`);
+        }
+        else{
+            tab.get("https://twitter.com/"+ searchUrl)
+        }
+            
+        // save all open tabs handles
+        const windowTab = await tab.getAllWindowHandles();
+    
+        // switch to the new tab
+        await tab.switchTo().window(windowTab[1]);
+
+        await new Promise(r => setTimeout(r, 3000));
+
+        //Brings the elements of the tweets
+        let all_People_on_page = await tab.findElements(By.css("[data-testid='cellInnerDiv']"));
+        // parseTweets element
+        let tweets =  await searchPeopleParse_Data(all_People_on_page);
+        return tweets;
+    }catch(error){
+        console.log(error);
+        closeSearchTweets(tab);
+    }
+}
+
+/**
+ * 
+ * @param {*} tab - The user's current webdriver
  * @returns Continues to return more tweets in current search session
  */
-async function getMoreSearchTweets(tab){
+async function getMoreSearchResult(tab,mode){
     await jumpToBottom(tab)
-    //Brings the elements of the tweets
-    let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
-    // parseTweets element
-    let tweets = await HelpParseTweets(all_tweets_on_page);
-    searchTwitterTweetsIndex = tweets.length;
-    return tweets;
+    if(mode=="tweets"){
+        //Brings the elements of the tweets
+        let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+        // parseTweets element
+        let tweets = await HelpParseTweets(all_tweets_on_page);
+        return tweets;
+    }
+    if(mode=="people"){
+        let all_People_on_page = await tab.findElements(By.css("[data-testid='cellInnerDiv']")); 
+        let people = await searchPeopleParse_Data(all_People_on_page);
+        return people;
+    }
+
 }
 
 /**
@@ -186,8 +229,7 @@ async function getMoreSearchTweets(tab){
  * @param {*} tab - The user's current webdriver
  * @returns  close search session
  */
-async function closeSearchTweets(tab){
-    searchTwitterTweetsTab ="";
+async function closeSearchTab(tab){
     const windowTab = await tab.getAllWindowHandles();
     //close search page
     await tab.close();
@@ -496,7 +538,10 @@ module.exports = {
                 searchTwitterTweets : searchTwitterTweets,
                 searchTwitterPeople : searchTwitterPeople,
                 postTweets: postTweets,
-                openSearchTweetsTab:openSearchTweetsTab,
-                getMoreSearchTweets:getMoreSearchTweets,
-                closeSearchTweets:closeSearchTweets
+
+                openTweetsSearchTab:openTweetsSearchTab,
+                openPeopleSearchTab:openPeopleSearchTab,
+                getMoreSearchResult:getMoreSearchResult,
+                closeSearchTab:closeSearchTab
+                
                 };
