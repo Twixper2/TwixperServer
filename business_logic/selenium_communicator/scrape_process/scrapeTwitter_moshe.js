@@ -248,7 +248,7 @@ async function jumpToBottom(tab){
     await new Promise(r => setTimeout(r, 2000));
     await tab.executeScript("window.scrollBy(0,document.body.scrollHeight)");
     await new Promise(r => setTimeout(r, 3000));
-    console.log("ending jumpToBottom");
+    // console.log("ending jumpToBottom");
 
 }
 

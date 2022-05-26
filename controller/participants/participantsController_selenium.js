@@ -147,7 +147,10 @@ router.get("/getUserProfile", async (req, res, next) => {
 //   }
 // });
 /*-------------------*/
+
+
 router.get("/search/closeSearchTab", async (req, res, next) => {
+  //Checks if there are any other tabs open
   if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
     res.status(400).send("Search page does not exist, try opening a new search")
     return
@@ -167,14 +170,22 @@ router.get("/search/closeSearchTab", async (req, res, next) => {
   }
 });
 
+/**
+ * 
+ */
 router.get("/search/:searchMode", async (req, res, next) => {
+
   const q = req.query?.query;
+
+  // searchMode - tweets or people
   const mode = req.params?.searchMode;
+  
   if (!q || q==""|| mode=="") {
     res.status(400).send("search query not provided")
     return
   }
   try{
+    //According to the search parameter received by a search operation
     if(mode == "tweets"){
       const tweetsSearchResults = await participantsService_selenium.newTweetsSearch(req.server_sends_tab, q)
       res.send(tweetsSearchResults)
@@ -202,7 +213,7 @@ router.get("/search/:searchMode", async (req, res, next) => {
 
 router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => {
   const mode = req.params?.searchMode;
-
+  //Checks if there are any other tabs open
   if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
     res.status(400).send("Search page does not exist, try opening a new search")
     return
