@@ -98,7 +98,7 @@ async function getNotifications(tab){
         }else{
             tab.get("https://twitter.com/notifications")
         }
-        // await tabWait(tab,2000);
+        await tabWait(tab,3000);
 
         // save all open tabs handles
         const windowTab = await tab.getAllWindowHandles();
@@ -501,7 +501,6 @@ async function notificationsParseData(notifications_on_page){
         }
         else{
             console.log("not tweet")
-            // var svgTag = await notification?.findElement(By.tagName("svg"));
             var pathTag = await notification?.findElement(By.tagName("path"));
             var notificationSVG = await pathTag?.getAttribute(("d"));
             var notificationsType = notificationsIconsType(notificationSVG)
@@ -522,7 +521,7 @@ async function notificationsParseData(notifications_on_page){
                     "img":img,
                     "notificationText":notificationText,
                     "full_text":fullText,
-                    "icon":svgTag
+                    "iconPath":pathTag
                 });
             }
             if (notificationsType=="Alerts"){
@@ -541,21 +540,9 @@ async function notificationsParseData(notifications_on_page){
             // if (notificationsType=="Suggestions"){
             //     return "Suggestions";
             // }    
-            // if (notificationsType=="Alerts"){
-            //     return "Alerts";
-            // }
 
         }
 
-
-
-        // for(var i = 1 ; i < all_buttons.length; i++){
-        //     var text = await all_buttons[i]?.getText();
-        //     var arr = text.split('\n');
-        //     if(arr.length>1){
-        //         // notifications_arr.push({"user_name":arr[0],"user_name_url":arr[1],"img":img,"FollowingStatus":arr[2]});
-        //     }
-        // }
     }
     return notifications_arr;
 }
