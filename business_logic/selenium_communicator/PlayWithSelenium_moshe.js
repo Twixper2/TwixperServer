@@ -16,6 +16,9 @@ async function userRun(user_credentials){
     // -----------------------open second web driver with user cookies------------------------------------
     let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
     await tab.get(homepage_url);
+    let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
+    console.log(searchResult1);
+
 
     //------------------------------------------ search ------------------------------------------
     // let q = "ukraine";
@@ -25,9 +28,8 @@ async function userRun(user_credentials){
     // console.log(searchResult1.length);
 
     ////------------------------------------------ post ------------------------------------------
-    var tweet = "hello world! 📢";
-    await scrapeTwitter_moshe.postTweets(tab,tweet);
-
+    // var tweet = "hello world! 📢";
+    // await scrapeTwitter_moshe.postTweets(tab,tweet);
     // let n = 20;
     // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);
     // var whoToFollowElement = await scrapeTwitter_moshe.scrapeWhoToFollow(tab);

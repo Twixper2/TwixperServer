@@ -241,7 +241,7 @@ router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => 
 // For new tweets and comments
 router.post("/postTweet", async (req, res, next) => {
 
-  const tweetContext = req?.body.tweetContext;
+  const tweetContext = req?.body?.tweetContext;
   if (!tweetContext) {
     res.status(400).send("No tweet Context was provided.")
     return;

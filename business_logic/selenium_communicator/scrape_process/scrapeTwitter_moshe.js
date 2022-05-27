@@ -89,6 +89,48 @@ async function postTweets(tab,tweet){
     }
 }
 
+async function getNotifications(tab){
+    try{
+        console.log("starting new search");
+        if((await tab.getAllWindowHandles()).length != 2 ){
+            // open new tab - search page
+            await tab.executeScript(`window.open("notifications");`);
+        }else{
+            tab.get("https://twitter.com/notifications")
+        }
+        // await tabWait(tab,2000);
+
+        // save all open tabs handles
+        const windowTab = await tab.getAllWindowHandles();
+        // switch to the new tab
+        await tab.switchTo().window(windowTab[1]);
+        let all_notifications_on_page = await tab.findElements(By.css("[role='article']"));
+        let notifications = await notificationsParseData(all_notifications_on_page);
+        return notifications;
+    }
+    catch(error){
+        console.log(error);
+        await tab.close();
+        let mainTab = (await tab.getAllWindowHandles())[0];
+        await tab.switchTo().window(mainTab);
+    }
+}
+
+/**
+ * 
+ * @param {*} tab - The user's current webdriver
+ * @returns Continues to return more notifications in current session
+ */
+ async function getMoreNotifications(tab){
+        await jumpToBottom(tab)
+        //Brings the elements of the notifications
+        let all_notifications_on_page = await tab.findElements(By.css("[role='article']"));
+        // parse notifications element
+        let notifications = await HelpParseTweets(all_notifications_on_page);
+        return notifications;
+}
+
+
 /**---------------Attempt to allow to added emoji ------------------ */
 // async function postTweets(tab,tweet){
 //     try{
@@ -150,7 +192,7 @@ async function searchTwitterPeople(tab,query,count=40){
     return await searchPeopleParse_Data(all_People_on_page);
 }
 
-/*-------------------------------------search twitter--------------------------------------------*/
+/*-------------------------------------new search on twitter function--------------------------------------------*/
 
 /**
  * 
@@ -413,145 +455,142 @@ async function searchPeopleParse_Data(User_on_page){
     return Users_arr;
 }
 
-// async function HelpParseTweets(all_tweets_on_page){
-//     var tweets_arr = new Array();
-//     // Iterate over each on n tweets
-//     for(var i = 0 ; i < all_tweets_on_page.length; i++){
-//         var tweet = all_tweets_on_page[i];
+async function notificationsParseData(notifications_on_page){
+    var notifications_arr = new Array();
+    // Iterate over each on n User
+    for(var k = 0 ; k < notifications_on_page.length; k++){
+        
+        var notification = notifications_on_page[k];
+        let f = await notification.getAttribute(("data-testid"));
+        if(f=="tweet"){
+            let tweet_ids = await getTweetId(notification);
 
-//         var profile_link = await getProfileLink(tweet);
-//         var tweet_id = await getTweetId(tweet);
+            console.log("tweet");
+            var all_links = await notification?.findElements(By.css("[role='link']"));
 
-//         var text = await tweet.getText();
-//         // To identify a poll on tweet
-//         // var x = await tweet.findElements(By.xpath("//div[data-testid='card.wrapper']"));
-//         var arr = text.split('\n');
-//         var len_arr = arr.length;
-//         var index_end_post_content = len_arr -1;
-//         var after_post_index = 0;
-//         var inside_after_post_index = 0;
-//         var full_text = new Array(); 
+            var all_images = await all_links[0]?.findElements(By.css("img"));
+    
+            var img = await all_images[0]?.getAttribute("src");
+            var user_name = await all_links[1]?.getText();
+            var user_name_url = await all_links[2]?.getText();
+            var timeAgo = await all_links[3]?.getText();
 
-//         // variables for json
-//         var is_retweet = undefined;
-//         var is_promoted = 0;
-//         var created_at = undefined;
-//         var user_name = undefined;
-//         var user_url_name = undefined;
-//         var comments_count = undefined;
-//         var retweets_count = undefined;
-//         var likes_count = undefined;
-//         var shared_tweet = undefined;
+            var replyTo = new Array();
 
-//         // Conditions for parsing different tweets
-//         if(arr[len_arr-1] === "Promoted"){
-//             // Check if tweet is promoted tweet
-//             user_name = arr[0];
-//             user_url_name = arr[1];
-//             after_post_index = 2;
-//             is_promoted = 1;
-//         }
-//         else if(arr[0].includes("Retweeted")){
-//             // Check if tweet is Retweet
-//             user_name = arr[1];
-//             user_url_name = arr[2];
-//             created_at = arr[4];
-//             after_post_index = 5;
-//             is_retweet = arr[0];
-//         }
-//         else if(arr.includes("Quote Tweet")){
-//             // Check if tweet is tweet sharing (quoting)
-//             user_name = arr[0];
-//             user_url_name = arr[1];
-//             created_at = arr[3];
-//             after_post_index = 4;
-//             index_end_post_content = arr.indexOf("Quote Tweet");
-//             is_retweet = 0;
+            for(var i = 3 ; i < all_links.length; i++){
+                replyTo = await all_links[i]?.getText();
+            }
 
-//             // Now, figure out shared tweet's details
+            var all_buttons = await notification?.findElements(By.css("[role='button']"));
+    
+            var buttonsInfo = await getButtonInfo(all_buttons);
 
-//             // Getting ready inside tweet to load inside the json
-//             var inside_user_name = arr[index_end_post_content+1];
-//             var inside_user_url_name = arr[index_end_post_content+2];
-//             var inside_when_posted = arr[index_end_post_content+3].split(' ')[2];
-//             inside_after_post_index = index_end_post_content+4;
-//             var inside_post_content_arr = new Array();
+            var fullText = await notification.findElement(By.css("[data-testid='tweetText']")).getText();
+            notifications_arr.push(
+                {
+                "notificationType":"tweet",
+                "tweet_ids":tweet_ids,
+                "user_name":user_name,
+                "user_name_url":user_name_url,
+                "created_at":timeAgo,
+                "img":img,
+                "replyTo":replyTo,
+                "buttons":buttonsInfo,
+                "full_text":fullText
+            });
+        }
+        else{
+            console.log("not tweet")
+            // var svgTag = await notification?.findElement(By.tagName("svg"));
+            var pathTag = await notification?.findElement(By.tagName("path"));
+            var notificationSVG = await pathTag?.getAttribute(("d"));
+            var notificationsType = notificationsIconsType(notificationSVG)
+            if (notificationsType=="like"){
+                var all_links = await notification?.findElements(By.css("[role='link']"));
 
-//             await getTweetContent(inside_after_post_index, len_arr, arr, inside_post_content_arr);
+                var all_images = await all_links[0]?.findElements(By.css("img"));
+                var img = await all_images[0]?.getAttribute("src");
+
+                var user_name = await all_links[1]?.getText();
+                var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
+                var fullText = await notification?.findElement(By.css("[data-testid='tweetText']")).getText();
+
+                notifications_arr.push(
+                    {
+                    "notificationType":notificationsType,
+                    "user_name":user_name,
+                    "img":img,
+                    "notificationText":notificationText,
+                    "full_text":fullText,
+                    "icon":svgTag
+                });
+            }
+            if (notificationsType=="Alerts"){
+                var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
+                notifications_arr.push(
+                    {
+                    "notificationType":notificationsType,
+                    "notificationText":notificationText,
+                    "iconPath":pathTag
+                });
+            }
             
-//             // Modify pointer for comments, likes, retweets
+            // if (notificationsType=="Retweeted"){
+            //     return "Retweeted";
+            // }
+            // if (notificationsType=="Suggestions"){
+            //     return "Suggestions";
+            // }    
+            // if (notificationsType=="Alerts"){
+            //     return "Alerts";
+            // }
 
-//             shared_tweet = {
-//                 user_name:inside_user_name,
-//                 user_url_name:inside_user_url_name,
-//                 created_at:inside_when_posted,
-//                 full_text:inside_post_content_arr,
-//                 comments_count:undefined,
-//                 retweets_count:undefined,
-//                 likes_count:undefined,
-//                 is_retweet:undefined,
-//                 is_promoted:undefined,
-//                 shared_tweet:undefined,
-//             }
-            
-//         }
-//         else{
-//             // If it is a regular tweet
-//             user_name = arr[0];
-//             user_url_name = arr[1];
-//             created_at = arr[3];
-//             after_post_index = 4;
-//         }
+        }
 
-//         after_post_index = await getTweetContent(after_post_index,index_end_post_content,arr,full_text);
-//         if(arr.includes("Quote Tweet")){
-//             after_post_index = inside_after_post_index +1;
-//         }
-//         if(len_arr == after_post_index + 3){
-//             // This means none of comments/retweets/likes is 0
-//             comments_count = arr[after_post_index];
-//             retweets_count = arr[after_post_index + 1];
-//             likes_count = arr[after_post_index + 2];
-//         }
-//         tweets_arr.push({
-//             user_name,
-//             user_url_name,
-//             created_at,
-//             full_text,
-//             comments_count,
-//             retweets_count,
-//             likes_count,
-//             is_retweet,
-//             is_promoted,
-//             shared_tweet,
-//             profile_link,
-//             tweet_id
-//         });
-//     }
-//     return tweets_arr;
-// }
 
-// async function getTweetContent(after_post_index,index_end_post_content,arr,post_content_arr){
-//     // Push first line of content
-//     post_content_arr.push(arr[after_post_index]);
-//     // Iterate over arr to get amount of post rows
-//     for(var j = 1 ; j < index_end_post_content; j++){
-//         // Get arr range for post content
-//         if(!/^\d+$/.test(arr[j+after_post_index]) && arr[j+after_post_index] != "Quote Tweet"){
-//             post_content_arr.push(arr[j+after_post_index]);
-//         }
-//         else{
-//             after_post_index = j+after_post_index;
-//             break;
-//         } 
-//     }
-//     return after_post_index;
-// }
 
-// async function reloadPage(tab){
-//     tab.navigate().refresh();
-// }
+        // for(var i = 1 ; i < all_buttons.length; i++){
+        //     var text = await all_buttons[i]?.getText();
+        //     var arr = text.split('\n');
+        //     if(arr.length>1){
+        //         // notifications_arr.push({"user_name":arr[0],"user_name_url":arr[1],"img":img,"FollowingStatus":arr[2]});
+        //     }
+        // }
+    }
+    return notifications_arr;
+}
 
+async function getButtonInfo(all_buttons){
+    var comment = ((await all_buttons[1]?.getText())==''?0:(await all_buttons[1]?.getText()));
+    var reTweet = ((await all_buttons[2]?.getText())==''?0:(await all_buttons[2]?.getText()));
+    var likes = ((await all_buttons[3]?.getText())==''?0:(await all_buttons[3]?.getText()));
+    var shared = ((await all_buttons[4]?.getText())==''?0:(await all_buttons[4]?.getText()));
+
+    return {
+        "comments_count" : comment,
+        "retweets_count" : reTweet,
+        "likes_count"   : likes,
+        "shared"  : shared
+    }
+}
+function notificationsIconsType(notificationSVG){
+    var like = "M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12z"
+    var Retweeted = "M23.615 15.477c-.47-.47-1.23-.47-1.697 0l-1.326 1.326V7.4c0-2.178-1.772-3.95-3.95-3.95h-5.2c-.663 0-1.2.538-1.2 1.2s.537 1.2 1.2 1.2h5.2c.854 0 1.55.695 1.55 1.55v9.403l-1.326-1.326c-.47-.47-1.23-.47-1.697 0s-.47 1.23 0 1.697l3.374 3.375c.234.233.542.35.85.35s.613-.116.848-.35l3.375-3.376c.467-.47.467-1.23-.002-1.697zM12.562 18.5h-5.2c-.854 0-1.55-.695-1.55-1.55V7.547l1.326 1.326c.234.235.542.352.848.352s.614-.117.85-.352c.468-.47.468-1.23 0-1.697L5.46 3.8c-.47-.468-1.23-.468-1.697 0L.388 7.177c-.47.47-.47 1.23 0 1.697s1.23.47 1.697 0L3.41 7.547v9.403c0 2.178 1.773 3.95 3.95 3.95h5.2c.664 0 1.2-.538 1.2-1.2s-.535-1.2-1.198-1.2z"
+    var Suggestions = "M22.99 11.295l-6.986-2.13-.877-.326-.325-.88L12.67.975c-.092-.303-.372-.51-.688-.51-.316 0-.596.207-.688.51l-2.392 7.84-1.774.657-6.148 1.82c-.306.092-.515.372-.515.69 0 .32.21.6.515.69l7.956 2.358 2.356 7.956c.09.306.37.515.69.515.32 0 .6-.21.69-.514l1.822-6.15.656-1.773 7.84-2.392c.303-.09.51-.37.51-.687 0-.316-.207-.596-.51-.688z"
+    var Alerts = "M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"
+    if (notificationSVG==like){
+        return "like";
+    }
+    if (notificationSVG==Retweeted){
+        return "Retweeted";
+    }
+    if (notificationSVG==Suggestions){
+        return "Suggestions";
+    }    
+    if (notificationSVG==Alerts){
+        return "Alerts";
+    }
+}
 
 module.exports = {
                 getUser : getUser,
@@ -567,4 +606,5 @@ module.exports = {
                 openPeopleSearchTab:openPeopleSearchTab,
                 getMoreSearchResult:getMoreSearchResult,
                 closeSearchTab:closeSearchTab,
-                };
+                getNotifications: getNotifications
+};
