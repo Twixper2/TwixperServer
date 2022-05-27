@@ -18,15 +18,15 @@ async function userRun(user_credentials){
     await tab.get(homepage_url);
 
     //------------------------------------------ search ------------------------------------------
-    let q = "ukraine";
-    let mode="live"
-    let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
+    // let q = "ukraine";
+    // let mode="live"
+    // let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
     // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
-    console.log(searchResult1.length);
+    // console.log(searchResult1.length);
 
     ////------------------------------------------ post ------------------------------------------
-    // let tweet = "hello world!";
-    // await scrapeTwitter_moshe.postTweets(tab,tweet);
+    var tweet = "hello world! 📢";
+    await scrapeTwitter_moshe.postTweets(tab,tweet);
 
     // let n = 20;
     // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);

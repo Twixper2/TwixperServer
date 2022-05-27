@@ -166,6 +166,13 @@ async function closeSearchTab(tab_from_calling_function){
     }
 }
 
+async function postTweet(tab_from_calling_function,tweetContext){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);
+        return true;
+    }
+}
+
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
@@ -178,3 +185,4 @@ exports.newPeopleSearch = newPeopleSearch
 
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSearchTab = closeSearchTab
+exports.postTweet=postTweet

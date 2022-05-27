@@ -56,6 +56,10 @@ async function getMoreSearchResult(tab,mode){
 async function closeSearchTab(tab){
     return await scrapeTwitter_moshe.closeSearchTab(tab);
 }
+
+async function postTweet(tab,tweetContext){
+    return await scrapeTwitter_moshe.postTweets(tab,tweetContext);
+}
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
 exports.getProfileContent = getProfileContent
@@ -67,3 +71,4 @@ exports.newPeopleSearch = newPeopleSearch
 
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSearchTab = closeSearchTab
+exports.postTweet=postTweet

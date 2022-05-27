@@ -74,12 +74,35 @@ async function getProfileContent(tab,tweet_username){
 }
 
 async function postTweets(tab,tweet){
-    console.log("starting search");
-    // await tabWait(tab,2000);
-    await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(tweet);
-    await tabWait(tab,200);
-    await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
+    try{
+        await tabWait(tab,2000);
+        console.log("starting post");
+        const windowTab = await tab.getAllWindowHandles();
+        // switch to the main page
+        await tab.switchTo().window(windowTab[0]);
+        // await tabWait(tab,2000);
+        await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(tweet);
+        await tabWait(tab,200);
+        await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
+    }catch(error){
+        console.log(error);
+    }
 }
+
+/**---------------Attempt to allow to added emoji ------------------ */
+// async function postTweets(tab,tweet){
+//     try{
+//         await tabWait(tab,2000);
+//         var text_element = await tab.findElement(By.css("[data-testid='tweetTextarea_0']"));
+//         tab.executeScript(`arguments[0].innerHTML = '${tweet}'`, text_element)
+//         text_element .sendKeys('.')
+//         text_element .sendKeys(Key.RETURN)
+//         await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
+//     }catch(error){
+//         console.log(error);
+//     }
+// }
+
 
 /**
  * 
@@ -543,6 +566,5 @@ module.exports = {
                 openTweetsSearchTab:openTweetsSearchTab,
                 openPeopleSearchTab:openPeopleSearchTab,
                 getMoreSearchResult:getMoreSearchResult,
-                closeSearchTab:closeSearchTab
-                
+                closeSearchTab:closeSearchTab,
                 };

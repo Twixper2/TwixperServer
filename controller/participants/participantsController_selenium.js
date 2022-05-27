@@ -238,6 +238,36 @@ router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => 
   }
 });
 
+// For new tweets and comments
+router.post("/postTweet", async (req, res, next) => {
+
+  const tweetContext = req?.body.tweetContext;
+  if (!tweetContext) {
+    res.status(400).send("No tweet Context was provided.")
+    return;
+  }
+  try{
+    const publishTweetSuccess = await participantsService_selenium.postTweet(req.server_sends_tab,tweetContext);
+    if(publishTweetSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/postTweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      /* pay attention to e.code == 186: "Tweet needs to be a bit shorter." */
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
 
 
 
