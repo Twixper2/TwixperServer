@@ -512,7 +512,7 @@ async function notificationsParseData(notifications_on_page){
                         {
                         "notificationType":notificationsType,
                         "notificationText":notificationText,
-                        "iconPath":notificationSVG
+                        "iconPath":pathTag
                     });
                 }
                 else if(notificationsType){
@@ -530,7 +530,7 @@ async function notificationsParseData(notifications_on_page){
                         "img":img,
                         "notificationText":notificationText,
                         "full_text":fullText,
-                        "iconPath":pathTag
+                        "iconPath":pathTag.text
                     });
                 }
             }
