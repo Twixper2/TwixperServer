@@ -16,8 +16,21 @@ async function userRun(user_credentials){
     // -----------------------open second web driver with user cookies------------------------------------
     let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
     await tab.get(homepage_url);
-    let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
-    console.log(searchResult1);
+
+    var tweet_id = "1530516552084234244";
+    // var action = "like";
+    // var action = "liked";
+    var action = "reply";
+    var reply= "hello world!";
+    var user_url = "elonmusk";
+    let result =  await scrapeTwitter_moshe.addEmotionToTweets(tab,tweet_id,user_url,action,reply)
+    console.log(result);
+
+    //------------------------------------------ getNotifications ------------------------------------------
+
+    // let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
+    // console.log(searchResult1);
+
 
 
     //------------------------------------------ search ------------------------------------------
@@ -60,8 +73,8 @@ async function main(){
     // await userRun(credentials_1);
 
     // Retrieve user credentials
-    var credentials_3 = credentials.credentials_3;
-    await userRun(credentials_3);
+    var credentials_2 = credentials.credentials_2;
+    await userRun(credentials_2);
 }
 
 main();

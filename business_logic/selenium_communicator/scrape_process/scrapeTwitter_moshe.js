@@ -126,11 +126,103 @@ async function getNotifications(tab){
         //Brings the elements of the notifications
         let all_notifications_on_page = await tab.findElements(By.css("[role='article']"));
         // parse notifications element
-        let notifications = await HelpParseTweets(all_notifications_on_page);
+        let notifications = await notificationsParseData(all_notifications_on_page);
         return notifications;
 }
 
+async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined){
+    try{
+        console.log("starting addEmotionToTweets");
 
+        var currUrl = user_url+"/status/"+tweet_id;
+        await tab.executeScript(`window.open("${currUrl}");`);
+        await tabWait(tab,5000);
+        const windowTab = await tab.getAllWindowHandles();
+        // switch to the main page
+        const newTabHandle = windowTab[windowTab.length-1];
+        await tab.switchTo().window(newTabHandle);
+
+        let tweet = await tab.findElements(By.css("[role='article']"));
+        var tweet_buttons = await tweet[0]?.findElements(By.css("[role='button']"));
+        let label = undefined;
+        let button = undefined;
+        for(var i = 0 ; i < tweet_buttons.length; i++){
+            label = await tweet_buttons[i].getAttribute("aria-label");
+            if(label.toLocaleLowerCase()==action.toLocaleLowerCase()){
+                button = tweet_buttons[i];
+                break;
+            }
+        }
+        if(action == "like" || action == "liked"){
+            return await likeHandler(button);
+        }
+        else if(action == "reply"){
+            return await replyHandler(button,reply);
+        }
+        else if(action == "retweet"){
+            return await retweetHandler(button);
+        }
+        else{
+            return;
+        }
+
+    }catch(e){
+        console.log(e);
+        return "There was a problem with "+action;
+
+    }
+}
+
+    async function likeHandler(button){
+        try{    
+            
+            await button?.sendKeys(Key.RETURN);
+            return "like action has been fulfilled";
+            
+        }catch(e){
+            return "There was a problem adding 'like' action";
+        }
+    }
+
+    async function replyHandler(button,reply){
+            try{    
+                await button?.sendKeys(Key.RETURN);
+                await tabWait(tab,1000);
+                await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(reply);
+                await tabWait(tab,200);
+                await tab.findElement(By.css("[data-testid='tweetButton']")).sendKeys(Key.RETURN);
+                return "reply action has been fulfilled";
+ 
+            }catch(e){
+                return "There was a problem adding 'reply' action";
+            }
+    }
+
+    async function retweetHandler(button){
+        try{    
+            await button?.sendKeys(Key.RETURN);
+            await tabWait(tab,200);
+            await tab.findElement(By.css("[data-testid='retweetConfirm']")).sendKeys(Key.RETURN);
+            await tabWait(tab,200);
+            return "retweet action has been fulfilled";
+
+        }catch(e){
+            return "There was a problem adding 'retweet' action";
+        }
+    }
+
+    async function quoteTweetsHandler(button){
+        try{    
+            await button?.sendKeys(Key.RETURN);
+            await tabWait(tab,200);
+            await tab.findElement(By.css("[href='/compose/tweet']")).sendKeys(Key.RETURN);
+            await tabWait(tab,200);
+            return "retweet action has been fulfilled";
+
+        }catch(e){
+            return "There was a problem adding 'retweet' action";
+        }
+    }
 /**---------------Attempt to allow to added emoji ------------------ */
 // async function postTweets(tab,tweet){
 //     try{
@@ -295,7 +387,7 @@ async function getMoreSearchResult(tab,mode){
  * @param {*} tab - The user's current webdriver
  * @returns  close search session
  */
-async function closeSearchTab(tab){
+async function closeSecondTab(tab){
     const windowTab = await tab.getAllWindowHandles();
     //close search page
     await tab.close();
@@ -303,6 +395,8 @@ async function closeSearchTab(tab){
     await tab.switchTo().window(windowTab[0]);
     return;
 }
+
+
 
 
 /*-------------------------------------------help func ----------------------------------------------*/
@@ -466,7 +560,7 @@ async function notificationsParseData(notifications_on_page){
             if(f=="tweet"){
                 let tweet_ids = await getTweetId(notification);
     
-                console.log("tweet");
+                // console.log("tweet");
                 var all_links = await notification?.findElements(By.css("[role='link']"));
     
                 var all_images = await all_links[0]?.findElements(By.css("img"));
@@ -501,7 +595,7 @@ async function notificationsParseData(notifications_on_page){
                 });
             }
             else{
-                console.log("not tweet")
+                // console.log("not tweet")
                 var pathTag = await notification?.findElement(By.tagName("path"));
                 var notificationSVG = await pathTag?.getAttribute(("d"));
                 var notificationsType = notificationsIconsType(notificationSVG)
@@ -530,7 +624,7 @@ async function notificationsParseData(notifications_on_page){
                         "img":img,
                         "notificationText":notificationText,
                         "full_text":fullText,
-                        "iconPath":pathTag.text
+                        "iconPath":pathTag
                     });
                 }
             }
@@ -542,6 +636,11 @@ async function notificationsParseData(notifications_on_page){
     
 }
 
+/**
+ * 
+ * @param {*} all_buttons - All buttons tags in the notification - comment/reTweet/likes/shared - Relevant to tweets only
+ * @returns Mapping them by each button type and quantity of itb  
+ */
 async function getButtonInfo(all_buttons){
     var comment = ((await all_buttons[1]?.getText())==''?0:(await all_buttons[1]?.getText()));
     var reTweet = ((await all_buttons[2]?.getText())==''?0:(await all_buttons[2]?.getText()));
@@ -555,6 +654,12 @@ async function getButtonInfo(all_buttons){
         "shared"  : shared
     }
 }
+
+/**
+ * 
+ * @param {*} notificationSVG - The path of the alert icon
+ * @returns What kind of notification icon is it - (problematic because something may change in the future)
+ */
 function notificationsIconsType(notificationSVG){
     var like = "M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12z"
     var Retweeted = "M23.615 15.477c-.47-.47-1.23-.47-1.697 0l-1.326 1.326V7.4c0-2.178-1.772-3.95-3.95-3.95h-5.2c-.663 0-1.2.538-1.2 1.2s.537 1.2 1.2 1.2h5.2c.854 0 1.55.695 1.55 1.55v9.403l-1.326-1.326c-.47-.47-1.23-.47-1.697 0s-.47 1.23 0 1.697l3.374 3.375c.234.233.542.35.85.35s.613-.116.848-.35l3.375-3.376c.467-.47.467-1.23-.002-1.697zM12.562 18.5h-5.2c-.854 0-1.55-.695-1.55-1.55V7.547l1.326 1.326c.234.235.542.352.848.352s.614-.117.85-.352c.468-.47.468-1.23 0-1.697L5.46 3.8c-.47-.468-1.23-.468-1.697 0L.388 7.177c-.47.47-.47 1.23 0 1.697s1.23.47 1.697 0L3.41 7.547v9.403c0 2.178 1.773 3.95 3.95 3.95h5.2c.664 0 1.2-.538 1.2-1.2s-.535-1.2-1.198-1.2z"
@@ -577,6 +682,8 @@ function notificationsIconsType(notificationSVG){
     }
 }
 
+
+
 module.exports = {
                 getUser : getUser,
                 scrapeWhoToFollow : scrapeWhoToFollow, 
@@ -590,6 +697,8 @@ module.exports = {
                 openTweetsSearchTab:openTweetsSearchTab,
                 openPeopleSearchTab:openPeopleSearchTab,
                 getMoreSearchResult:getMoreSearchResult,
-                closeSearchTab:closeSearchTab,
-                getNotifications: getNotifications
+                closeSecondTab:closeSecondTab,
+                getNotifications: getNotifications,
+                getMoreNotifications:getMoreNotifications,
+                addEmotionToTweets: addEmotionToTweets
 };

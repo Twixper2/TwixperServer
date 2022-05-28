@@ -150,14 +150,14 @@ router.get("/getUserProfile", async (req, res, next) => {
 /*-------------------*/
 
 
-router.get("/search/closeSearchTab", async (req, res, next) => {
+router.get("/closeSearchTab", async (req, res, next) => {
   //Checks if there are any other tabs open
   if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
     res.status(400).send("Search page does not exist, try opening a new search")
     return
   }
   try{
-    const tweetsSearchResults = await participantsService_selenium.closeSearchTab(req.server_sends_tab)
+    const tweetsSearchResults = await participantsService_selenium.closeSecondTab(req.server_sends_tab)
     res.send(tweetsSearchResults)
   }
   catch(e){

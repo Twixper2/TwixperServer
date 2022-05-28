@@ -159,9 +159,9 @@ async function getMoreSearchResult(tab_from_calling_function,mode){
         return searchResult;
     }
 }
-async function closeSearchTab(tab_from_calling_function){
+async function closeSecondTab(tab_from_calling_function){
     if (tab_from_calling_function != undefined){
-        await selenium_communicator.closeSearchTab(tab_from_calling_function);
+        await selenium_communicator.closeSecondTab(tab_from_calling_function);
         return true;
     }
 }
@@ -184,5 +184,5 @@ exports.newTweetsSearch = newTweetsSearch
 exports.newPeopleSearch = newPeopleSearch
 
 exports.getMoreSearchResult = getMoreSearchResult
-exports.closeSearchTab = closeSearchTab
+exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
