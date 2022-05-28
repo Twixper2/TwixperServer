@@ -18,14 +18,21 @@ async function userRun(user_credentials){
     await tab.get(homepage_url);
 
     var tweet_id = "1530516552084234244";
-    // var action = "like";
-    // var action = "liked";
-    var action = "reply";
-    var reply= "hello world!";
     var user_url = "elonmusk";
-    let result =  await scrapeTwitter_moshe.addEmotionToTweets(tab,tweet_id,user_url,action,reply)
+    // data-testid="unretweet"
+    var action_1 = "like";
+    let result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_1)
     console.log(result);
-
+    var reply= "hello elonmusk! my name is Twixper";
+    var action_2 = "reply";
+    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_2,reply)
+    console.log(result);
+    var action_3 = "retweet";
+    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_3,reply)
+    console.log(result);
+    var action_4 = "liked";
+    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_4,reply)
+    console.log(result);
     //------------------------------------------ getNotifications ------------------------------------------
 
     // let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);

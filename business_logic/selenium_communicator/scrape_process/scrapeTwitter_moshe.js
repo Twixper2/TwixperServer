@@ -157,19 +157,24 @@ async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined)
             return await likeHandler(button);
         }
         else if(action == "reply"){
-            return await replyHandler(button,reply);
+            return await replyHandler(tab, button,reply);
         }
-        else if(action == "retweet"){
-            return await retweetHandler(button);
+        else if(action == "retweet" || action=="unretweet"){
+            return await retweetHandler(tab, button);
         }
         else{
-            return;
+            return undefined;
         }
 
     }catch(e){
         console.log(e);
         return "There was a problem with "+action;
 
+    }finally{
+        await tabWait(tab,1000);
+        await tab.close();
+        let mainTab = (await tab.getAllWindowHandles())[0];
+        await tab.switchTo().window(mainTab);
     }
 }
 
@@ -180,33 +185,37 @@ async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined)
             return "like action has been fulfilled";
             
         }catch(e){
+            console.log(e);
             return "There was a problem adding 'like' action";
         }
     }
 
-    async function replyHandler(button,reply){
+    async function replyHandler(tab, button, reply){
             try{    
                 await button?.sendKeys(Key.RETURN);
-                await tabWait(tab,1000);
+                await tabWait(tab,500);
                 await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(reply);
-                await tabWait(tab,200);
+                await tabWait(tab,500);
                 await tab.findElement(By.css("[data-testid='tweetButton']")).sendKeys(Key.RETURN);
+                await tabWait(tab,1000);
                 return "reply action has been fulfilled";
  
             }catch(e){
+                console.log(e);
                 return "There was a problem adding 'reply' action";
             }
     }
 
-    async function retweetHandler(button){
+    async function retweetHandler(tab, button){
         try{    
             await button?.sendKeys(Key.RETURN);
-            await tabWait(tab,200);
+            await tabWait(tab,500);
             await tab.findElement(By.css("[data-testid='retweetConfirm']")).sendKeys(Key.RETURN);
-            await tabWait(tab,200);
+            await tabWait(tab,500);
             return "retweet action has been fulfilled";
 
         }catch(e){
+            console.log(e);
             return "There was a problem adding 'retweet' action";
         }
     }
@@ -700,5 +709,5 @@ module.exports = {
                 closeSecondTab:closeSecondTab,
                 getNotifications: getNotifications,
                 getMoreNotifications:getMoreNotifications,
-                addEmotionToTweets: addEmotionToTweets
+                tweetsActionManager: tweetsActionManager
 };
