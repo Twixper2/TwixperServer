@@ -456,95 +456,90 @@ async function searchPeopleParse_Data(User_on_page){
 }
 
 async function notificationsParseData(notifications_on_page){
-    var notifications_arr = new Array();
-    // Iterate over each on n User
-    for(var k = 0 ; k < notifications_on_page.length; k++){
-        
-        var notification = notifications_on_page[k];
-        let f = await notification.getAttribute(("data-testid"));
-        if(f=="tweet"){
-            let tweet_ids = await getTweetId(notification);
-
-            console.log("tweet");
-            var all_links = await notification?.findElements(By.css("[role='link']"));
-
-            var all_images = await all_links[0]?.findElements(By.css("img"));
-    
-            var img = await all_images[0]?.getAttribute("src");
-            var user_name = await all_links[1]?.getText();
-            var user_name_url = await all_links[2]?.getText();
-            var timeAgo = await all_links[3]?.getText();
-
-            var replyTo = new Array();
-
-            for(var i = 3 ; i < all_links.length; i++){
-                replyTo = await all_links[i]?.getText();
-            }
-
-            var all_buttons = await notification?.findElements(By.css("[role='button']"));
-    
-            var buttonsInfo = await getButtonInfo(all_buttons);
-
-            var fullText = await notification.findElement(By.css("[data-testid='tweetText']")).getText();
-            notifications_arr.push(
-                {
-                "notificationType":"tweet",
-                "tweet_ids":tweet_ids,
-                "user_name":user_name,
-                "user_name_url":user_name_url,
-                "created_at":timeAgo,
-                "img":img,
-                "replyTo":replyTo,
-                "buttons":buttonsInfo,
-                "full_text":fullText
-            });
-        }
-        else{
-            console.log("not tweet")
-            var pathTag = await notification?.findElement(By.tagName("path"));
-            var notificationSVG = await pathTag?.getAttribute(("d"));
-            var notificationsType = notificationsIconsType(notificationSVG)
-            if (notificationsType=="like"){
-                var all_links = await notification?.findElements(By.css("[role='link']"));
-
-                var all_images = await all_links[0]?.findElements(By.css("img"));
-                var img = await all_images[0]?.getAttribute("src");
-
-                var user_name = await all_links[1]?.getText();
-                var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
-                var fullText = await notification?.findElement(By.css("[data-testid='tweetText']")).getText();
-
-                notifications_arr.push(
-                    {
-                    "notificationType":notificationsType,
-                    "user_name":user_name,
-                    "img":img,
-                    "notificationText":notificationText,
-                    "full_text":fullText,
-                    "iconPath":pathTag
-                });
-            }
-            if (notificationsType=="Alerts"){
-                var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
-                notifications_arr.push(
-                    {
-                    "notificationType":notificationsType,
-                    "notificationText":notificationText,
-                    "iconPath":pathTag
-                });
-            }
+    try{
+        var notifications_arr = new Array();
+        // Iterate over each on n User
+        for(var k = 0 ; k < notifications_on_page.length; k++){
             
-            // if (notificationsType=="Retweeted"){
-            //     return "Retweeted";
-            // }
-            // if (notificationsType=="Suggestions"){
-            //     return "Suggestions";
-            // }    
+            var notification = notifications_on_page[k];
+            let f = await notification.getAttribute(("data-testid"));
+            if(f=="tweet"){
+                let tweet_ids = await getTweetId(notification);
+    
+                console.log("tweet");
+                var all_links = await notification?.findElements(By.css("[role='link']"));
+    
+                var all_images = await all_links[0]?.findElements(By.css("img"));
+        
+                var img = await all_images[0]?.getAttribute("src");
+                var user_name = await all_links[1]?.getText();
+                var user_name_url = await all_links[2]?.getText();
+                var timeAgo = await all_links[3]?.getText();
+    
+                var replyTo = new Array();
+    
+                for(var i = 4 ; i < all_links.length; i++){
+                    replyTo += " " +await all_links[i]?.getText();
+                }
+    
+                var all_buttons = await notification?.findElements(By.css("[role='button']"));
+        
+                var buttonsInfo = await getButtonInfo(all_buttons);
+    
+                var fullText = await notification.findElement(By.css("[data-testid='tweetText']")).getText();
+                notifications_arr.push(
+                    {
+                    "notificationType":"tweet",
+                    "tweet_ids":tweet_ids,
+                    "user_name":user_name,
+                    "user_name_url":user_name_url,
+                    "created_at":timeAgo,
+                    "img":img,
+                    "replyTo":replyTo,
+                    "buttons":buttonsInfo,
+                    "full_text":fullText
+                });
+            }
+            else{
+                console.log("not tweet")
+                var pathTag = await notification?.findElement(By.tagName("path"));
+                var notificationSVG = await pathTag?.getAttribute(("d"));
+                var notificationsType = notificationsIconsType(notificationSVG)
 
+                if (notificationsType=="Alerts"){
+                    var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
+                    notifications_arr.push(
+                        {
+                        "notificationType":notificationsType,
+                        "notificationText":notificationText,
+                        "iconPath":notificationSVG
+                    });
+                }
+                else if(notificationsType){
+                    var all_links = await notification?.findElements(By.css("[role='link']"));
+                    var all_images = await all_links[0]?.findElements(By.css("img"));
+                    var img = await all_images[0]?.getAttribute("src");
+    
+                    var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).split('\n');
+                    var user_name = await notificationText[0];
+                    var fullText = await notification?.findElement(By.css("[data-testid='tweetText']")).getText();
+                    notifications_arr.push(
+                        {
+                        "notificationType":notificationsType,
+                        "user_name":user_name,
+                        "img":img,
+                        "notificationText":notificationText,
+                        "full_text":fullText,
+                        "iconPath":pathTag
+                    });
+                }
+            }
         }
+        return notifications_arr;
+    }catch(e){
 
     }
-    return notifications_arr;
+    
 }
 
 async function getButtonInfo(all_buttons){
@@ -576,6 +571,9 @@ function notificationsIconsType(notificationSVG){
     }    
     if (notificationSVG==Alerts){
         return "Alerts";
+    }
+    else{
+        return undefined;
     }
 }
 

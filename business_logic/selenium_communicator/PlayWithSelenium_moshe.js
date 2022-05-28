@@ -60,8 +60,8 @@ async function main(){
     // await userRun(credentials_1);
 
     // Retrieve user credentials
-    var credentials_2 = credentials.credentials_2;
-    await userRun(credentials_2);
+    var credentials_3 = credentials.credentials_3;
+    await userRun(credentials_3);
 }
 
 main();
