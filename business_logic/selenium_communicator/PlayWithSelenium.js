@@ -4,6 +4,7 @@ var credentials = require("../twitter_communicator/static_twitter_data/Credentia
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const bcrypt = require("bcryptjs");
 const { tabWait } = require("./scrape_process/scrapeTwitter.js");
+const manipulator = require("../participant/manipulator/manipulator.js");
 
 
 async function userRun(user_credentials){
@@ -11,17 +12,56 @@ async function userRun(user_credentials){
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_credentials,tab, By, Key);
 
-    // var whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
+    // let whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
     // console.log(whoToFollowElement);
 
+
+    // Define participant arg' for manipulation
+    const participant1 = {
+        "exp_id": "102",
+        "group_id": 11,
+        "participant_twitter_username": "yossi",
+        "participant_twitter_name": "Yossi",
+        "participant_twitter_friends_count": 84,
+        "participant_twitter_followers_count": 11,
+        "participant_twitter_profile_image": "https://pbs.twimg.com/profile_images/1327926340046229505/-XM4INec_normal.jpg",
+        "participant_email": "gmail@gmail.com",
+        "group_manipulations": [{
+            "type": "mute",
+            "users": ["elonmusk"],
+            "keywords": ["?"]
+        }, {
+            "type": "inject",
+            "users": [],
+            "keywords": []
+        }, {
+            "type": "pixel_media",
+            "users": [],
+            "keywords": []
+        }, {
+            "type": "remove_media",
+            "users": [],
+            "keywords": []
+        }]
+    }
+
     await tabWait(tab,5000);
-    // var n_first_tweets = await scrapeTwitter.getFeed(tab);
-    // console.log(n_first_tweets);
+    let n_first_tweets = await scrapeTwitter.getFeed(tab);
+    if (n_first_tweets) {
+        n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
+    }
+
+    console.log(n_first_tweets);
+
+    // console.log(await scrapeTwitter.scrapeWhoToFollow(tab));
 
 
-    let tweet_username = "elonmusk";
-    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
-    console.log(json_details);
+    
+
+
+    // let tweet_username = "elonmusk";
+    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
+    // console.log(json_details);
 
 }   
 

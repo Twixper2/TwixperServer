@@ -98,12 +98,11 @@ async function getFeed(params=null,tab_from_calling_function=null){
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
 
-        let getFeed = await selenium_communicator.getFeed(tab_to_use)
-        return getFeed;
+        let getFeed = await selenium_communicator.getFeed(tab_to_use);
         // if (getFeed) {
-        //     getFeed = await manipulator.manipulateTweets(participant, getFeed)
-        //     return twitterFeedTweets
+        //     getFeed = await manipulator.manipulateTweets(participant, twitterFeedTweets)
         // }
+        return getFeed;
     }
     return null;
 }
