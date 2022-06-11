@@ -20,7 +20,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
   }
   try{    
     let user_value_from_hashmap = null;
-
+    let cache = false;
     if(tabsHashMap.size > 0){
       for (var entry of tabsHashMap.entries()) {
         let key = entry[0],
@@ -28,9 +28,13 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
         if(bcrypt.compareSync(params.user + params.pass, key)){
           // Found tab open
           user_value_from_hashmap = value;
+          break;
         }
       }
     }
+
+
+    
     if(user_value_from_hashmap != null){
       // return profile dets etc.
       resp_without_tab_and_user = Object.assign({}, user_value_from_hashmap);
@@ -40,7 +44,22 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       return;
     }
 
-    let user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
+    
+    let user_and_pass_encrypted = undefined;
+    //Checks if the user give access_token, if is the same  has the one in the system -> loads the cookies
+    let result = await participantsService_selenium.validateAccessToken(params);
+    if(result){
+      params.cookies = result.cookies;
+      user_and_pass_encrypted = result.access_token;
+      // Open tab again
+      // Send client back his personal dets
+    }
+    else{
+      user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
+    }
+    
+
+    
     const login_response = await participantsService_selenium.logInProcess(params,user_and_pass_encrypted);
     if(login_response != null){
       res.status(200).send(login_response);

@@ -103,6 +103,9 @@ else{
   });
 }
 
+
 // console.log("** BBB10") // For identifying versions in azure
 // console.log(process.env.DB_NAME)
 
+//   console.log(`Server running at http://localhost:${port}/`);
+// });

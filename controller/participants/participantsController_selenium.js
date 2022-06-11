@@ -3,6 +3,7 @@ var router = express.Router();
 const { tabsHashMap } = require("../../config");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 
+var  searchMode = "";
 
 /* Make sure user is authenticated by checking if tab is active
   is not authorized, respond with code 401 */
@@ -104,19 +105,64 @@ router.get("/getUserProfile", async (req, res, next) => {
   }
 });
 
-router.get("/searchTweets", async (req, res, next) => {
-  const q = req.query.q
-  if (!q || q=="") {
-    res.status(400).send("search query not provided")
+//old searchTweets
+// router.get("/searchTweets", async (req, res, next) => {
+//   const q = req.query.query
+//   if (!q || q=="") {
+//     res.status(400).send("search query not provided")
+//     return
+//   }
+//   try{
+//     const tweetsSearchResults = await participantsService_selenium.searchTweets(req.server_sends_tab, q)
+//     res.send(tweetsSearchResults)
+//   }
+//   catch(e){
+//     console.log(e)
+//     if(e.message == "search-tweets-error"){ // error thrown from the api
+//       res.status(502).json(e);
+//     }
+//     else{
+//       res.sendStatus(500)
+//     }
+//   }
+// });
+
+// router.get("/searchPeople", async (req, res, next) => {
+//   const q = req.query.query
+//   if (!q || q=="") {
+//     res.status(400).send("search query not provided")
+//     return
+//   }
+//   try{
+//     const PeopleSearchResults = await participantsService_selenium.searchPeople(req.server_sends_tab, q)
+//     res.send(PeopleSearchResults)
+//   }
+//   catch(e){
+//     console.log(e)
+//     if(e.message == "search-people-error"){ // error thrown from the api
+//       res.status(502).json(e);
+//     }
+//     else{
+//       res.sendStatus(500)
+//     }
+//   }
+// });
+/*-------------------*/
+
+
+router.get("/closeSearchTab", async (req, res, next) => {
+  //Checks if there are any other tabs open
+  if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
+    res.status(400).send("Search page does not exist, try opening a new search")
     return
   }
   try{
-    const tweetsSearchResults = await participantsService_selenium.searchTweets(q,tab_from_calling_function = res.locals.tab)
+    const tweetsSearchResults = await participantsService_selenium.closeSecondTab(req.server_sends_tab)
     res.send(tweetsSearchResults)
   }
   catch(e){
     console.log(e)
-    if(e.message == "inner-api-error"){ // error thrown from the api
+    if(e.message == "search-tweets-error"){ // error thrown from the api
       res.status(502).json(e);
     }
     else{
@@ -125,19 +171,36 @@ router.get("/searchTweets", async (req, res, next) => {
   }
 });
 
-router.get("/searchPeople", async (req, res, next) => {
-  const q = req.query.q
-  if (!q || q=="") {
+router.get("/search/:searchMode", async (req, res, next) => {
+
+  const q = req.query?.query;
+
+  // searchMode - tweets or people
+  const mode = req.params?.searchMode;
+
+  if (!q || q==""|| mode=="") {
     res.status(400).send("search query not provided")
     return
   }
   try{
-    const PeopleSearchResults = await participantsService_selenium.searchPeople(q,tab_from_calling_function = res.locals.tab)
-    res.send(PeopleSearchResults)
+    //According to the search parameter received by a search operation
+    if(mode == "tweets"){
+      const tweetsSearchResults = await participantsService_selenium.newTweetsSearch(req.server_sends_tab, q)
+      res.send(tweetsSearchResults)
+    }
+    else if(mode == "people"){
+      const tweetsSearchResults = await participantsService_selenium.newPeopleSearch(req.server_sends_tab, q)
+      res.send(tweetsSearchResults)
+    }
+    else{
+      res.status(400).send("search mode not provided")
+      return
+    }
+
   }
   catch(e){
     console.log(e)
-    if(e.message == "inner-api-error"){ // error thrown from the api
+    if(e.message == "search-tweets-error"){ // error thrown from the api
       res.status(502).json(e);
     }
     else{
@@ -145,6 +208,69 @@ router.get("/searchPeople", async (req, res, next) => {
     }
   }
 });
+
+router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => {
+  const mode = req.params?.searchMode;
+  //Checks if there are any other tabs open
+  if ((await req.server_sends_tab.getAllWindowHandles()).length != 2) {
+    res.status(400).send("Search page does not exist, try opening a new search")
+    return
+  }
+  try{
+    if(mode == "tweets" || mode =="people"){
+      const tweetsSearchResults = await participantsService_selenium.getMoreSearchResult(req.server_sends_tab, mode)
+      res.send(tweetsSearchResults)
+    }
+    else{
+      res.status(400).send("search mode is not provided")
+      return
+    }
+
+  }
+  catch(e){
+    console.log(e)
+    if(e.message == "search-tweets-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+});
+
+// For new tweets and comments
+router.post("/postTweet", async (req, res, next) => {
+
+  const tweetContext = req?.body?.tweetContext;
+  if (!tweetContext) {
+    res.status(400).send("No tweet Context was provided.")
+    return;
+  }
+  try{
+    const publishTweetSuccess = await participantsService_selenium.postTweet(req.server_sends_tab,tweetContext);
+    if(publishTweetSuccess){
+      res.sendStatus(200)
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+  catch(e){
+    console.log("** Error in /participant/postTweet **")
+    console.log(e)
+    if(e.message){ // error thrown from the api
+      /* pay attention to e.code == 186: "Tweet needs to be a bit shorter." */
+      res.status(502).json(e); 
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+    }
+  }
+});
+
+
+
+
 /*
 Need to implement the endpoints below
 */

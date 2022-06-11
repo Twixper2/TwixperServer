@@ -5,28 +5,51 @@ const twitterInnerApiGet = require("../twitter_communicator/twitter_internal_api
 const homepage_url = "https://twitter.com/home";
 
 const {Builder, By, Key, until} = require('selenium-webdriver');
-
+var TweetsGlobalVariable = 0
 async function userRun(user_credentials){
-    let tab = await createNewTab();
+    // let tab = await createNewTab();
 
     // Log in to twitter and get cookies
-    await authorizeUser.logInProcess(user_credentials,tab, By, Key);
+    // await authorizeUser.logInProcess(user_credentials,tab, By, Key);
+    // await authorizeUser.userLogInReq(user_credentials,tab, By, Key);
 
-    //-----------------------open second web driver with user cookies------------------------------------
-    // let tab2 =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
-    // await tab2.get(homepage_url);
+    // -----------------------open second web driver with user cookies------------------------------------
+    let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
+    await tab.get(homepage_url);
 
-    //------------------------------------------ search ------------------------------------------
-    // let q = "Moshe Biran";
-    // let mode="top"
-    // let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
-    // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
+    var tweet_id = "1530516552084234244";
+    var user_url = "elonmusk";
+    // data-testid="unretweet"
+    var action_1 = "like";
+    let result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_1)
+    console.log(result);
+    var reply= "hello elonmusk! my name is Twixper";
+    var action_2 = "reply";
+    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_2,reply)
+    console.log(result);
+    var action_3 = "retweet";
+    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_3,reply)
+    console.log(result);
+    var action_4 = "liked";
+    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_4,reply)
+    console.log(result);
+    //------------------------------------------ getNotifications ------------------------------------------
+
+    // let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
     // console.log(searchResult1);
 
-    ////------------------------------------------ post ------------------------------------------
-    // let tweet = "hello world!";
-    // await scrapeTwitter_moshe.postTweets(tab,tweet);
 
+
+    //------------------------------------------ search ------------------------------------------
+    // let q = "ukraine";
+    // let mode="live"
+    // let searchResult1 = await scrapeTwitter_moshe.searchTwitterTweets(tab,q,mode);
+    // let searchResult = await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
+    // console.log(searchResult1.length);
+
+    ////------------------------------------------ post ------------------------------------------
+    // var tweet = "hello world! 📢";
+    // await scrapeTwitter_moshe.postTweets(tab,tweet);
     // let n = 20;
     // var n_first_tweets = await scrapeTwitter_moshe.get_n_first_tweets(tab,n);
     // var whoToFollowElement = await scrapeTwitter_moshe.scrapeWhoToFollow(tab);
