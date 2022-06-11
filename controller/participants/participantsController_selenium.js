@@ -3,7 +3,7 @@ var router = express.Router();
 const { tabsHashMap } = require("../../config");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 
-var  searchMode = "";
+var searchMode = "";
 
 /* Make sure user is authenticated by checking if tab is active
   is not authorized, respond with code 401 */
@@ -88,6 +88,7 @@ router.get("/getUserProfile", async (req, res, next) => {
       res.status(400).json("user field is empty.")
     }
     const getProfileContent = await participantsService_selenium.getProfileContent(params.user,null,tab);
+    // Add also Tweets & Likes tab
     res.send(getProfileContent);
   }
   catch(e){
