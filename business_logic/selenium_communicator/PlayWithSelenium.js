@@ -28,16 +28,16 @@ async function userRun(user_credentials){
         "participant_email": "gmail@gmail.com",
         "group_manipulations": [{
             "type": "mute",
-            "users": ["elonmusk"],
-            "keywords": ["?"]
+            "users": [],
+            "keywords": []
         }, {
             "type": "inject",
             "users": [],
             "keywords": []
         }, {
             "type": "pixel_media",
-            "users": [],
-            "keywords": []
+            "users": ["elonmusk"],
+            "keywords": ["?"]
         }, {
             "type": "remove_media",
             "users": [],
@@ -47,9 +47,9 @@ async function userRun(user_credentials){
 
     await tabWait(tab,5000);
     let n_first_tweets = await scrapeTwitter.getFeed(tab);
-    if (n_first_tweets) {
-        n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
-    }
+    // if (n_first_tweets) {
+    //     n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
+    // }
 
     console.log(n_first_tweets);
 

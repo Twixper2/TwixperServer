@@ -233,6 +233,44 @@ async function getTweetRepliesRetweetsLikes(tweet){
     }
 }
 
+async function getTweetPhotos(tweet){
+    let tweet_photos_url = new Array();
+    try{
+        let tweet_photos = await tweet.findElements(By.css("[data-testid='tweetPhoto']"));
+        for(let i=0; i< tweet_photos.length; i++){
+            tweet_photos_url.push({"type": "photo",
+                                "media_url_https": await (tweet_photos[i].findElement(By.css("img"))).getAttribute("src"),"sizes":{
+                                    "thumb":{
+                                       "w":150,
+                                       "h":150,
+                                       "resize":"crop"
+                                    },
+                                    "medium":{
+                                       "w":1200,
+                                       "h":675,
+                                       "resize":"fit"
+                                    },
+                                    "small":{
+                                       "w":680,
+                                       "h":383,
+                                       "resize":"fit"
+                                    },
+                                    "large":{
+                                       "w":1280,
+                                       "h":720,
+                                       "resize":"fit"
+                                    }
+                                 }});
+        }
+    }
+    catch(error){
+        console.log('No photos in tweet');
+    }
+    finally{
+        return tweet_photos_url;
+    }
+}
+
 async function isProfileVerified(tweet){
     let is_profile_verified = 0;
     try{
@@ -255,13 +293,14 @@ async function isProfileVerified(tweet){
     }
 }
 
-async function getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext(tweet){
+async function getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext_Media_Url_Https(tweet){
     let tweet_ids = await getTweetId(tweet);
     let profile_link_img_url = await getProfileLink_ImageUrl(tweet);
     let replies_retweets_likes = await getTweetRepliesRetweetsLikes(tweet);
     let is_profile_verified = await isProfileVerified(tweet);
     let full_text = await getTweetContent(tweet);
-    return {tweet_ids, profile_link_img_url, replies_retweets_likes, is_profile_verified, full_text};
+    let tweet_photos = await getTweetPhotos(tweet);
+    return {tweet_ids, profile_link_img_url, replies_retweets_likes, is_profile_verified, full_text, tweet_photos};
 }
 
 async function checkIfThereIsSocialContext(tweet){
@@ -296,8 +335,11 @@ async function HelpParseTweets(all_tweets_on_page){
         if(await checkIfThereIsSocialContext(tweet)){
             continue;
         }
-        let some_tweet_dets = await getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext(tweet); 
+        if(arr[len_arr-1] === "Promoted"){
+            continue;
+        }
 
+        let some_tweet_dets = await getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext_Media_Url_Https(tweet);
         let arr = (await tweet.getText()).split('\n');
         let len_arr = arr.length;
         let index_end_post_content = len_arr -1;
@@ -313,26 +355,28 @@ async function HelpParseTweets(all_tweets_on_page){
         let entities = {"hashtags":[],
                         "symbols":[],
                         "user_mentions":[],
-                        "urls":[]};
+                        "urls":[],
+                        "media":(some_tweet_dets.tweet_photos != null) ? some_tweet_dets.tweet_photos : []};
         let is_quote_status = false;
+        let is_profile_verified = (some_tweet_dets.is_profile_verified > 0) ? true : false;
+        let replies_retweets_likes = some_tweet_dets.replies_retweets_likes;
+        let profile_link_img_url = some_tweet_dets.profile_link_img_url;
+        let user = {name: user_name,
+                    screen_name : user_url_name};    
 
-        // Conditions for parsing different tweets
-        if(arr[len_arr-1] === "Promoted"){
-            continue;
-        }
-        else if(arr[0].includes("Retweeted")){
+        if(arr[0].includes("Retweeted")){
             // Check if tweet is Retweet
+            is_retweet = arr[0];
             user_name = arr[1];
             user_url_name = arr[2];
             created_at = arr[4];
             after_post_index = 5;
-            is_retweet = arr[0];
             is_quote_status = true;
         }
         else if(arr.includes("Quote Tweet")){
             // Check if tweet is tweet sharing (quoting)
             user_name = arr[0];
-            user_url_name = arr[1];
+            user_url_name = arr[1].split('@')[1];
             created_at = arr[3];
             after_post_index = 4;
             index_end_post_content = arr.indexOf("Quote Tweet");
@@ -340,98 +384,59 @@ async function HelpParseTweets(all_tweets_on_page){
 
             // Now, figure out shared tweet's details
             // Getting ready inside tweet to load inside the json
-            var inside_user_name = arr[index_end_post_content+1];
-            var inside_user_url_name = arr[index_end_post_content+2].split('@')[1];
-            var inside_when_posted = arr[index_end_post_content+3].split(' ')[2];
+            let inside_user_name = arr[index_end_post_content+1];
+            let inside_user_url_name = arr[index_end_post_content+2].split('@')[1];
+            let inside_when_posted = arr[index_end_post_content+3].split(' ')[2];
             inside_after_post_index = index_end_post_content+4;
-            var inside_post_content_arr = new Array();
-
-            await getQuotedTweetContent(inside_after_post_index, len_arr, arr, inside_post_content_arr);
-            // await getQuotedTweetProfilelink_Imageurl(tweet);
-            // let some_qouted_tweet_dets = await getQuotedTweetId_Profilelink_Imgurl(tweet); 
-            let quoted_profile_verified = false;
-            let quoted_tweet_id = null;
-            if(some_tweet_dets.is_profile_verified == 2){
-                quoted_profile_verified = true;
-            }
-            if(some_tweet_dets.tweet_ids.length == 2){
-                quoted_tweet_id = some_tweet_dets.tweet_ids[1];
-            }
-            
-            // shared_tweet = {
-            //     user_name:inside_user_name,
-            //     user_url_name:inside_user_url_name,
-            //     // profile_img_url: ,
-            //     created_at:inside_when_posted,
-            //     full_text:inside_post_content_arr,
-            //     is_profile_verified: quoted_profile_verified,
-            //     // profile_link: null,
-            //     // tweet_id: quoted_tweet_id
-            // }
-
+            let inside_post_content_arr = new Array();
             let inside_user = {name: inside_user_name,
                 screen_name : inside_user_url_name,
             };       
+            let inside_entities = {"hashtags":[],
+                        "symbols":[],
+                        "user_mentions":[],
+                        "urls":[],
+                        "media":[]};
+            let quoted_profile_verified = (some_tweet_dets.is_profile_verified == 2) ? true : false;
+            let quoted_tweet_id = some_tweet_dets.tweet_ids.length == 2 ? some_tweet_dets.tweet_ids[1] : null;
+
+            await getQuotedTweetContent(inside_after_post_index, len_arr, arr, inside_post_content_arr);
+            // await getQuotedTweetProfilelink_Imageurl(tweet);
+            // let some_qouted_tweet_dets = await getQuotedTweetId_Profilelink_Imgurl(tweet);             
 
             shared_tweet = {
                 user : inside_user,
-                // profile_img_url: ,
                 created_at:inside_when_posted,
                 full_text:inside_post_content_arr,
                 is_profile_verified: quoted_profile_verified,
-                entities : entities
+                entities : inside_entities
+                // profile_img_url: ,
                 // profile_link: null,
                 // tweet_id: quoted_tweet_id
             }
         }
         else{
-
             // If it is a regular tweet
             user_name = arr[0];
             user_url_name = arr[1].split('@')[1];
             created_at = arr[3];
             after_post_index = 4;
-        }
+        }    
 
-        let profile_verified = false;
-        if(some_tweet_dets.is_profile_verified > 0){
-            profile_verified = true;
-        }
-
-        // tweets_arr.push({
-        //     user_name,
-        //     user_url_name,
-        //     profile_img_url: some_tweet_dets.profile_link_img_url.profile_img_url,
-        //     created_at,
-        //     full_text : some_tweet_dets.full_text,
-        //     comments_count : some_tweet_dets.replies_retweets_likes.replies_num,
-        //     retweets_count : some_tweet_dets.replies_retweets_likes.retweets_num,
-        //     likes_count : some_tweet_dets.replies_retweets_likes.likes_num,
-        //     is_retweet,
-        //     is_profile_verified : profile_verified,
-        //     shared_tweet,
-        //     profile_link: some_tweet_dets.profile_link_img_url.link_href,
-        //     tweet_id : some_tweet_dets.tweet_ids[0],
-        // })
-
-        // This part is to compare ourselves to previous year's tweet object
-        let user = {name: user_name,
-                    screen_name : user_url_name,
-                    };                
         tweets_arr.push({
             user,
-            profile_img_url: some_tweet_dets.profile_link_img_url.profile_img_url,
             created_at,
+            is_profile_verified,
+            entities : entities,
+            comments_count : replies_retweets_likes.replies_num,
+            retweets_count : replies_retweets_likes.retweets_num,
+            likes_count : replies_retweets_likes.likes_num,
+            profile_img_url: profile_link_img_url.profile_img_url,
+            profile_link: profile_link_img_url.link_href,
             full_text : some_tweet_dets.full_text,
-            comments_count : some_tweet_dets.replies_retweets_likes.replies_num,
-            retweets_count : some_tweet_dets.replies_retweets_likes.retweets_num,
-            likes_count : some_tweet_dets.replies_retweets_likes.likes_num,
-            is_quote_status : is_quote_status,
-            is_profile_verified : profile_verified,
-            quoted_status : shared_tweet,
-            profile_link: some_tweet_dets.profile_link_img_url.link_href,
             tweet_id : some_tweet_dets.tweet_ids[0],
-            entities : entities
+            is_quote_status : is_quote_status,
+            quoted_status : shared_tweet
         });
     }
     return tweets_arr;
@@ -453,6 +458,7 @@ async function getQuotedTweetContent(after_post_index,index_end_post_content,arr
     }
     return after_post_index;
 }
+
 async function getTweetContent(tweet){
 
     let tweet_content = '';
