@@ -45,7 +45,7 @@ async function userRun(user_credentials){
         }]
     }
 
-    await tabWait(tab,5000);
+    await tabWait(tab,8000);
     let n_first_tweets = await scrapeTwitter.getFeed(tab);
     // if (n_first_tweets) {
     //     n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)

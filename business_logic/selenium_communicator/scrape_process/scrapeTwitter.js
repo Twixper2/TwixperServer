@@ -298,9 +298,9 @@ async function getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerific
     let profile_link_img_url = await getProfileLink_ImageUrl(tweet);
     let replies_retweets_likes = await getTweetRepliesRetweetsLikes(tweet);
     let is_profile_verified = await isProfileVerified(tweet);
-    let full_text = await getTweetContent(tweet);
+    let full_texts = await getTweetsContent(tweet);
     let tweet_photos = await getTweetPhotos(tweet);
-    return {tweet_ids, profile_link_img_url, replies_retweets_likes, is_profile_verified, full_text, tweet_photos};
+    return {tweet_ids, profile_link_img_url, replies_retweets_likes, is_profile_verified, full_texts, tweet_photos};
 }
 
 async function checkIfThereIsSocialContext(tweet){
@@ -335,17 +335,14 @@ async function HelpParseTweets(all_tweets_on_page){
         if(await checkIfThereIsSocialContext(tweet)){
             continue;
         }
-        if(arr[len_arr-1] === "Promoted"){
-            continue;
-        }
-
-        let some_tweet_dets = await getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext_Media_Url_Https(tweet);
         let arr = (await tweet.getText()).split('\n');
         let len_arr = arr.length;
         let index_end_post_content = len_arr -1;
         let after_post_index = 0;
-        let inside_after_post_index = 0;
-
+        if(arr[len_arr-1] === "Promoted"){
+            continue;
+        }
+        let some_tweet_dets = await getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext_Media_Url_Https(tweet);
         // variables for json
         let is_retweet = null;
         let created_at = null;
@@ -361,8 +358,8 @@ async function HelpParseTweets(all_tweets_on_page){
         let is_profile_verified = (some_tweet_dets.is_profile_verified > 0) ? true : false;
         let replies_retweets_likes = some_tweet_dets.replies_retweets_likes;
         let profile_link_img_url = some_tweet_dets.profile_link_img_url;
-        let user = {name: user_name,
-                    screen_name : user_url_name};    
+        let full_texts = some_tweet_dets.full_texts;
+           
 
         if(arr[0].includes("Retweeted")){
             // Check if tweet is Retweet
@@ -387,8 +384,6 @@ async function HelpParseTweets(all_tweets_on_page){
             let inside_user_name = arr[index_end_post_content+1];
             let inside_user_url_name = arr[index_end_post_content+2].split('@')[1];
             let inside_when_posted = arr[index_end_post_content+3].split(' ')[2];
-            inside_after_post_index = index_end_post_content+4;
-            let inside_post_content_arr = new Array();
             let inside_user = {name: inside_user_name,
                 screen_name : inside_user_url_name,
             };       
@@ -397,22 +392,16 @@ async function HelpParseTweets(all_tweets_on_page){
                         "user_mentions":[],
                         "urls":[],
                         "media":[]};
-            let quoted_profile_verified = (some_tweet_dets.is_profile_verified == 2) ? true : false;
-            let quoted_tweet_id = some_tweet_dets.tweet_ids.length == 2 ? some_tweet_dets.tweet_ids[1] : null;
-
-            await getQuotedTweetContent(inside_after_post_index, len_arr, arr, inside_post_content_arr);
-            // await getQuotedTweetProfilelink_Imageurl(tweet);
-            // let some_qouted_tweet_dets = await getQuotedTweetId_Profilelink_Imgurl(tweet);             
 
             shared_tweet = {
                 user : inside_user,
                 created_at:inside_when_posted,
-                full_text:inside_post_content_arr,
-                is_profile_verified: quoted_profile_verified,
-                entities : inside_entities
-                // profile_img_url: ,
-                // profile_link: null,
-                // tweet_id: quoted_tweet_id
+                full_text:(full_texts.length > 1) ? full_texts[1] : null,
+                is_profile_verified: (some_tweet_dets.is_profile_verified == 2) ? true : false,
+                entities : inside_entities,
+                profile_img_url: await getQuotedTweetImageurl(tweet),
+                profile_link: "https://twitter.com/"+inside_user_url_name
+                // tweet_id: (some_tweet_dets.tweet_ids.length == 2) ? some_tweet_dets.tweet_ids[1] : null
             }
         }
         else{
@@ -422,6 +411,9 @@ async function HelpParseTweets(all_tweets_on_page){
             created_at = arr[3];
             after_post_index = 4;
         }    
+
+        let user = {name: user_name,
+            screen_name : user_url_name}; 
 
         tweets_arr.push({
             user,
@@ -433,7 +425,7 @@ async function HelpParseTweets(all_tweets_on_page){
             likes_count : replies_retweets_likes.likes_num,
             profile_img_url: profile_link_img_url.profile_img_url,
             profile_link: profile_link_img_url.link_href,
-            full_text : some_tweet_dets.full_text,
+            full_text : some_tweet_dets.full_texts[0],
             tweet_id : some_tweet_dets.tweet_ids[0],
             is_quote_status : is_quote_status,
             quoted_status : shared_tweet
@@ -459,17 +451,23 @@ async function getQuotedTweetContent(after_post_index,index_end_post_content,arr
     return after_post_index;
 }
 
-async function getTweetContent(tweet){
+async function getQuotedTweetImageurl(tweet){
+    return await tweet.findElement(By.css("[role='presentation']")).findElement(By.css("img")).getAttribute("src");
+}
 
-    let tweet_content = '';
+async function getTweetsContent(tweet){
+    let tweet_text_contents_arr = new Array();
+    let tweet_contents = await tweet.findElements(By.css("[data-testid='tweetText']"));
     try{
-        tweet_content = await tweet.findElement(By.css("[data-testid='tweetText']")).getText(); 
+        for(let i=0; i<tweet_contents.length; i++){
+            tweet_text_contents_arr.push(await tweet_contents[i].getText());
+        }
     }
     catch(error){
-        console.log('No tweet content');
+        console.log('No tweet contents');
     }
     finally{
-        return tweet_content;
+        return tweet_text_contents_arr;
     }
 }
 
