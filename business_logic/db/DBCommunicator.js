@@ -4,8 +4,29 @@ var experimentsCollection = require("./mongodb/experimentsCollection")
 var participantsCollection = require("./mongodb/participantsCollection")
 var researchersCollection = require("./mongodb/researchersCollection")
 var injectionsCollection = require("./mongodb/injectionsCollection")
+var userCookiesCollection = require("./mongodb/userCookiesCollection")
 var fileManager = require("./local_files/fileManager")
+/**
+ * userCookies
+ */
+ async function insertUserCookies(username, userCookies = undefined, access_token = undefined) {
+    if(userCookies == undefined || username == undefined || access_token == undefined){
+        throw "userCookies / username / accessToken can't be null"
+    }
+    return await userCookiesCollection.insertUserCookies(username, userCookies, access_token);
 
+}
+
+/**
+ * this method returns user by twitter_id_str
+ * @param {user twitter id str} id 
+*/
+async function getInfoByTwitterUserName(username) {
+    if(username == undefined){
+        throw "username can't be null"
+    }
+    return await userCookiesCollection.getInfoByTwitterUserName(username);
+}
 
 /*
     _____ PARTICIPANTS _____
@@ -195,6 +216,8 @@ module.exports = {
     deleteParticipantsFromExp : deleteParticipantsFromExp,
     deleteInjectionDocs : deleteInjectionDocs,
     updateExpStatus : updateExpStatus,
-    setExpEndDate: setExpEndDate
+    setExpEndDate : setExpEndDate,
+    insertUserCookies : insertUserCookies,
+    getInfoByTwitterUserName : getInfoByTwitterUserName
 }
 

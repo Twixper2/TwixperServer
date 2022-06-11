@@ -2,16 +2,36 @@ const selenium_communicator = require("../../business_logic/selenium_communicato
 const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium");
 const manipulator = require("../../business_logic/participant/manipulator/manipulator.js")
 const config = require("../../config");
+const userCookiesDB = require("../../business_logic/db/mongodb/userCookiesCollection");
+const bcrypt = require("bcryptjs");
+const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator")
 
 
 /** ______Login_____ **/
 async function logInProcess(params,access_token){
-    let new_tab = await participantAuthUtils_selenium.createNewTab();
 
-    let login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
+    let new_tab = await participantAuthUtils_selenium.createNewTab();
+    let login_response = undefined;
+    let user = params.user;
+
+    if(params?.cookies){
+        login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
+    }
+
+    else{
+        login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
+        if(login_response){
+            
+            //First login - saves the cookies and tokens of the user
+            await new Promise(r => setTimeout(r, 2000));
+            let allCookies = await new_tab.manage().getCookies();
+            await userCookiesDB.insertUserCookies(user,allCookies,access_token)
+        }
+    }
     let final_resp_without_tab = null;
     if(login_response){
-        let user = params.user;
+        //open user profile page
+        await new_tab.executeScript(`window.open("${user}");`);
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
@@ -54,6 +74,19 @@ async function getWhoToFollow(params=null,tab_from_calling_function=null){
     return null;
 } 
 
+async function validateAccessToken(params=null){
+    let confirmation = false
+    let userInfo = undefined; 
+    if ( params != null ){
+        userInfo = await participantAuthUtils_selenium.getUserInfo_utils(params?.user);
+        if(userInfo?.access_token && bcrypt.compareSync(params.user + params.pass, userInfo.access_token)){
+            return userInfo;
+        }
+    }
+    return confirmation;
+}
+
+
 async function getFeed(params=null,tab_from_calling_function=null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
@@ -65,12 +98,11 @@ async function getFeed(params=null,tab_from_calling_function=null){
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
 
-        let getFeed = await selenium_communicator.getFeed(tab_to_use)
-        return getFeed;
+        let getFeed = await selenium_communicator.getFeed(tab_to_use);
         // if (getFeed) {
-        //     getFeed = await manipulator.manipulateTweets(participant, getFeed)
-        //     return twitterFeedTweets
+        //     getFeed = await manipulator.manipulateTweets(participant, twitterFeedTweets)
         // }
+        return getFeed;
     }
     return null;
 }
@@ -92,40 +124,64 @@ async function getProfileContent(tweet_username,params = null,tab_from_calling_f
     return null;
 }
 
-async function searchTweets(q,params = undefined,tab_from_calling_function = undefined){
-    if (params != undefined || tab_from_calling_function != undefined){
-        let tab_to_use = undefined;
-
-        if (tab_from_calling_function != undefined){
-            tab_to_use = tab_from_calling_function;
-        }
-        else{
-            tab_to_use = config.tabsHashMap.get(params.access_token);
-        }
-
-        let getProfileContent = await selenium_communicator.getTop_TweetsSearchResult(tab_to_use,q);
+async function searchTweets(tab_from_calling_function, q){
+    if (tab_from_calling_function != undefined){
+        let getProfileContent = await selenium_communicator.getLatest_TweetsSearchResult(tab_from_calling_function,q);
         return getProfileContent;
     }
 }
 
-async function searchPeople(q,params = undefined,tab_from_calling_function = undefined){
-    if (params != undefined || tab_from_calling_function != undefined){
-        let tab_to_use = undefined;
-
-        if (tab_from_calling_function != undefined){
-            tab_to_use = tab_from_calling_function;
-        }
-        else{
-            tab_to_use = config.tabsHashMap.get(params.access_token);
-        }
-
-        let getProfileContent = await selenium_communicator.getPeople_SearchResult(tab_to_use,q);
+async function searchPeople(tab_from_calling_function,q){
+    if (tab_from_calling_function != undefined){
+        let getProfileContent = await selenium_communicator.getPeople_SearchResult(tab_from_calling_function, q);
         return getProfileContent;
     }
 }
+
+/** ______Search for participant 2_____ **/
+
+async function newTweetsSearch(tab_from_calling_function,q){
+    if (tab_from_calling_function != undefined){
+        let searchResult = await selenium_communicator.newTweetsSearch(tab_from_calling_function,q);
+        return searchResult;
+    }
+}
+async function newPeopleSearch(tab_from_calling_function,q){
+    if (tab_from_calling_function != undefined){
+        let searchResult = await selenium_communicator.newPeopleSearch(tab_from_calling_function,q);
+        return searchResult;
+    }
+}
+async function getMoreSearchResult(tab_from_calling_function,mode){
+    if (tab_from_calling_function != undefined){
+        let searchResult = await selenium_communicator.getMoreSearchResult(tab_from_calling_function,mode);
+        return searchResult;
+    }
+}
+async function closeSecondTab(tab_from_calling_function){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.closeSecondTab(tab_from_calling_function);
+        return true;
+    }
+}
+
+async function postTweet(tab_from_calling_function,tweetContext){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);
+        return true;
+    }
+}
+
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
 exports.getProfileContent = getProfileContent
 exports.searchTweets = searchTweets
 exports.searchPeople = searchPeople
+exports.validateAccessToken = validateAccessToken
+exports.newTweetsSearch = newTweetsSearch
+exports.newPeopleSearch = newPeopleSearch
+
+exports.getMoreSearchResult = getMoreSearchResult
+exports.closeSecondTab = closeSecondTab
+exports.postTweet=postTweet

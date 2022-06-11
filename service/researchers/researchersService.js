@@ -36,7 +36,7 @@ async function getResearcher(id) {
 
 /**
  * add new researcher to db
- * @param {unuique id to authenticate the researcher} id 
+ * @param {unique id to authenticate the researcher} id 
  */
 async function registerResearcher(id, username, email) {
     return await researcherAuthUtils.registerResearcher(id, username, email)

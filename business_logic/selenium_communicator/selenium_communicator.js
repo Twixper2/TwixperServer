@@ -27,7 +27,7 @@ async function getFeed(tab){
 }
 
 async function getProfileContent(tab,tweet_username){
-    return await scrapeTwitter.getProfileContent(tab,tweet_username);
+    return await scrapeTwitter_moshe.getProfileContent(tab,tweet_username);
 }
 
 async function getTop_TweetsSearchResult(tab,q){
@@ -42,10 +42,33 @@ async function getPeople_SearchResult(tab,q){
     return await scrapeTwitter_moshe.searchTwitterPeople(tab,q);
 }
 
+async function newTweetsSearch(tab,q){
+    return await scrapeTwitter_moshe.openTweetsSearchTab(tab,q);
+}
+
+async function newPeopleSearch(tab,q){
+    return await scrapeTwitter_moshe.openPeopleSearchTab(tab,q);
+}
+
+async function getMoreSearchResult(tab,mode){
+    return await scrapeTwitter_moshe.getMoreSearchResult(tab,mode);
+}
+async function closeSecondTab(tab){
+    return await scrapeTwitter_moshe.closeSecondTab(tab);
+}
+
+async function postTweet(tab,tweetContext){
+    return await scrapeTwitter_moshe.postTweets(tab,tweetContext);
+}
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
 exports.getProfileContent = getProfileContent
 exports.getTop_TweetsSearchResult = getTop_TweetsSearchResult
 exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
 exports.getPeople_SearchResult = getPeople_SearchResult
+exports.newTweetsSearch = newTweetsSearch
+exports.newPeopleSearch = newPeopleSearch
 
+exports.getMoreSearchResult = getMoreSearchResult
+exports.closeSecondTab = closeSecondTab
+exports.postTweet=postTweet
