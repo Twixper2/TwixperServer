@@ -1,7 +1,7 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 const twitterInnerApiUrl = "https://twitter.com/i/api/2"
-const {HelpParseTweets} = require("./scrapeTwitter");
+const {HelpParseTweets,isProfileVerified} = require("./scrapeTwitter");
 
 
 async function scrapeWhoToFollow(tab){
@@ -549,9 +549,11 @@ async function searchPeopleParse_Data(User_on_page){
         var img_1 = await all_images[0]?.getAttribute("src");
         for(var i = 0 ; i < all_buttons.length; i++){
             var text = await all_buttons[i]?.getText();
+            let is_profile_verified = (await isProfileVerified(all_buttons[i]) > 0) ? true : false;
+
             var arr = text.split('\n');
             if(arr.length>1){
-                Users_arr.push({"user_name":arr[0],"user_name_url":arr[1],"img":img_1,"FollowingStatus":arr[2]});
+                Users_arr.push({"name":arr[0],"screen_name":arr[1],"img":img_1,"FollowingStatus":arr[2],"description":arr[3],"is_profile_verified":is_profile_verified});
             }
         }
     }
