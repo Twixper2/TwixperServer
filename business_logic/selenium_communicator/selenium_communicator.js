@@ -16,9 +16,9 @@ async function scrapeWhoToFollow(tab){
     return await scrapeTwitter.scrapeWhoToFollow(tab);
 }
 
-async function getUserEntityData(tab){
-    return await scrapeTwitter.getUserEntityData(tab);
-}
+// async function getUserEntityData(tab){
+//     return await scrapeTwitter.getUserEntityData(tab);
+// }
 
 async function getFeed(tab){
     await redirectToHomePageIfNeeded(tab);
@@ -27,7 +27,7 @@ async function getFeed(tab){
 }
 
 async function getProfileContent(tab,tweet_username){
-    return await scrapeTwitter_moshe.getProfileContent(tab,tweet_username);
+    return await scrapeTwitter.getProfileContent(tab,tweet_username);
 }
 
 async function getTop_TweetsSearchResult(tab,q){

@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 // const session = require("client-sessions");
 const fileManager = require("./business_logic/db/local_files/fileManager")
 const config = require('./config')
-var liad_isProd = false;
+var isProd = false;
 var app = express();
 
 
@@ -57,6 +57,11 @@ const researcherController = require("./controller/researchers/researchersContro
 const participantsAuthController_selenium = require("./controller/participants/participantsAuthController_selenium");
 const participantsController_selenium  = require("./controller/participants/participantsController_selenium");
 
+/**
+ * Here will be a setInterval to check
+   for push notifications
+   example - setinterval(checkForPushNot , 50000ms);
+*/
 
 app.get("//", (req, res) => res.send("welcome v.2"));
 
@@ -81,7 +86,7 @@ app.use((req,res) => {
 const port =  process.env.PORT || 3000;
 
 
-if(liad_isProd){
+if(isProd){
   // configure Https
   let fs = require('fs');
   let privateKey  = fs.readFileSync('C:\\Program Files\\Git\\usr\\bin\\privateKey.key', 'utf8');

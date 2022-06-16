@@ -57,15 +57,16 @@ async function scrollPost(tab){
 
 async function getProfileContent(tab,tweet_username){
     try{
-        // await tabWait(tab,2000);
+        await tabWait(tab,4000);
         await reloadPage(tab);
         await tab.get("https://twitter.com/"+tweet_username);
         let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-        let json_details = await getPersonalDetailsFromProfileContent(primary_column);
-        // await getTweetsTabFromProfileContent(tab);
-        // await getLikesTabFromProfileContent(tab);
+        let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
+        let tweets_tab_details = await getTweetsTabFromProfileContent(tab);
+        await tabWait(tab,4000);
+        let likes_tab_details = await getLikesTabFromProfileContent(tab);
 
-        return json_details;
+        return {entity_details, tweets_tab_details, likes_tab_details};
     }
     catch(error){
         console.log(error);
@@ -86,6 +87,7 @@ async function getPersonalDetailsFromProfileContent(primary_column){
         await retrieveWhenJoinedFromElement(json_of_details,primary_column);
         json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserUrl']")));
         json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserProfessionalCategory']")));
+        json_of_details.is_profile_verified = (await isProfileVerified(await primary_column.findElement(By.css("[role='heading']"))) > 0) ? true : false; 
     }
     catch(error){
         // One of the elements has not been field by the user
@@ -144,7 +146,7 @@ async function getLikesTabFromProfileContent(tab){
         await tabWait(tab,2000);
         let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
         let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
-        let likes_arr = await helpParseLikes(tab,all_likes_on_page);
+        return await HelpParseTweets(all_likes_on_page);
     }
     catch(error){
         console.log(error);
@@ -474,6 +476,10 @@ async function getTweetsContent(tweet){
 async function reloadPage(tab){
     tab.navigate().refresh();
 }
+
+// async function algorithmicRankingButton(tab){
+    
+// }
 
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 getFeed : getFeed,
