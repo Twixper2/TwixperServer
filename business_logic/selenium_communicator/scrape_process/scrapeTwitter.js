@@ -55,18 +55,49 @@ async function scrollPost(tab){
     await tabWait(tab,5000);
 }
 
-async function getProfileContent(tab,tweet_username){
+async function getUserEntityDetails(tab, tweet_username){
     try{
-        await tabWait(tab,4000);
         await reloadPage(tab);
-        await tab.get("https://twitter.com/"+tweet_username);
+        let profile_url = "https://twitter.com/"+tweet_username;
+        if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
+            await redirectToPage(tab,profile_url);
+        }
         let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
-        let tweets_tab_details = await getTweetsTabFromProfileContent(tab);
-        await tabWait(tab,4000);
-        let likes_tab_details = await getLikesTabFromProfileContent(tab);
+        return {entity_details};
+    }
+    catch(error){
+        console.log(error);
+    }
+}
 
-        return {entity_details, tweets_tab_details, likes_tab_details};
+async function isRequestedURLSameAsCurrent(tab,req_url){
+    return await tab.getCurrentUrl() === req_url;
+}
+
+async function redirectToPage(tab,url){
+    await tab.get(url);
+    await tabWait(tab,2000);
+}
+
+async function getTweetsTabFromProfileContent(tab, tweet_username){
+    let profile_url = "https://twitter.com/"+tweet_username;
+    if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
+        await redirectToPage(tab,profile_url);
+    }
+    await scrollPost(tab);
+    return await getFeed(tab);
+}
+
+async function getLikesTabFromProfileContent(tab, tweet_username){
+    try{
+        let profile_likes_url = "https://twitter.com/"+tweet_username+"/likes";
+        if(!await isRequestedURLSameAsCurrent(tab, profile_likes_url)){
+            await redirectToPage(tab,profile_likes_url);
+        }
+        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+        let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
+        return await HelpParseTweets(all_likes_on_page);
     }
     catch(error){
         console.log(error);
@@ -131,25 +162,6 @@ async function retrieveTextFromElement(e){
             text_to_return = await e.getText();
         }
         return text_to_return;
-    }
-}
-
-async function getTweetsTabFromProfileContent(tab,n){
-    await scrollPost(tab);
-    return await getFeed(tab,n);
-}
-
-async function getLikesTabFromProfileContent(tab){
-    try{
-        let tab_url = await tab.getCurrentUrl();
-        await tab.get(tab_url+"/likes");
-        await tabWait(tab,2000);
-        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-        let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
-        return await HelpParseTweets(all_likes_on_page);
-    }
-    catch(error){
-        console.log(error);
     }
 }
 
@@ -352,10 +364,8 @@ async function tabWait(tab,ms){
 
 async function HelpParseTweets(all_tweets_on_page){
     var tweets_arr = new Array();
-    // Iterate over each on n tweets
     for(let i = 0 ; i < all_tweets_on_page.length; i++){
         let tweet = all_tweets_on_page[i];
-
         if(await IsThereIsSocialContext(tweet)){
             continue;
         }
@@ -365,14 +375,11 @@ async function HelpParseTweets(all_tweets_on_page){
             continue;
         }
         let some_tweet_dets = await getTweetId_Profilelink_Imgurl_repliesRetweetsLikes_ProfileVerification_Fulltext_Media_Url_Https(tweet);
-        // variables for json
         let created_at = null;
         let user_name = null;
         let user_url_name = null;
         let quoted_status = null;
         let is_quote_status = false;
-
-        
         let tweet_photos = some_tweet_dets.tweet_photos;
         let are_profiles_verified = some_tweet_dets.is_profile_verified;
         let full_texts = some_tweet_dets.full_texts;
@@ -380,19 +387,14 @@ async function HelpParseTweets(all_tweets_on_page){
         let replies_retweets_likes = some_tweet_dets.replies_retweets_likes;
         let tweet_actions = some_tweet_dets.tweet_actions;
         let profile_link_img_url = some_tweet_dets.profile_link_img_url;
-
         let retweeted = tweet_actions.retweeted;
         let favorited = tweet_actions.favorited;
-
-
         let is_profile_verified = (are_profiles_verified > 0) ? true : false;
         let entities = {"hashtags":[],
                         "symbols":[],
                         "user_mentions":[],
                         "urls":[],
                         "media":(tweet_photos != null) ? tweet_photos : []};
-           
-
         if(arr[0].includes("Retweeted")){
             // Check if tweet is Retweet
             user_name = arr[1];
@@ -414,26 +416,14 @@ async function HelpParseTweets(all_tweets_on_page){
             user_url_name = arr[1].split('@')[1];
             created_at = arr[3];
         }    
-
         let user = {name: user_name,
             screen_name : user_url_name}; 
-
         tweets_arr.push({
-            user,
-            favorited,
-            retweeted,
-            created_at,
-            is_profile_verified,
-            entities,
-            is_quote_status,
-            quoted_status,
-            comments_count : replies_retweets_likes.replies_num,
-            retweets_count : replies_retweets_likes.retweets_num,
-            likes_count : replies_retweets_likes.likes_num,
-            profile_img_url: profile_link_img_url.profile_img_url,
-            profile_link: profile_link_img_url.link_href,
-            full_text : full_texts[0],
-            tweet_id : tweet_ids.values().next().value
+            user,favorited,retweeted,created_at,is_profile_verified,
+            entities,is_quote_status,quoted_status,comments_count : replies_retweets_likes.replies_num,
+            retweets_count : replies_retweets_likes.retweets_num,likes_count : replies_retweets_likes.likes_num,
+            profile_img_url: profile_link_img_url.profile_img_url,profile_link: profile_link_img_url.link_href,
+            full_text : full_texts[0],tweet_id : tweet_ids.values().next().value
         });
     }
     return tweets_arr;
@@ -531,8 +521,10 @@ async function getQuoteTweetData(arr, full_texts, are_profiles_verified, tweet_i
 
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 
                 getFeed : getFeed,
-                getProfileContent : getProfileContent,
+                getUserEntityDetails : getUserEntityDetails,
                 scrollPost : scrollPost,
                 tabWait : tabWait,
                 HelpParseTweets:HelpParseTweets,
+                getTweetsTabFromProfileContent : getTweetsTabFromProfileContent,
+                getLikesTabFromProfileContent : getLikesTabFromProfileContent
                 };
