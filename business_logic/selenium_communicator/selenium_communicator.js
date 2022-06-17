@@ -16,18 +16,22 @@ async function scrapeWhoToFollow(tab){
     return await scrapeTwitter.scrapeWhoToFollow(tab);
 }
 
-// async function getUserEntityData(tab){
-//     return await scrapeTwitter.getUserEntityData(tab);
-// }
-
 async function getFeed(tab){
     await redirectToHomePageIfNeeded(tab);
     await scrapeTwitter.scrollPost(tab);
     return await scrapeTwitter.getFeed(tab);
 }
 
-async function getProfileContent(tab,tweet_username){
-    return await scrapeTwitter.getProfileContent(tab,tweet_username);
+async function getUserEntityDetails(tab,tweet_username){
+    return await scrapeTwitter.getUserEntityDetails(tab,tweet_username);
+}
+
+async function getTweetsTabFromProfileContent(tab,tweet_username){
+    return await scrapeTwitter.getTweetsTabFromProfileContent(tab,tweet_username);
+}
+
+async function getLikesTabFromProfileContent(tab,tweet_username){
+    return await scrapeTwitter.getLikesTabFromProfileContent(tab,tweet_username);
 }
 
 async function getTop_TweetsSearchResult(tab,q){
@@ -62,13 +66,14 @@ async function postTweet(tab,tweetContext){
 }
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
-exports.getProfileContent = getProfileContent
+exports.getUserEntityDetails = getUserEntityDetails
 exports.getTop_TweetsSearchResult = getTop_TweetsSearchResult
 exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
 exports.getPeople_SearchResult = getPeople_SearchResult
 exports.newTweetsSearch = newTweetsSearch
 exports.newPeopleSearch = newPeopleSearch
-
+exports.getTweetsTabFromProfileContent = getTweetsTabFromProfileContent
+exports.getLikesTabFromProfileContent = getLikesTabFromProfileContent
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
