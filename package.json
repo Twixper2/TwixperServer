@@ -6,7 +6,9 @@
   "scripts": {
     "test": "mocha --exit",
     "run server": "node index.js",
-    "run server with comment": "nodemon index.js"
+    "run server with nodemon": "nodemon index.js",
+    "start mongoDB": "brew services start mongodb-community",
+    "stop mongoDB": "brew services stop mongodb-community"
   },
   "repository": {
     "type": "git",
