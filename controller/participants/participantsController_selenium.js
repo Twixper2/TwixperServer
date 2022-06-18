@@ -237,6 +237,39 @@ router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => 
     }
   }
 });
+router.post("/addAction/:action", async (req, res, next) => {
+  
+  try{
+    const action      = req.params?.action;
+    const tweet_id    = req?.body?.tweet_id;
+    const screen_name = req?.body?.screen_name;
+    const reply       = req?.body?.reply;
+    const ShareVia    = req?.body?.ShareVia;
+
+    if(tweet_id==undefined || screen_name == undefined || action == undefined){
+      res.status(400).send("one or more of action params is not provided")
+    }
+
+    if(action == "like" || action =="retweet" || action =="reply"){
+      const tweetsSearchResults = await participantsService_selenium.tweetsAction(req.server_sends_tab,tweet_id,screen_name,action,reply,ShareVia);
+      res.send(tweetsSearchResults)
+    }
+    else{
+      res.status(400).send("action is not provided")
+      return
+    }
+
+  }
+  catch(e){
+    console.log(e)
+    if(e.message == "add-action-error"){ 
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+});
 
 // For new tweets and comments
 router.post("/postTweet", async (req, res, next) => {

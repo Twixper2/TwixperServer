@@ -172,6 +172,13 @@ async function postTweet(tab_from_calling_function,tweetContext){
     }
 }
 
+async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined);
+        return true;
+    }
+    return false;
+}
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
@@ -185,3 +192,4 @@ exports.newPeopleSearch = newPeopleSearch
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
+exports.tweetsAction=tweetsAction

@@ -91,7 +91,7 @@ async function postTweets(tab,tweet){
 
 async function getNotifications(tab){
     try{
-        console.log("starting new search");
+        console.log("getting Notifications");
         if((await tab.getAllWindowHandles()).length != 2 ){
             // open new tab - search page
             await tab.executeScript(`window.open("notifications");`);
@@ -130,11 +130,61 @@ async function getNotifications(tab){
         return notifications;
 }
 
-async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined){
+async function doIHaveNewNotifications(tab){
+    try{
+        console.log("getting Notifications");
+        if((await tab.getAllWindowHandles()).length != 2 ){
+            // open new tab - search page
+            await tab.executeScript(`window.open("notifications");`);
+        }else{
+            tab.get("https://twitter.com/notifications")
+        }
+        await tabWait(tab,3000);
+
+        // save all open tabs handles
+        const windowTab = await tab.getAllWindowHandles();
+        // switch to the new tab
+        await tab.switchTo().window(windowTab[1]);
+        let all_notifications_on_page = await tab.findElement(By.css("[role='article']"));
+        let lestNotifications = await notificationsParseData(all_notifications_on_page);
+        let notificationType = lestNotifications.notificationType;
+        
+        switch(notificationType){
+            case 'Alerts':
+                break;
+            case 'like':
+                break;
+            case 'Retweeted':
+                break;
+            case 'Suggestions':
+                break;
+            default:
+                break;
+        }
+        return notifications;
+    }
+    catch(error){
+        console.log(error);
+        await tab.close();
+        let mainTab = (await tab.getAllWindowHandles())[0];
+        await tab.switchTo().window(mainTab);
+    }
+}
+
+/**
+ * 
+ * @param {*} tab - user page
+ * @param {*} tweet_id - of the tweet we want to add actions to
+ * @param {*} screen_name - the screen_name of the user that the tweet id is belong to
+ * @param {*} action - what action you want to add or remove? reply/retweet/like/Share Tweet
+ * @param {*} reply 
+ * @returns 
+ */
+async function tweetsActionManager(tab,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
     try{
         console.log("starting addEmotionToTweets");
 
-        var currUrl = user_url+"/status/"+tweet_id;
+        var currUrl = screen_name+"/status/"+tweet_id;
         await tab.executeScript(`window.open("${currUrl}");`);
         await tabWait(tab,5000);
         const windowTab = await tab.getAllWindowHandles();
@@ -146,26 +196,60 @@ async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined)
         var tweet_buttons = await tweet[0]?.findElements(By.css("[role='button']"));
         let label = undefined;
         let button = undefined;
-        for(var i = 0 ; i < tweet_buttons.length; i++){
-            label = await tweet_buttons[i].getAttribute("aria-label");
-            if(label.toLocaleLowerCase()==action.toLocaleLowerCase()){
+
+        //getting the relent button
+        for(var i = 0 ; i < tweet_buttons.length; i++){ 
+            label = (await tweet_buttons[i].getAttribute("aria-label")).toLocaleLowerCase();
+            //check if its a like action 
+            if(action.toLocaleLowerCase() == "like"){
+                // if the label is like its mean we still didn't like this post - add like
+                if(label == "like"){
+                    button = tweet_buttons[i];
+                    break;
+                }
+                // if the label is liked its mean we did like this post - remove like
+                else if(label == "liked"){
+                        button = tweet_buttons[i];
+                        break;
+                }     
+            }
+
+            if(action.toLocaleLowerCase() == "retweet"){
+                // if the label is like its mean we still didn't retweet this post - add retweet
+
+                if(label == "retweet"){
+                    button = tweet_buttons[i];
+                    break;
+                }
+                // if the label is retweeted its mean we did retweet this post - remove retweet
+                else if(label == "retweeted"){
+                        button = tweet_buttons[i];
+                        break;
+                } 
+            }
+            //for reply action
+            if(action.toLocaleLowerCase() == label){
                 button = tweet_buttons[i];
                 break;
             }
         }
-        if(action == "like" || action == "liked"){
+
+        if(label  == "like"|| label == "liked"){
             return await likeHandler(button);
         }
-        else if(action == "reply"){
+        else if(label  == "reply"){
             return await replyHandler(tab, button,reply);
         }
-        else if(action == "retweet" || action=="unretweet"){
+        else if(label  == "retweet"){
             return await retweetHandler(tab, button);
+        }
+        else if(label == "retweeted"){
+            return await retweetedHandler(tab, button);
         }
         else{
             return undefined;
         }
-
+    
     }catch(e){
         console.log(e);
         return "There was a problem with "+action;
@@ -177,61 +261,70 @@ async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined)
         await tab.switchTo().window(mainTab);
     }
 }
-
-    async function likeHandler(button){
-        try{    
-            
-            await button?.sendKeys(Key.RETURN);
-            return "like action has been fulfilled";
-            
-        }catch(e){
-            console.log(e);
-            return "There was a problem adding 'like' action";
-        }
+async function likeHandler(button){
+    try{    
+        
+        await button?.sendKeys(Key.RETURN);
+        return "like action has been fulfilled";
+        
+    }catch(e){
+        console.log(e);
+        return "There was a problem adding 'like' action";
     }
-
-    async function replyHandler(tab, button, reply){
-            try{    
-                await button?.sendKeys(Key.RETURN);
-                await tabWait(tab,500);
-                await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(reply);
-                await tabWait(tab,500);
-                await tab.findElement(By.css("[data-testid='tweetButton']")).sendKeys(Key.RETURN);
-                await tabWait(tab,1000);
-                return "reply action has been fulfilled";
- 
-            }catch(e){
-                console.log(e);
-                return "There was a problem adding 'reply' action";
-            }
-    }
-
-    async function retweetHandler(tab, button){
+}
+async function replyHandler(tab, button, reply){
         try{    
             await button?.sendKeys(Key.RETURN);
             await tabWait(tab,500);
-            await tab.findElement(By.css("[data-testid='retweetConfirm']")).sendKeys(Key.RETURN);
+            await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(reply);
             await tabWait(tab,500);
-            return "retweet action has been fulfilled";
+            await tab.findElement(By.css("[data-testid='tweetButton']")).sendKeys(Key.RETURN);
+            await tabWait(tab,1000);
+            return "reply action has been fulfilled";
 
         }catch(e){
             console.log(e);
-            return "There was a problem adding 'retweet' action";
+            return "There was a problem adding 'reply' action";
         }
-    }
+}
+async function retweetHandler(tab, button){
+    try{    
+        await button?.sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        await tab.findElement(By.css("[data-testid='retweetConfirm']")).sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        return "retweet action has been fulfilled";
 
-    async function quoteTweetsHandler(button){
-        try{    
-            await button?.sendKeys(Key.RETURN);
-            await tabWait(tab,200);
-            await tab.findElement(By.css("[href='/compose/tweet']")).sendKeys(Key.RETURN);
-            await tabWait(tab,200);
-            return "retweet action has been fulfilled";
-
-        }catch(e){
-            return "There was a problem adding 'retweet' action";
-        }
+    }catch(e){
+        console.log(e);
+        return "There was a problem adding 'retweet' action";
     }
+}
+async function retweetedHandler(tab, button){
+    try{    
+        await button?.sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        await tab.findElement(By.css("[data-testid='unretweetConfirm']")).sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        return "retweet action has been fulfilled";
+
+    }catch(e){
+        console.log(e);
+        return "There was a problem adding 'retweet' action";
+    }
+}
+async function quoteTweetsHandler(button){
+    try{    
+        await button?.sendKeys(Key.RETURN);
+        await tabWait(tab,200);
+        await tab.findElement(By.css("[href='/compose/tweet']")).sendKeys(Key.RETURN);
+        await tabWait(tab,200);
+        return "retweet action has been fulfilled";
+
+    }catch(e){
+        return "There was a problem adding 'retweet' action";
+    }
+}
 /**---------------Attempt to allow to added emoji ------------------ */
 // async function postTweets(tab,tweet){
 //     try{
