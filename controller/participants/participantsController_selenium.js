@@ -84,10 +84,10 @@ router.get("/getTweet", async (req, res, next) => {
   let access_token = req.server_sends_access_token;
   try{
     let params = req.body;
-    if(!params.tweetIdStr || !params.user){
-      res.status(400).json("tweetIdStr or user fields are empty.")
+    if(!params.tweetIdStr || !params.tweetUser || !params.user){
+      res.status(400).json("tweetIdStr or user or tweetUser fields are empty.")
     }
-    const getTweet = await participantsService_selenium.getTweet(params.user,params.tweetIdStr,null,tab);
+    const getTweet = await participantsService_selenium.getTweet(params.tweetUser,params.tweetIdStr,null,tab);
     res.send(getTweet);
   }
   catch(e){
