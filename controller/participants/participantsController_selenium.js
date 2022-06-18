@@ -79,12 +79,16 @@ router.get("/getFeed", async (req, res, next) => {
   }
 });
 
-router.get("/getTweetComments", async (req, res, next) => {
+router.get("/getTweet", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    const getTweetComments = await participantsService_selenium.getTweetComments(null,tab);
-    res.send(getTweetComments);
+    let params = req.body;
+    if(!params.tweetId || !params.user){
+      res.status(400).json("tweetId or user fields are empty.")
+    }
+    const getTweet = await participantsService_selenium.getTweet(params.user,params.tweetId,null,tab);
+    res.send(getTweet);
   }
   catch(e){
     console.log(e)
@@ -398,42 +402,6 @@ Need to implement the endpoints below
 //   }
 //   catch(e){
 //     console.log("** Error in /participant/getUserFollowers **")
-//     console.log(e)
-//     if(e.message){ // error thrown from the api
-//       res.status(502).json(e); 
-//     }
-//     else{ // Internal error
-//       res.sendStatus(500)
-//     }
-//   }
-// });
-
-// router.get("//getUserTimeline", async (req, res, next) => {
-//   const params = req.body
-//   try{
-//     const userTimelineTweets = await participantsService_selenium.getUserTimeline(params)
-//     res.send(userTimelineTweets)
-//   }
-//   catch(e){
-//     console.log(e)
-//     if(e.message == "inner-api-error"){ // error thrown from the api
-//       res.status(502).json(e);
-//     }
-//     else{
-//       res.sendStatus(500)
-//     }
-//   }
-// });
-
-// router.get("//getUserLikes", async (req, res, next) => {
-//   const params = req.body
-//   // const participant = params.participant
-//   try{
-//     const userLikesTweets = await participantsService_selenium.getUserLikes(params)
-//     res.send(userLikesTweets)
-//   }
-//   catch(e){
-//     console.log("** Error in /participant/getUserLikes **")
 //     console.log(e)
 //     if(e.message){ // error thrown from the api
 //       res.status(502).json(e); 

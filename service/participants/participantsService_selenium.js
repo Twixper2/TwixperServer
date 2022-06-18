@@ -86,7 +86,6 @@ async function validateAccessToken(params=null){
     return confirmation;
 }
 
-
 async function getFeed(params=null,tab_from_calling_function=null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
@@ -120,6 +119,22 @@ async function getUserEntityDetails(tweet_username,params = null,tab_from_callin
 
         let getUserEntityDetails = await selenium_communicator.getUserEntityDetails(tab_to_use,tweet_username);
         return getUserEntityDetails;
+    }
+    return null;
+}
+
+async function getTweet(tweet_username,tweet_id,params = null,tab_from_calling_function = null){
+    if (params != null || tab_from_calling_function != null){
+        let tab_to_use = null;
+
+        if (tab_from_calling_function != null){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
+        let getTweet = await selenium_communicator.getTweet(tab_to_use,tweet_username,tweet_id);
+        return getTweet;
     }
     return null;
 }
@@ -220,3 +235,4 @@ exports.getUserLikes = getUserLikes
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
+exports.getTweet=getTweet

@@ -1,5 +1,7 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
+var {twitter_address} = require("../twitter_communicator/static_twitter_data/ConstantsJSON.js");
+
 
 async function scrapeWhoToFollow(tab){
     try{
@@ -58,13 +60,28 @@ async function scrollPost(tab){
 async function getUserEntityDetails(tab, tweet_username){
     try{
         await reloadPage(tab);
-        let profile_url = "https://twitter.com/"+tweet_username;
+        let profile_url = twitter_address+tweet_username;
         if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
             await redirectToPage(tab,profile_url);
         }
         let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
         return {entity_details};
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+async function getTweet(tab, tweet_username, tweet_id){
+    try{
+        let tweet_url = twitter_address+tweet_username+"/status/"+tweet_id;
+        if(!await isRequestedURLSameAsCurrent(tab, tweet_url)){
+            await redirectToPage(tab,tweet_url);
+        }
+        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+        let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
+        // return {entity_details};
     }
     catch(error){
         console.log(error);
@@ -81,7 +98,7 @@ async function redirectToPage(tab,url){
 }
 
 async function getUserTimeline(tab, tweet_username){
-    let profile_url = "https://twitter.com/"+tweet_username;
+    let profile_url = twitter_address+tweet_username;
     if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
         await redirectToPage(tab,profile_url);
     }
@@ -90,18 +107,13 @@ async function getUserTimeline(tab, tweet_username){
 }
 
 async function getUserLikes(tab, tweet_username){
-    try{
-        let profile_likes_url = "https://twitter.com/"+tweet_username+"/likes";
-        if(!await isRequestedURLSameAsCurrent(tab, profile_likes_url)){
-            await redirectToPage(tab,profile_likes_url);
-        }
-        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-        let all_likes_on_page = await primary_column.findElements(By.css("[role='article']"));
-        return await HelpParseTweets(all_likes_on_page);
+    let profile_likes_url = twitter_address+tweet_username+"/likes";
+    if(!await isRequestedURLSameAsCurrent(tab, profile_likes_url)){
+        await redirectToPage(tab,profile_likes_url);
     }
-    catch(error){
-        console.log(error);
-    }
+    let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+    await scrollPost(tab);
+    return await getFeed(primary_column);
 }
 
 async function getPersonalDetailsFromProfileContent(primary_column){
@@ -476,7 +488,7 @@ async function getQuoteTweetData(arr, full_texts, are_profiles_verified, tweet_i
         is_profile_verified: (are_profiles_verified == 2) ? true : false,
         entities : inside_entities,
         profile_img_url: await getQuotedTweetImageurl(tweet),
-        profile_link: "https://twitter.com/"+inside_user_url_name,
+        profile_link: twitter_address+inside_user_url_name,
         tweet_id: (tweet_ids.length == 2) ? tweet_ids[1] : null
     };
 }
@@ -526,5 +538,6 @@ module.exports = {scrapeWhoToFollow : scrapeWhoToFollow,
                 tabWait : tabWait,
                 HelpParseTweets:HelpParseTweets,
                 getUserTimeline : getUserTimeline,
-                getUserLikes : getUserLikes
+                getUserLikes : getUserLikes,
+                getTweet : getTweet
                 };

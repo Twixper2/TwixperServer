@@ -34,6 +34,10 @@ async function getUserLikes(tab,tweet_username){
     return await scrapeTwitter.getUserLikes(tab,tweet_username);
 }
 
+async function getTweet(tab,tweet_username,tweet_id){
+    return await scrapeTwitter.getTweet(tab,tweet_username,tweet_id);
+}
+
 async function getTop_TweetsSearchResult(tab,q){
     return await scrapeTwitter_moshe.searchTwitterTweets(tab,q,"top");
 }
@@ -77,3 +81,4 @@ exports.getUserLikes = getUserLikes
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
+exports.getTweet=getTweet
