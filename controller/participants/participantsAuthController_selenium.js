@@ -4,6 +4,7 @@ const database = require("../../business_logic/db/DBCommunicator.js");
 const bcrypt = require("bcryptjs");
 const participantsService_new = require("../../service/participants/participantsService_new.js");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
+const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium.js");
 const { tabsHashMap } = require("../../config");
 
 
@@ -12,61 +13,47 @@ const { tabsHashMap } = require("../../config");
  */
 router.post("//twitterSeleniumAuth", async (req, res, next) => {
   const params = req.body;
-  // If there are no params at all,
-  // Or no pass or no user params
   if(!params || !params.user || !params.pass){
     res.status(401).send("No params supplied.")
     return
   }
   try{    
-    let user_value_from_hashmap = null;
-    let cache = false;
-    if(tabsHashMap.size > 0){
-      for (var entry of tabsHashMap.entries()) {
-        let key = entry[0],
-            value = entry[1];
-        if(bcrypt.compareSync(params.user + params.pass, key)){
-          // Found tab open
-          user_value_from_hashmap = value;
-          break;
-        }
+    // Function checks in tabHashmap and DB for already auth'ed user.
+    let authCheckResults = await participantAuthUtils_selenium.getUserAuthDetsIfExist(tabsHashMap, params);
+    let login_response = null;
+    let initial_content = authCheckResults.twitter_data_to_send;
+
+    if(authCheckResults.twitter_data_to_send == null){
+      login_response = await participantsService_selenium.logInProcess(params,authCheckResults.user_and_pass_encrypted);
+      if(login_response == null){
+        res.status(400).json({
+          twitter_user_found : false,
+          user_registered_to_experiment : false
+        });
+        return;
       }
+      initial_content = login_response;
     }
 
-
-    
-    if(user_value_from_hashmap != null){
-      // return profile dets etc.
-      resp_without_tab_and_user = Object.assign({}, user_value_from_hashmap);
-      delete resp_without_tab_and_user.tab;
-      delete resp_without_tab_and_user.user;
-      res.status(200).send(resp_without_tab_and_user);
+    // Check if already registered to exp'
+    let participant = await database.getParticipantByUsername(params.user);
+    if (participant) {
+      // Extract data from collection
+      // let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
+      res.status(200).json({
+        twitter_user_found : true,
+        user_registered_to_experiment : true,
+        participant_twitter_info: {},
+        initial_content
+      });
       return;
     }
-
-    
-    let user_and_pass_encrypted = undefined;
-    //Checks if the user give access_token, if is the same  has the one in the system -> loads the cookies
-    let result = await participantsService_selenium.validateAccessToken(params);
-    if(result){
-      params.cookies = result.cookies;
-      user_and_pass_encrypted = result.access_token;
-      // Open tab again
-      // Send client back his personal dets
-    }
-    else{
-      user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
-    }
-    
-
-    
-    const login_response = await participantsService_selenium.logInProcess(params,user_and_pass_encrypted);
-    if(login_response != null){
-      res.status(200).send(login_response);
-    }
-    else{
-      res.status(401).send("Login has not been completed, please try again.");
-    }
+    // Not registered
+    res.status(200).json({
+      twitter_user_found : true,
+      user_registered_to_experiment : false,
+      access_token : initial_content.access_token
+    });
   }
   catch(e){
     console.log(e)
@@ -90,25 +77,18 @@ Need to implement the endpoint below
 
 router.post("//registerToExperiment", async (req, res, next) => {
   try {
+    const header_params = req.headers
+    if(!header_params || !access_token || !header_params.user){
+      res.status(400).send("No access_token or user params supplied in Header.")
+      return
+    }
+
     // validate request params and cookies
     const expCode = req.body.exp_code
     if (!expCode) {
       res.status(400).send("No experiment code provided.")
       return;
     }
-
-    if(!req.header('access_token')){
-      res.status(428).send("Missing auth header (access_token)");
-      return;
-      /*
-        The HTTP 428 Precondition Required response status code indicates that the server requires
-        the request to be conditional. Typically, this means that a required precondition header, 
-        such as If-Match , is missing.
-      */
-    }  
-    
-    // Decrypt tokens
-    const access_token = req.header('access_token')
     
     // trying registering user
     let participant  = null
@@ -136,9 +116,5 @@ router.post("//registerToExperiment", async (req, res, next) => {
     res.sendStatus(500);
   }
 });
-
-function encryptToken(token) {
-  return bcrypt.hashSync(token, 10);
-}
 
 module.exports = router;

@@ -49,11 +49,13 @@ async function logInProcess(params,access_token){
 } 
 
 /** ______User's initial content_____ **/
-async function getInitialContentOfParticipant(tab,tweet_username){
+async function getInitialContentOfParticipant(tab,req_user){
     let feed = await getFeed(null,tab);
     let whoToFollowElement = await getWhoToFollow(null,tab);
-    let user_profile_content = await getProfileContent(tweet_username,null,tab);
-    return {user_profile_content,feed,whoToFollowElement};
+    let userEntityDetails = await getUserEntityDetails({req_user},tab);
+    let userTimeline = await getUserTimeline({req_user},tab);
+    let userLikes = await getUserLikes({req_user},tab);
+    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},feed,whoToFollowElement};
 }
 
 /** ______User's data_____ **/
@@ -74,18 +76,6 @@ async function getWhoToFollow(params=null,tab_from_calling_function=null){
     return null;
 } 
 
-async function validateAccessToken(params=null){
-    let confirmation = false
-    let userInfo = undefined; 
-    if ( params != null ){
-        userInfo = await participantAuthUtils_selenium.getUserInfo_utils(params?.user);
-        if(userInfo?.access_token && bcrypt.compareSync(params.user + params.pass, userInfo.access_token)){
-            return userInfo;
-        }
-    }
-    return confirmation;
-}
-
 async function getFeed(params=null,tab_from_calling_function=null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
@@ -99,14 +89,15 @@ async function getFeed(params=null,tab_from_calling_function=null){
 
         let getFeed = await selenium_communicator.getFeed(tab_to_use);
         if (getFeed) {
-            getFeed = await manipulator.manipulateTweets(participant, twitterFeedTweets)
+            getFeed = await manipulator.manipulateTweets(participant, getFeed)
         }
         return getFeed;
     }
     return null;
 }
 
-async function getUserEntityDetails(tweet_username,params = null,tab_from_calling_function = null){
+
+async function getTweet(params = null,tab_from_calling_function = null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
 
@@ -116,30 +107,30 @@ async function getUserEntityDetails(tweet_username,params = null,tab_from_callin
         else{
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
-
-        let getUserEntityDetails = await selenium_communicator.getUserEntityDetails(tab_to_use,tweet_username);
-        return getUserEntityDetails;
-    }
-    return null;
-}
-
-async function getTweet(tweet_username,tweet_id,params = null,tab_from_calling_function = null){
-    if (params != null || tab_from_calling_function != null){
-        let tab_to_use = null;
-
-        if (tab_from_calling_function != null){
-            tab_to_use = tab_from_calling_function;
-        }
-        else{
-            tab_to_use = config.tabsHashMap.get(params.access_token);
-        }
-        let getTweet = await selenium_communicator.getTweet(tab_to_use,tweet_username,tweet_id);
+        let getTweet = await selenium_communicator.getTweet(tab_to_use,params.tweetUser,params.tweetIdStr);
         return getTweet;
     }
     return null;
 }
 
-async function getUserTimeline(tweet_username,params = null,tab_from_calling_function = null){
+/** ______User's profile content_____ **/
+async function getUserEntityDetails(params = null,tab_from_calling_function = null){
+    if (params != null || tab_from_calling_function != null){
+        let tab_to_use = null;
+
+        if (tab_from_calling_function != null){
+            tab_to_use = tab_from_calling_function;
+        }
+        else{
+            tab_to_use = config.tabsHashMap.get(params.access_token);
+        }
+        let getUserEntityDetails = await selenium_communicator.getUserEntityDetails(tab_to_use,params.req_user);
+        return getUserEntityDetails;
+    }
+    return null;
+}
+
+async function getUserTimeline(params = null,tab_from_calling_function = null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
 
@@ -150,13 +141,13 @@ async function getUserTimeline(tweet_username,params = null,tab_from_calling_fun
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
 
-        let getUserTimeline = await selenium_communicator.getUserTimeline(tab_to_use,tweet_username);
+        let getUserTimeline = await selenium_communicator.getUserTimeline(tab_to_use,params.req_user);
         return getUserTimeline;
     }
     return null;
 }
 
-async function getUserLikes(tweet_username,params = null,tab_from_calling_function = null){
+async function getUserLikes(params = null,tab_from_calling_function = null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
 
@@ -166,12 +157,13 @@ async function getUserLikes(tweet_username,params = null,tab_from_calling_functi
         else{
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
-
-        let getUserLikes = await selenium_communicator.getUserLikes(tab_to_use,tweet_username);
+        let getUserLikes = await selenium_communicator.getUserLikes(tab_to_use,params.req_user);
         return getUserLikes;
     }
     return null;
 }
+
+/** ______Search for participant 2_____ **/
 
 async function searchTweets(tab_from_calling_function, q){
     if (tab_from_calling_function != undefined){
@@ -179,16 +171,12 @@ async function searchTweets(tab_from_calling_function, q){
         return getProfileContent;
     }
 }
-
 async function searchPeople(tab_from_calling_function,q){
     if (tab_from_calling_function != undefined){
         let getProfileContent = await selenium_communicator.getPeople_SearchResult(tab_from_calling_function, q);
         return getProfileContent;
     }
 }
-
-/** ______Search for participant 2_____ **/
-
 async function newTweetsSearch(tab_from_calling_function,q){
     if (tab_from_calling_function != undefined){
         let searchResult = await selenium_communicator.newTweetsSearch(tab_from_calling_function,q);
@@ -213,7 +201,6 @@ async function closeSecondTab(tab_from_calling_function){
         return true;
     }
 }
-
 async function postTweet(tab_from_calling_function,tweetContext){
     if (tab_from_calling_function != undefined){
         await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);
@@ -227,7 +214,6 @@ exports.getFeed = getFeed
 exports.getUserEntityDetails = getUserEntityDetails
 exports.searchTweets = searchTweets
 exports.searchPeople = searchPeople
-exports.validateAccessToken = validateAccessToken
 exports.newTweetsSearch = newTweetsSearch
 exports.newPeopleSearch = newPeopleSearch
 exports.getUserTimeline = getUserTimeline

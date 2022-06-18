@@ -12,7 +12,7 @@ router.use(async function (req, res, next) {
     const header_params = req.headers
     const access_token = header_params.access_token;
     if(!header_params || !access_token || !header_params.user){
-      res.status(400).send("No params supplied.")
+      res.status(400).send("No access_token or user params supplied in Header.")
       return
     }
     let entity_details = tabsHashMap.get(access_token);
@@ -24,6 +24,7 @@ router.use(async function (req, res, next) {
     // res.locals.tab = entity_details.tab;
     req.server_sends_access_token = access_token;
     req.server_sends_tab = entity_details.tab;
+    req.user = header_params.user;
     next();
   }
   catch(e){
@@ -83,12 +84,12 @@ router.get("/getTweet", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    let params = req.body;
-    if(!params.tweetIdStr || !params.tweetUser || !params.user){
-      res.status(400).json("tweetIdStr or user or tweetUser fields are empty.")
+    let params = req.query;
+    if(!params.tweetIdStr || !params.tweetUser){
+      res.status(400).json("tweetIdStr or user or tweetUser fields are missing.")
     }
-    const getTweet = await participantsService_selenium.getTweet(params.tweetUser,params.tweetIdStr,null,tab);
-    res.send(getTweet);
+    const getTweet = await participantsService_selenium.getTweet(params,tab);
+    res.send(getTweet); 
   }
   catch(e){
     console.log(e)
@@ -109,11 +110,11 @@ router.get("/getUserEntityDetails", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    let params = req.body;
-    if(!params.user){
+    let params = req.query;
+    if(!params.req_user){
       res.status(400).json("user field is empty.")
     }
-    const getUserEntityDetails = await participantsService_selenium.getUserEntityDetails(params.user,null,tab);
+    const getUserEntityDetails = await participantsService_selenium.getUserEntityDetails(params,tab);
     // Add also Tweets & Likes tab
     res.send(getUserEntityDetails);
   }
@@ -136,11 +137,11 @@ router.get("/getUserTimeline", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    let params = req.body;
-    if(!params.user){
+    let params = req.query;
+    if(!params.req_user){
       res.status(400).json("user field is empty.")
     }
-    const getUserTimeline = await participantsService_selenium.getUserTimeline(params.user,null,tab);
+    const getUserTimeline = await participantsService_selenium.getUserTimeline(params,tab);
     // Add also Tweets & Likes tab
     res.send(getUserTimeline);
   }
@@ -163,11 +164,11 @@ router.get("/getUserLikes", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    let params = req.body;
-    if(!params.user){
+    let params = req.query;
+    if(!params.req_user){
       res.status(400).json("user field is empty.")
     }
-    const getUserLikes = await participantsService_selenium.getUserLikes(params.user,null,tab);
+    const getUserLikes = await participantsService_selenium.getUserLikes(params,tab);
     // Add also Tweets & Likes tab
     res.send(getUserLikes);
   }
