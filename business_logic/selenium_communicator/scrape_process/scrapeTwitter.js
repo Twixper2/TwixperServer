@@ -1,6 +1,6 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
-var {twitter_address} = require("../twitter_communicator/static_twitter_data/ConstantsJSON.js");
+var {twitter_address, status_address} = require("../../twitter_communicator/static_twitter_data/ConstantsJSON.js");
 
 
 async function scrapeWhoToFollow(tab){
@@ -59,7 +59,6 @@ async function scrollPost(tab){
 
 async function getUserEntityDetails(tab, tweet_username){
     try{
-        await reloadPage(tab);
         let profile_url = twitter_address+tweet_username;
         if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
             await redirectToPage(tab,profile_url);
@@ -73,15 +72,18 @@ async function getUserEntityDetails(tab, tweet_username){
     }
 }
 
-async function getTweet(tab, tweet_username, tweet_id){
+async function getTweet(tab, tweet_username, tweet_id_str){
     try{
-        let tweet_url = twitter_address+tweet_username+"/status/"+tweet_id;
+        let tweet_url = twitter_address+tweet_username+status_address+tweet_id_str;
         if(!await isRequestedURLSameAsCurrent(tab, tweet_url)){
             await redirectToPage(tab,tweet_url);
         }
         let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-        let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
-        // return {entity_details};
+        await scrollPost(tab);
+        let tweet_and_replies = await getFeed(primary_column);
+        let tweets_len = tweet_and_replies.length;
+        let index = tweet_and_replies.map(t => t.tweet_id.toString()).indexOf(tweet_id_str);
+        return (tweets_len > 1) ? tweet_and_replies.slice(index+1,tweet_and_replies.length) : [];
     }
     catch(error){
         console.log(error);
@@ -94,7 +96,7 @@ async function isRequestedURLSameAsCurrent(tab,req_url){
 
 async function redirectToPage(tab,url){
     await tab.get(url);
-    await tabWait(tab,2000);
+    await tabWait(tab,3000);
 }
 
 async function getUserTimeline(tab, tweet_username){
@@ -197,18 +199,13 @@ async function getProfileLink_ImageUrl(tweet){
 async function getTweetId(tweet){
     let tweetIds = new Set();
     try{
-        // let links_components = await tweet.findElements(By.css("[role='link']"));
         let links_components = await tweet.findElements(By.css("a"));
         for(let i=0; i<links_components.length; i++){
             let link_comp_url = await links_components[i].getAttribute("href");
             if(link_comp_url.includes("status")){
                 let split_url_arr = link_comp_url.split("/");
-                if(split_url_arr[split_url_arr.length-1] === 'analytics'){
-                    tweetIds.add(split_url_arr[split_url_arr.length-2]);
-                }
-                else{
-                    tweetIds.add(split_url_arr[split_url_arr.length-1]);
-                }
+                let status_index = split_url_arr.indexOf("status");
+                tweetIds.add(split_url_arr[status_index+1]);
             }
         }
     }
@@ -223,12 +220,13 @@ async function getTweetId(tweet){
 async function getTweetRepliesRetweetsLikes_TweetActions(tweet){
     let tweet_actions = null;
     let replies_retweets_likes = null;
+    // let replies_num = 0;
+    // let retweets_num = 0;
+    // let likes_num = 0; 
     try{
         let group_of_buttons = await tweet.findElement(By.css("[role='group']"));
-        let text_with_dets = await group_of_buttons.getAttribute("aria-label");
-        let split_text_to_different_actions = text_with_dets.split(',');
-        replies_retweets_likes = await getNumOfTweetActions(split_text_to_different_actions);
-        tweet_actions = await getTweetActions(group_of_buttons);
+        replies_retweets_likes = await getNumOfTweetActions(group_of_buttons);
+        tweet_actions = await getTweetActions(group_of_buttons);    
     }
     catch(error){
         console.log('problem with twitter actions collecting.');
@@ -238,26 +236,50 @@ async function getTweetRepliesRetweetsLikes_TweetActions(tweet){
     }
 }
 
-async function getNumOfTweetActions(split_text_to_different_actions){
+async function getNumOfTweetActions(group_of_buttons){
     let replies_num = 0;
     let retweets_num = 0;
     let likes_num = 0;
-    for(let i=0; i<split_text_to_different_actions.length; i++){
-        let action = split_text_to_different_actions[i];
-        if(action === '1 reply' ||
-        action?.includes('replies')){
-            replies_num = action.split(' ')[0];
-        }
-        else if(action === ' 1 Retweet' ||
-        action.includes('Retweets')){
-            retweets_num = action.split(' ')[1];
-        }
-        else if(action === ' 1 like' ||
-        action?.includes('likes')){
-            likes_num = action.split(' ')[1];
+    try{
+        let text_with_dets = await group_of_buttons.getAttribute("aria-label");
+        let split_text_to_different_actions = text_with_dets.split(',');
+        
+        for(let i=0; i<split_text_to_different_actions.length; i++){
+            let action_not_trimmed = split_text_to_different_actions[i];
+            let action_len = split_text_to_different_actions[i].length;
+            let action = (action_not_trimmed[0] === ' ') ? action_not_trimmed.slice(1,action_len) : action_not_trimmed;
+            if(action === '1 reply' ||
+            action?.includes('replies')){
+                replies_num = await getSpecificActionNum(action);
+            }
+            else if(action === '1 Retweet' ||
+            action?.includes('Retweets')){
+                retweets_num = await getSpecificActionNum(action);
+            }
+            else if(action === '1 like' ||
+            action?.includes('likes')){
+                likes_num = await getSpecificActionNum(action);
+            }
         }
     }
-    return {replies_num, retweets_num, likes_num};
+    catch(error){
+    }
+    finally{
+        return {replies_num, retweets_num, likes_num};
+    }   
+}
+    
+async function getSpecificActionNum(action){
+    let num = 0;
+    try{
+        num = action.split(' ')[0];
+    }
+    catch(error){
+    }
+    finally{
+        return parseInt(num);
+    }
+    
 }
 
 async function getTweetActions(group_of_buttons){
@@ -358,7 +380,6 @@ async function IsThereIsSocialContext(tweet){
         is_there_social_context = await tweet.findElement(By.css("[data-testid='socialContext']")) != null;
     }
     catch(error){
-        console.log('Profile does not have social context.');
     }
     finally{
         return is_there_social_context;
@@ -494,41 +515,6 @@ async function getQuoteTweetData(arr, full_texts, are_profiles_verified, tweet_i
 }
 
 // async function algorithmicRankingButton(tab){
-    
-// }
-
-// async function helpParseLikes(tab,all_likes_on_page){
-//     var likes_arr = new Array();
-//     for(let i=0; i<all_likes_on_page.length; i++){
-//         let like_links_arr = await all_likes_on_page[i].findElements(By.css("[role='link']"));
-//         let user_name = await like_links_arr[1].getText();
-//         let user_name_url = await like_links_arr[2].getText();
-//         let created_at = await like_links_arr[3].getText();
-        
-//         let likes_comments_retweets_element = await all_likes_on_page[i].findElement(By.css("[role='group']"));
-//         let parent_of_parent = await likes_comments_retweets_element.findElement(By.xpath("../..")).getText();
-//         for(let j=0; j<parent_of_parent.length; j++){
-//             let x = await parent_of_parent[j].getText();
-//             let y=3;
-//         } 
-//     }
-// }
-
-// async function getQuotedTweetContent(after_post_index,index_end_post_content,arr,post_content_arr){
-//     // Push first line of content
-//     post_content_arr.push(arr[after_post_index]);
-//     // Iterate over arr to get amount of post rows
-//     for(var j = 1 ; j < index_end_post_content; j++){
-//         // Get arr range for post content
-//         if(!/^\d+$/.test(arr[j+after_post_index]) && arr[j+after_post_index] != "Quote Tweet"){
-//             post_content_arr.push(arr[j+after_post_index]);
-//         }
-//         else{
-//             after_post_index = j+after_post_index;
-//             break;
-//         } 
-//     }
-//     return after_post_index;
 // }
 
 module.exports = {scrapeWhoToFollow : scrapeWhoToFollow, 

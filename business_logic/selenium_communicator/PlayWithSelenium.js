@@ -44,23 +44,27 @@ async function userRun(user_credentials){
             "keywords": []
         }]
     }
-    await tabWait(tab,8000);
+    await tabWait(tab,2000);
 
 
     
-    let n_first_tweets = await scrapeTwitter.getFeed(tab);
+    // let n_first_tweets = await scrapeTwitter.getFeed(tab);
     // if (n_first_tweets) {
     //     n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
     // }
 
-    console.log(n_first_tweets);
+    // console.log(n_first_tweets);
+
+
 
     // console.log(await scrapeTwitter.scrapeWhoToFollow(tab));
 
-    // let tweet_username = "elonmusk";
+    let tweet_username = "benybenshlom";
     // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
 
-    // console.log(json_details);
+    let tweet_id_str = '1538068020655947776';
+    let json_details = await scrapeTwitter.getTweet(tab,tweet_username,tweet_id_str);
+    console.log(json_details);
 
 }   
 
