@@ -26,12 +26,12 @@ async function getUserEntityDetails(tab,tweet_username){
     return await scrapeTwitter.getUserEntityDetails(tab,tweet_username);
 }
 
-async function getTweetsTabFromProfileContent(tab,tweet_username){
-    return await scrapeTwitter.getTweetsTabFromProfileContent(tab,tweet_username);
+async function getUserTimeline(tab,tweet_username){
+    return await scrapeTwitter.getUserTimeline(tab,tweet_username);
 }
 
-async function getLikesTabFromProfileContent(tab,tweet_username){
-    return await scrapeTwitter.getLikesTabFromProfileContent(tab,tweet_username);
+async function getUserLikes(tab,tweet_username){
+    return await scrapeTwitter.getUserLikes(tab,tweet_username);
 }
 
 async function getTop_TweetsSearchResult(tab,q){
@@ -72,8 +72,8 @@ exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
 exports.getPeople_SearchResult = getPeople_SearchResult
 exports.newTweetsSearch = newTweetsSearch
 exports.newPeopleSearch = newPeopleSearch
-exports.getTweetsTabFromProfileContent = getTweetsTabFromProfileContent
-exports.getLikesTabFromProfileContent = getLikesTabFromProfileContent
+exports.getUserTimeline = getUserTimeline
+exports.getUserLikes = getUserLikes
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet

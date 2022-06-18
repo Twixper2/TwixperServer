@@ -124,7 +124,7 @@ async function getUserEntityDetails(tweet_username,params = null,tab_from_callin
     return null;
 }
 
-async function getTweetsTabFromProfileContent(tweet_username,params = null,tab_from_calling_function = null){
+async function getUserTimeline(tweet_username,params = null,tab_from_calling_function = null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
 
@@ -135,13 +135,13 @@ async function getTweetsTabFromProfileContent(tweet_username,params = null,tab_f
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
 
-        let getTweetsTabFromProfileContent = await selenium_communicator.getTweetsTabFromProfileContent(tab_to_use,tweet_username);
-        return getTweetsTabFromProfileContent;
+        let getUserTimeline = await selenium_communicator.getUserTimeline(tab_to_use,tweet_username);
+        return getUserTimeline;
     }
     return null;
 }
 
-async function getLikesTabFromProfileContent(tweet_username,params = null,tab_from_calling_function = null){
+async function getUserLikes(tweet_username,params = null,tab_from_calling_function = null){
     if (params != null || tab_from_calling_function != null){
         let tab_to_use = null;
 
@@ -152,8 +152,8 @@ async function getLikesTabFromProfileContent(tweet_username,params = null,tab_fr
             tab_to_use = config.tabsHashMap.get(params.access_token);
         }
 
-        let getLikesTabFromProfileContent = await selenium_communicator.getLikesTabFromProfileContent(tab_to_use,tweet_username);
-        return getLikesTabFromProfileContent;
+        let getUserLikes = await selenium_communicator.getUserLikes(tab_to_use,tweet_username);
+        return getUserLikes;
     }
     return null;
 }
@@ -215,8 +215,8 @@ exports.searchPeople = searchPeople
 exports.validateAccessToken = validateAccessToken
 exports.newTweetsSearch = newTweetsSearch
 exports.newPeopleSearch = newPeopleSearch
-exports.getTweetsTabFromProfileContent = getTweetsTabFromProfileContent
-exports.getLikesTabFromProfileContent = getLikesTabFromProfileContent
+exports.getUserTimeline = getUserTimeline
+exports.getUserLikes = getUserLikes
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet

@@ -79,6 +79,28 @@ router.get("/getFeed", async (req, res, next) => {
   }
 });
 
+router.get("/getTweetComments", async (req, res, next) => {
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
+  try{
+    const getTweetComments = await participantsService_selenium.getTweetComments(null,tab);
+    res.send(getTweetComments);
+  }
+  catch(e){
+    console.log(e)
+    // Chrome is not reachable, remove tab from hashmap
+    if(e.name == "WebDriverError"){
+      tabsHashMap.delete(access_token);
+      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+      return
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+      return;
+    }
+  }
+});
+
 router.get("/getUserEntityDetails", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
@@ -106,7 +128,7 @@ router.get("/getUserEntityDetails", async (req, res, next) => {
   }
 });
 
-router.get("/getTweetsTabFromProfileContent", async (req, res, next) => {
+router.get("/getUserTimeline", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
@@ -114,9 +136,9 @@ router.get("/getTweetsTabFromProfileContent", async (req, res, next) => {
     if(!params.user){
       res.status(400).json("user field is empty.")
     }
-    const getTweetsTabFromProfileContent = await participantsService_selenium.getTweetsTabFromProfileContent(params.user,null,tab);
+    const getUserTimeline = await participantsService_selenium.getUserTimeline(params.user,null,tab);
     // Add also Tweets & Likes tab
-    res.send(getTweetsTabFromProfileContent);
+    res.send(getUserTimeline);
   }
   catch(e){
     console.log(e)
@@ -133,7 +155,7 @@ router.get("/getTweetsTabFromProfileContent", async (req, res, next) => {
   }
 });
 
-router.get("/getLikesTabFromProfileContent", async (req, res, next) => {
+router.get("/getUserLikes", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
@@ -141,9 +163,9 @@ router.get("/getLikesTabFromProfileContent", async (req, res, next) => {
     if(!params.user){
       res.status(400).json("user field is empty.")
     }
-    const getLikesTabFromProfileContent = await participantsService_selenium.getLikesTabFromProfileContent(params.user,null,tab);
+    const getUserLikes = await participantsService_selenium.getUserLikes(params.user,null,tab);
     // Add also Tweets & Likes tab
-    res.send(getLikesTabFromProfileContent);
+    res.send(getUserLikes);
   }
   catch(e){
     console.log(e)

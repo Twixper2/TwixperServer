@@ -80,7 +80,7 @@ async function redirectToPage(tab,url){
     await tabWait(tab,2000);
 }
 
-async function getTweetsTabFromProfileContent(tab, tweet_username){
+async function getUserTimeline(tab, tweet_username){
     let profile_url = "https://twitter.com/"+tweet_username;
     if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
         await redirectToPage(tab,profile_url);
@@ -89,7 +89,7 @@ async function getTweetsTabFromProfileContent(tab, tweet_username){
     return await getFeed(tab);
 }
 
-async function getLikesTabFromProfileContent(tab, tweet_username){
+async function getUserLikes(tab, tweet_username){
     try{
         let profile_likes_url = "https://twitter.com/"+tweet_username+"/likes";
         if(!await isRequestedURLSameAsCurrent(tab, profile_likes_url)){
@@ -525,6 +525,6 @@ module.exports = {scrapeWhoToFollow : scrapeWhoToFollow,
                 scrollPost : scrollPost,
                 tabWait : tabWait,
                 HelpParseTweets:HelpParseTweets,
-                getTweetsTabFromProfileContent : getTweetsTabFromProfileContent,
-                getLikesTabFromProfileContent : getLikesTabFromProfileContent
+                getUserTimeline : getUserTimeline,
+                getUserLikes : getUserLikes
                 };
