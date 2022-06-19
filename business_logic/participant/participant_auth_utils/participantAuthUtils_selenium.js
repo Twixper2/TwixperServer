@@ -2,6 +2,9 @@ const authorizeUser = require("../../selenium_communicator/selenium_authorize/au
 const database = require("../../db/DBCommunicator.js");
 const participantsService_selenium = require("../../../service/participants/participantsService_selenium.js");
 const bcrypt = require("bcryptjs");
+const { tabsHashMap } = require("../../../config");
+const groupSelector = require("../participant_auth_utils/groupSelector")
+
 
 
 async function logInProcess(params,tab){
@@ -14,7 +17,11 @@ async function userLogInReq(params,tab){
     return login_response;
 }
 
-async function getUserAuthDetsIfExist(tabsHashMap, params){
+async function IsAccessTokenInTabHashMap(access_token){
+  return tabsHashMap.get(access_token);
+}
+
+async function getUserAuthDetsIfExist(params){
     let twitter_data_to_send = null;
     let user_and_pass_encrypted = null;
     let cache = false;
@@ -76,9 +83,79 @@ async function createNewTab(){
     return tab;
 }
 
+/**
+ * get experiment from db, decide group for participant, 
+ * put inside participant the group's manipulations
+ * and add user to db
+ * @param {*} username 
+ * @param {*} expCode 
+ */
+async function registerParticipant(username, access_token, expCode){
+  // twitter validation
+  const twitterUserDetails = await IsAccessTokenInTabHashMap(access_token);
+  if (twitterUserDetails == undefined) {
+      throw {
+          name: "InvalidAuthInfo",
+          message: "Not validated as a twitter user."
+      }
+  }
+
+  //checking experiment
+  const exp = await database.getExperimentByCode(expCode); 
+  if(!exp || !exp.exp_id){  //no such experiment
+      throw {
+          name: "NoSuchExperiment",
+          message: "No such experiment."
+      }
+  }
+  if(exp.status != "active"){
+      throw {
+          name: "ExperimentNotActive",
+          message: "This experiment was ended by the researcher."
+      }
+  }
+
+  // verifying not already registered
+  let participantFromDb = await database.getParticipantByUsername(username);
+  if (participantFromDb) {
+      throw {
+          name: "UserAlreadyRegistered",
+          message: "User already registered."
+      }
+  }
+
+  // raffle group for participant. currently, only naive raffle supported
+  const expGroups = exp.exp_groups;
+  const group = groupSelector.selectGroup(expGroups, exp.num_of_participants) 
+
+  let user_entity_details = twitterUserDetails.user_profile_content.userEntityDetails;
+
+  // creating participant to add
+  let participant = {
+      "exp_id": exp.exp_id,
+      "group_id": group.group_id,
+      "participant_twitter_username": twitterUserDetails.user,
+      "participant_twitter_name": user_entity_details.username,
+      "participant_twitter_friends_count": user_entity_details.following_count,
+      "participant_twitter_followers_count": user_entity_details.followers_count,
+      "participant_twitter_profile_image": user_entity_details.profile_img,
+      "group_manipulations": group.group_manipulations
+  }
+  
+  const successRegister = await database.insertParticipant(participant)
+  if(successRegister){
+      // Log the registration to actions log of the experiment
+      participantActionsOnTwitter.logRegisteredToExperiment(participant)
+      return participant
+  }
+  return null
+}
+
 exports.logInProcess = logInProcess
 exports.createNewTab = createNewTab
 exports.getUserInfo_utils = getUserInfo_utils
 exports.userLogInReq = userLogInReq
 exports.validateAccessToken = validateAccessToken
 exports.getUserAuthDetsIfExist = getUserAuthDetsIfExist
+exports.registerParticipant = registerParticipant
+exports.IsAccessTokenInTabHashMap = IsAccessTokenInTabHashMap

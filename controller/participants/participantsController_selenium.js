@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const { tabsHashMap } = require("../../config");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
+const database = require("../../business_logic/db/DBCommunicator.js");
 
 var searchMode = "";
 
@@ -20,12 +21,15 @@ router.use(async function (req, res, next) {
       res.status(401).send("This user is not authenticated.")
       return
     }
-    // res.locals.access_token = access_token;
-    // res.locals.tab = entity_details.tab;
-    req.server_sends_access_token = access_token;
-    req.server_sends_tab = entity_details.tab;
-    req.user = header_params.user;
-    next();
+    let participant = await database.getParticipantByUsername(header_params.user);
+    // continute only if participant is under exp'
+    if (participant) { 
+      req.server_sends_access_token = access_token;
+      req.server_sends_tab = entity_details.tab;
+      req.user = header_params.user;
+      req.participant = participant;
+      next();
+    }    
   }
   catch(e){
     res.sendStatus(500);
@@ -62,7 +66,11 @@ router.get("/getFeed", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    const getFeed = await participantsService_selenium.getFeed(null,tab);
+    let params = {participant: req.participant};
+    if(!params){
+      res.status(400).json("participant from db is missing.")
+    }
+    const getFeed = await participantsService_selenium.getFeed(params,tab);
     res.send(getFeed);
   }
   catch(e){

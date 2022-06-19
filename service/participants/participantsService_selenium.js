@@ -88,14 +88,13 @@ async function getFeed(params=null,tab_from_calling_function=null){
         }
 
         let getFeed = await selenium_communicator.getFeed(tab_to_use);
-        if (getFeed) {
-            getFeed = await manipulator.manipulateTweets(participant, getFeed)
+        if (getFeed && params) {
+            getFeed = await manipulator.manipulateTweets(params.participant, getFeed)
         }
         return getFeed;
     }
     return null;
 }
-
 
 async function getTweet(params = null,tab_from_calling_function = null){
     if (params != null || tab_from_calling_function != null){
@@ -208,6 +207,16 @@ async function postTweet(tab_from_calling_function,tweetContext){
     }
 }
 
+/** ______Register To Exp'_____ **/
+
+async function registerParticipant(username, access_token, expCode){
+    return await participantAuthUtils_selenium.registerParticipant(username, access_token, expCode);
+}
+
+
+
+
+
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
@@ -222,3 +231,4 @@ exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
 exports.getTweet=getTweet
+exports.registerParticipant=registerParticipant
