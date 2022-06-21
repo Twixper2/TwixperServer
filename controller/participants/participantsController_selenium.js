@@ -11,7 +11,7 @@ var searchMode = "";
 router.use(async function (req, res, next) {
   try{
     const header_params = req.headers
-    const access_token = header_params.access_token;
+    const access_token = header_params.accesstoken;
     if(!header_params || !access_token || !header_params.user){
       res.status(400).send("No access_token or user params supplied in Header.")
       return

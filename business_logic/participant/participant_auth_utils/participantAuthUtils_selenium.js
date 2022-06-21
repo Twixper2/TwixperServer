@@ -128,8 +128,7 @@ async function registerParticipant(username, access_token, expCode){
   const expGroups = exp.exp_groups;
   const group = groupSelector.selectGroup(expGroups, exp.num_of_participants) 
 
-  let user_entity_details = twitterUserDetails.user_profile_content.userEntityDetails;
-
+  let user_entity_details = twitterUserDetails.user_profile_content.userEntityDetails.entity_details;
   // creating participant to add
   let participant = {
       "exp_id": exp.exp_id,
@@ -153,7 +152,6 @@ async function registerParticipant(username, access_token, expCode){
 
 function extractTwitterInfoFromParticipantObj(participant){
     return {
-        "id_str": participant.participant_twitter_id_str,
         "screen_name": participant.participant_twitter_username,
         "name": participant.participant_twitter_name,
         "friends_count": participant.participant_twitter_friends_count, 

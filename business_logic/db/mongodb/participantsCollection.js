@@ -31,7 +31,7 @@ async function getParticipantByUsername(user) {
     let result = null
     try{
         let collection = db.collection("Participants")
-        result = await collection.findOne({username: user})
+        result = await collection.findOne({participant_twitter_username: user})
         // result = await result.toArray()
         // result = result[0]
     }

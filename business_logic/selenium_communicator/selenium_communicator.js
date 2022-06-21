@@ -7,6 +7,7 @@ const homepage_url = "https://twitter.com/home";
 async function redirectToHomePageIfNeeded(tab){
     if(await tab.getCurrentUrl() !== homepage_url){
         await tab.get(homepage_url);
+        await scrapeTwitter.reloadPage(tab);
         await scrapeTwitter.tabWait(tab,1000);
     }
 }
@@ -18,7 +19,7 @@ async function scrapeWhoToFollow(tab){
 
 async function getFeed(tab){
     await redirectToHomePageIfNeeded(tab);
-    // await scrapeTwitter.scrollPost(tab);
+    await scrapeTwitter.scrollPost(tab);
     return await scrapeTwitter.getFeed(tab);
 }
 

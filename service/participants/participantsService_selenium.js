@@ -47,12 +47,12 @@ async function logInProcess(params,access_token){
 
 /** ______User's initial content_____ **/
 async function getInitialContentOfParticipant(tab,req_user){
-    let feed = await getFeed(null,tab);
     let whoToFollowElement = await getWhoToFollow(null,tab);
+    let feed = await getFeed(null,tab);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
     let userTimeline = await getUserTimeline({req_user},tab);
     let userLikes = await getUserLikes({req_user},tab);
-    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},feed,whoToFollowElement};
+    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
 }
 
 /** ______User's data_____ **/

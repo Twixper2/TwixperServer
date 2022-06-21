@@ -38,11 +38,11 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
     let participant = await database.getParticipantByUsername(params.user);
     if (participant) {
       // Extract data from collection
-      // let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
+      let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
       res.status(200).json({
         twitter_user_found : true,
         user_registered_to_experiment : true,
-        participant_twitter_info: {},
+        participant_twitter_info,
         initial_content
       });
       return;
@@ -101,7 +101,16 @@ router.post("//registerToExperiment", async (req, res, next) => {
       return;
     }
     const participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
-    res.status(200).json({"participant_twitter_info": participant_twitter_info}); //success
+    let initial_content = tabsHashMap.get(access_token);
+    delete initial_content.tab;
+
+    res.status(200).json({
+      twitter_user_found : true,
+      user_registered_to_experiment : true,
+      participant_twitter_info,
+      initial_content
+    });
+    return;
   } // end try
   catch(e) {
     console.log(e)

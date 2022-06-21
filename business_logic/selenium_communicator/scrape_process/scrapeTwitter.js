@@ -29,10 +29,11 @@ async function scrapeWhoToFollow(tab){
             else{
                 img_index = j;
             }
+
             profile_names_arr_final.push({"user_name":profile_names_arr[j],
                                         "user_name_url":profile_names_arr[j+1],
-                                        "img":await all_images[img_index].getAttribute("src"),
-                                        "is_profile_verified": await all_buttons[j]?.findElement(By.css("[aria-label='Verified account']")) != undefined});
+                                        "img":await all_images[img_index].getAttribute("src"),  
+                                        "is_profile_verified": await isProfileVerified_WhoToFollow(all_buttons[j])});
         }
         return profile_names_arr_final;
     }
@@ -52,15 +53,14 @@ async function getFeed(tab){
 }
 
 async function scrollPost(tab){
-    await tabWait(tab,500);
+    // await tabWait(tab,500);
     await tab.executeScript('window.scrollTo(0, 600)');
-    await tabWait(tab,5000);
+    await tabWait(tab,4000);
 }
 
 async function getUserEntityDetails(tab, tweet_username){
     try{
         let profile_url = twitter_address+tweet_username;
-        await reloadPage(tab);
         if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
             await redirectToPage(tab,profile_url);
         }
@@ -341,6 +341,19 @@ async function getTweetPhotos(tweet){
     }
 }
 
+async function isProfileVerified_WhoToFollow(tab){
+    is_profile_verified = false;
+    try{
+        is_profile_verified = await tab.findElement(By.css("[aria-label='Verified account']")) != undefined;
+    }
+    catch(error){
+    }
+    finally{
+        return is_profile_verified;
+    }
+    
+}
+
 async function isProfileVerified(tweet){
     let is_profile_verified = 0;
     try{
@@ -526,5 +539,6 @@ module.exports = {scrapeWhoToFollow : scrapeWhoToFollow,
                 HelpParseTweets:HelpParseTweets,
                 getUserTimeline : getUserTimeline,
                 getUserLikes : getUserLikes,
-                getTweet : getTweet
+                getTweet : getTweet,
+                reloadPage : reloadPage
                 };
