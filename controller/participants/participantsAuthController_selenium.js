@@ -2,7 +2,6 @@ var express = require("express");
 var router = express.Router();
 const database = require("../../business_logic/db/DBCommunicator.js");
 const bcrypt = require("bcryptjs");
-const participantsService_new = require("../../service/participants/participantsService_new.js");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium.js");
 const { tabsHashMap } = require("../../config");
@@ -101,7 +100,7 @@ router.post("//registerToExperiment", async (req, res, next) => {
       res.sendStatus(500);
       return;
     }
-    const participant_twitter_info = participantsService_new.extractTwitterInfoFromParticipantObj(participant)
+    const participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
     res.status(200).json({"participant_twitter_info": participant_twitter_info}); //success
   } // end try
   catch(e) {

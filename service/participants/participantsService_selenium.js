@@ -210,6 +210,10 @@ async function registerParticipant(username, access_token, expCode){
     return await participantAuthUtils_selenium.registerParticipant(username, access_token, expCode);
 }
 
+function extractTwitterInfoFromParticipantObj(participant){
+    return participantAuthUtils_selenium.extractTwitterInfoFromParticipantObj(participant)
+}
+
 
 
 
@@ -229,3 +233,4 @@ exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
 exports.getTweet=getTweet
 exports.registerParticipant=registerParticipant
+exports.extractTwitterInfoFromParticipantObj=extractTwitterInfoFromParticipantObj

@@ -151,6 +151,17 @@ async function registerParticipant(username, access_token, expCode){
   return null
 }
 
+function extractTwitterInfoFromParticipantObj(participant){
+    return {
+        "id_str": participant.participant_twitter_id_str,
+        "screen_name": participant.participant_twitter_username,
+        "name": participant.participant_twitter_name,
+        "friends_count": participant.participant_twitter_friends_count, 
+        "followers_count": participant.participant_twitter_followers_count,
+        "profile_image_url_https": participant.participant_twitter_profile_image
+    }
+}
+
 exports.logInProcess = logInProcess
 exports.createNewTab = createNewTab
 exports.getUserInfo_utils = getUserInfo_utils
@@ -159,3 +170,4 @@ exports.validateAccessToken = validateAccessToken
 exports.getUserAuthDetsIfExist = getUserAuthDetsIfExist
 exports.registerParticipant = registerParticipant
 exports.IsAccessTokenInTabHashMap = IsAccessTokenInTabHashMap
+exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj
