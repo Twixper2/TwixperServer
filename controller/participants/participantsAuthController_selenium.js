@@ -74,18 +74,19 @@ router.post("//registerToExperiment", async (req, res, next) => {
   try {
     const header_params = req.headers
     const expCode = req.body.exp_code
+    let access_token = header_params.accesstoken;
     if(!header_params || !access_token || !header_params.user){
-      res.status(400).send("No access_token or user params supplied in Header.");
+      res.status(400).send("No accesstoken or user params supplied in Header.");
       return;
     }
     if (!expCode) {
-      res.status(400).send("No experiment code provided in Body.");
+      res.status(400).send("No exp_code code provided in Body.");
       return;
     }
     
     let participant  = null
     try {
-      participant = await participantsService_selenium.registerParticipant(header_params.user, header_params.access_token, expCode);
+      participant = await participantsService_selenium.registerParticipant(header_params.user, access_token, expCode);
     }
     catch (e) {
       // if it is an error with message, we respond with the error object containing "name" and "message" keys

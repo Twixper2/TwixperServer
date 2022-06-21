@@ -18,7 +18,7 @@ async function scrapeWhoToFollow(tab){
 
 async function getFeed(tab){
     await redirectToHomePageIfNeeded(tab);
-    await scrapeTwitter.scrollPost(tab);
+    // await scrapeTwitter.scrollPost(tab);
     return await scrapeTwitter.getFeed(tab);
 }
 

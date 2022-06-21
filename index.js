@@ -66,7 +66,7 @@ const participantsController_selenium  = require("./controller/participants/part
 app.get("//", (req, res) => res.send("welcome v.2"));
 
 // app.use("//participants", participantController);
-app.use("/researchers", researcherController);
+app.use("//researchers", researcherController);
 // app.use(participantsAuthController);  //participant auth
 app.use(researchersAuthController);  //participant auth
 
@@ -107,7 +107,4 @@ else{
     console.log(`Server running at http://localhost:${port}/`);
   });
 }
-
-// console.log("** BBB10") // For identifying versions in azure
-// console.log(process.env.DB_NAME)
 

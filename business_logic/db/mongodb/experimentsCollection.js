@@ -1,28 +1,5 @@
 var makeDb = require("./DBConnector.js").makeDb
 
-// Liad created - Sample function of inserting new experiment locally
-// async function insertExperiment(experiment) {
-//   if(experiment == null){
-//     throw "experiment can't be null"
-//   }
-//   const db = await makeDb()
-//   let result = null
-//   try {
-//     let collection = db.collection("Experiments")
-//     result = await collection.insertOne(experiment);
-//   }
-//   catch (e) {
-//     throw e
-//   }
-//   if (result) {
-//     return true
-//   }
-//   return false
-// }
-
-
-
-
 // Insert new experiment
 async function insertExperiment(experiment) {
   if(experiment == null){

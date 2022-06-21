@@ -4,7 +4,7 @@ const participantsService_selenium = require("../../../service/participants/part
 const bcrypt = require("bcryptjs");
 const { tabsHashMap } = require("../../../config");
 const groupSelector = require("../participant_auth_utils/groupSelector")
-
+const participantActionsOnTwitter = require("../participant_actions/participantActionsOnTwitter.js")
 
 
 async function logInProcess(params,tab){

@@ -60,6 +60,7 @@ async function scrollPost(tab){
 async function getUserEntityDetails(tab, tweet_username){
     try{
         let profile_url = twitter_address+tweet_username;
+        await reloadPage(tab);
         if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
             await redirectToPage(tab,profile_url);
         }
@@ -79,7 +80,7 @@ async function getTweet(tab, tweet_username, tweet_id_str){
             await redirectToPage(tab,tweet_url);
         }
         let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-        await scrollPost(tab);
+        // await scrollPost(tab);
         let tweet_and_replies = await getFeed(primary_column);
         let tweets_len = tweet_and_replies.length;
         let index = tweet_and_replies.map(t => t.tweet_id.toString()).indexOf(tweet_id_str);
@@ -104,7 +105,7 @@ async function getUserTimeline(tab, tweet_username){
     if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
         await redirectToPage(tab,profile_url);
     }
-    await scrollPost(tab);
+    // await scrollPost(tab);
     return await getFeed(tab);
 }
 
@@ -114,7 +115,7 @@ async function getUserLikes(tab, tweet_username){
         await redirectToPage(tab,profile_likes_url);
     }
     let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-    await scrollPost(tab);
+    // await scrollPost(tab);
     return await getFeed(primary_column);
 }
 

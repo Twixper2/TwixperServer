@@ -14,24 +14,21 @@ async function logInProcess(params,access_token){
     let login_response = undefined;
     let user = params.user;
 
-    if(params?.cookies){
-        login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
-    }
-
-    else{
-        login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
-        if(login_response){
-            
-            //First login - saves the cookies and tokens of the user
-            await new Promise(r => setTimeout(r, 2000));
-            let allCookies = await new_tab.manage().getCookies();
-            await userCookiesDB.insertUserCookies(user,allCookies,access_token)
-        }
+    // if(params?.cookies){
+    //     login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
+    // }
+    login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
+    if(login_response){
+        
+        //First login - saves the cookies and tokens of the user
+        await new Promise(r => setTimeout(r, 2000));
+        let allCookies = await new_tab.manage().getCookies();
+        await userCookiesDB.insertUserCookies(user,allCookies,access_token)
     }
     let final_resp_without_tab = null;
     if(login_response){
         //open user profile page
-        await new_tab.executeScript(`window.open("${user}");`);
+        // await new_tab.executeScript(`window.open("${user}");`);
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
