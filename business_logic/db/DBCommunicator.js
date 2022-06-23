@@ -41,6 +41,10 @@ async function insertParticipant(participant) {
     return true
 }
 
+async function getParticipantByUsername(user){
+    return await participantsCollection.getParticipantByUsername(user);
+}
+
 async function getParticipantByTwitterId(tId){
     return await participantsCollection.getParticipantByTwitterId(tId);
 }
@@ -218,6 +222,7 @@ module.exports = {
     updateExpStatus : updateExpStatus,
     setExpEndDate : setExpEndDate,
     insertUserCookies : insertUserCookies,
-    getInfoByTwitterUserName : getInfoByTwitterUserName
+    getInfoByTwitterUserName : getInfoByTwitterUserName,
+    getParticipantByUsername : getParticipantByUsername
 }
 

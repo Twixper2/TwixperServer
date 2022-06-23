@@ -44,7 +44,7 @@ async function userRun(user_credentials){
             "keywords": []
         }]
     }
-    await tabWait(tab,6000);
+    await tabWait(tab,2000);
 
 
     
@@ -55,10 +55,15 @@ async function userRun(user_credentials){
 
     // console.log(n_first_tweets);
 
+
+
     // console.log(await scrapeTwitter.scrapeWhoToFollow(tab));
 
-    let tweet_username = "elonmusk";
-    let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
+    let tweet_username = "benybenshlom";
+    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
+
+    let tweet_id_str = '1538068020655947776';
+    let json_details = await scrapeTwitter.getTweet(tab,tweet_username,tweet_id_str);
     console.log(json_details);
 
 }   
