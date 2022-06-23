@@ -237,6 +237,25 @@ router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => 
     }
   }
 });
+
+router.get("/notifications", async (req, res, next) => {
+
+
+  try{
+    const tweetsSearchResults = await participantsService_selenium.getNotifications(req.server_sends_tab)
+    res.send(tweetsSearchResults)
+  }
+  catch(e){
+    console.log(e)
+    if(e.message == "search-tweets-error"){ // error thrown from the api
+      res.status(502).json(e);
+    }
+    else{
+      res.sendStatus(500)
+    }
+  }
+});
+
 router.post("/addAction/:action", async (req, res, next) => {
   
   try{
@@ -285,7 +304,7 @@ router.post("/postTweet", async (req, res, next) => {
       res.sendStatus(200)
     }
     else{
-      res.sendStatus(500)
+      res.status(400).send("Whoops! You already said that")
     }
   }
   catch(e){

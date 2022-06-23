@@ -158,6 +158,14 @@ async function getMoreSearchResult(tab_from_calling_function,mode){
         return searchResult;
     }
 }
+
+async function getNotifications(tab_from_calling_function){
+    if (tab_from_calling_function != undefined){
+        let notificationsResult = await selenium_communicator.getNotifications(tab_from_calling_function);
+        return notificationsResult;
+    }
+}
+
 async function closeSecondTab(tab_from_calling_function){
     if (tab_from_calling_function != undefined){
         await selenium_communicator.closeSecondTab(tab_from_calling_function);
@@ -167,8 +175,7 @@ async function closeSecondTab(tab_from_calling_function){
 
 async function postTweet(tab_from_calling_function,tweetContext){
     if (tab_from_calling_function != undefined){
-        await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);
-        return true;
+        return await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);;
     }
 }
 
@@ -193,3 +200,5 @@ exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
 exports.tweetsAction=tweetsAction
+exports.getNotifications=getNotifications
+

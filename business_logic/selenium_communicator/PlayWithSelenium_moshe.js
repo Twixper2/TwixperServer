@@ -10,7 +10,7 @@ async function userRun(user_credentials){
     // let tab = await createNewTab();
 
     // Log in to twitter and get cookies
-    await authorizeUser.logInProcess(user_credentials,tab, By, Key);
+    // await authorizeUser.logInProcess(user_credentials,tab, By, Key);
     // await authorizeUser.userLogInReq(user_credentials,tab, By, Key);
 
     // -----------------------open second web driver with user cookies------------------------------------
@@ -35,7 +35,9 @@ async function userRun(user_credentials){
     // console.log(result);
     //------------------------------------------ getNotifications ------------------------------------------
 
+    // let searchResult1 = await scrapeTwitter_moshe.doIHaveNewNotifications(tab);
     let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
+
     console.log(searchResult1);
 
 
@@ -80,7 +82,7 @@ async function main(){
     // await userRun(credentials_1);
 
     // Retrieve user credentials
-    var credentials_2 = credentials.credentials_2;
+    var credentials_2 = credentials.credentials_1;
     await userRun(credentials_2);
 }
 

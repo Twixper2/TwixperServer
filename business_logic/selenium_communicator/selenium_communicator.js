@@ -65,6 +65,9 @@ async function tweetsAction(tab,tweet_id,screen_name,action,reply,ShareVia){
     return await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,screen_name,action,reply,ShareVia);
 }
 
+async function getNotifications(tab){
+    return await scrapeTwitter_moshe.getNotifications(tab);
+}
 
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
@@ -79,3 +82,4 @@ exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
 exports.tweetsAction=tweetsAction
+exports.getNotifications=getNotifications
