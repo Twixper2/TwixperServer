@@ -2,17 +2,18 @@ var express = require("express");
 var router = express.Router();
 const { tabsHashMap } = require("../../config");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
+const database = require("../../business_logic/db/DBCommunicator.js");
 
-var  searchMode = "";
+var searchMode = "";
 
 /* Make sure user is authenticated by checking if tab is active
   is not authorized, respond with code 401 */
 router.use(async function (req, res, next) {
   try{
     const header_params = req.headers
-    const access_token = header_params.access_token;
+    const access_token = header_params.accesstoken;
     if(!header_params || !access_token || !header_params.user){
-      res.status(400).send("No params supplied.")
+      res.status(400).send("No access_token or user params supplied in Header.")
       return
     }
     let entity_details = tabsHashMap.get(access_token);
@@ -20,11 +21,15 @@ router.use(async function (req, res, next) {
       res.status(401).send("This user is not authenticated.")
       return
     }
-    // res.locals.access_token = access_token;
-    // res.locals.tab = entity_details.tab;
-    req.server_sends_access_token = access_token;
-    req.server_sends_tab = entity_details.tab;
-    next();
+    let participant = await database.getParticipantByUsername(header_params.user);
+    // continute only if participant is under exp'
+    if (participant) { 
+      req.server_sends_access_token = access_token;
+      req.server_sends_tab = entity_details.tab;
+      req.user = header_params.user;
+      req.participant = participant;
+      next();
+    }    
   }
   catch(e){
     res.sendStatus(500);
@@ -61,7 +66,11 @@ router.get("/getFeed", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    const getFeed = await participantsService_selenium.getFeed(null,tab);
+    let params = {participant: req.participant};
+    if(!params){
+      res.status(400).json("participant from db is missing.")
+    }
+    const getFeed = await participantsService_selenium.getFeed(params,tab);
     res.send(getFeed);
   }
   catch(e){
@@ -79,16 +88,97 @@ router.get("/getFeed", async (req, res, next) => {
   }
 });
 
-router.get("/getUserProfile", async (req, res, next) => {
+router.get("/getTweet", async (req, res, next) => {
   let tab = req.server_sends_tab;
   let access_token = req.server_sends_access_token;
   try{
-    let params = req.body;
-    if(!params.user){
+    let params = req.query;
+    if(!params.tweetIdStr || !params.tweetUser){
+      res.status(400).json("tweetIdStr or user or tweetUser fields are missing.")
+    }
+    const getTweet = await participantsService_selenium.getTweet(params,tab);
+    res.send(getTweet); 
+  }
+  catch(e){
+    console.log(e)
+    // Chrome is not reachable, remove tab from hashmap
+    if(e.name == "WebDriverError"){
+      tabsHashMap.delete(access_token);
+      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+      return
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+      return;
+    }
+  }
+});
+
+router.get("/getUserEntityDetails", async (req, res, next) => {
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
+  try{
+    let params = req.query;
+    if(!params.req_user){
       res.status(400).json("user field is empty.")
     }
-    const getProfileContent = await participantsService_selenium.getProfileContent(params.user,null,tab);
-    res.send(getProfileContent);
+    const getUserEntityDetails = await participantsService_selenium.getUserEntityDetails(params,tab);
+    // Add also Tweets & Likes tab
+    res.send(getUserEntityDetails);
+  }
+  catch(e){
+    console.log(e)
+    // Chrome is not reachable, remove tab from hashmap
+    if(e.name == "WebDriverError"){
+      tabsHashMap.delete(access_token);
+      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+      return
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+      return;
+    }
+  }
+});
+
+router.get("/getUserTimeline", async (req, res, next) => {
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
+  try{
+    let params = req.query;
+    if(!params.req_user){
+      res.status(400).json("user field is empty.")
+    }
+    const getUserTimeline = await participantsService_selenium.getUserTimeline(params,tab);
+    // Add also Tweets & Likes tab
+    res.send(getUserTimeline);
+  }
+  catch(e){
+    console.log(e)
+    // Chrome is not reachable, remove tab from hashmap
+    if(e.name == "WebDriverError"){
+      tabsHashMap.delete(access_token);
+      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+      return
+    }
+    else{ // Internal error
+      res.sendStatus(500)
+      return;
+    }
+  }
+});
+
+router.get("/getUserLikes", async (req, res, next) => {
+  let tab = req.server_sends_tab;
+  let access_token = req.server_sends_access_token;
+  try{
+    let params = req.query;
+    if(!params.req_user){
+      res.status(400).json("user field is empty.")
+    }
+    const getUserLikes = await participantsService_selenium.getUserLikes(params,tab);
+    // Add also Tweets & Likes tab
+    res.send(getUserLikes);
   }
   catch(e){
     console.log(e)
@@ -373,42 +463,6 @@ Need to implement the endpoints below
 //   }
 //   catch(e){
 //     console.log("** Error in /participant/getUserFollowers **")
-//     console.log(e)
-//     if(e.message){ // error thrown from the api
-//       res.status(502).json(e); 
-//     }
-//     else{ // Internal error
-//       res.sendStatus(500)
-//     }
-//   }
-// });
-
-// router.get("//getUserTimeline", async (req, res, next) => {
-//   const params = req.body
-//   try{
-//     const userTimelineTweets = await participantsService_selenium.getUserTimeline(params)
-//     res.send(userTimelineTweets)
-//   }
-//   catch(e){
-//     console.log(e)
-//     if(e.message == "inner-api-error"){ // error thrown from the api
-//       res.status(502).json(e);
-//     }
-//     else{
-//       res.sendStatus(500)
-//     }
-//   }
-// });
-
-// router.get("//getUserLikes", async (req, res, next) => {
-//   const params = req.body
-//   // const participant = params.participant
-//   try{
-//     const userLikesTweets = await participantsService_selenium.getUserLikes(params)
-//     res.send(userLikesTweets)
-//   }
-//   catch(e){
-//     console.log("** Error in /participant/getUserLikes **")
 //     console.log(e)
 //     if(e.message){ // error thrown from the api
 //       res.status(502).json(e); 

@@ -7,6 +7,7 @@ const homepage_url = "https://twitter.com/home";
 async function redirectToHomePageIfNeeded(tab){
     if(await tab.getCurrentUrl() !== homepage_url){
         await tab.get(homepage_url);
+        await scrapeTwitter.reloadPage(tab);
         await scrapeTwitter.tabWait(tab,1000);
     }
 }
@@ -16,18 +17,26 @@ async function scrapeWhoToFollow(tab){
     return await scrapeTwitter.scrapeWhoToFollow(tab);
 }
 
-async function getUserEntityData(tab){
-    return await scrapeTwitter.getUserEntityData(tab);
-}
-
 async function getFeed(tab){
     await redirectToHomePageIfNeeded(tab);
     await scrapeTwitter.scrollPost(tab);
     return await scrapeTwitter.getFeed(tab);
 }
 
-async function getProfileContent(tab,tweet_username){
-    return await scrapeTwitter_moshe.getProfileContent(tab,tweet_username);
+async function getUserEntityDetails(tab,tweet_username){
+    return await scrapeTwitter.getUserEntityDetails(tab,tweet_username);
+}
+
+async function getUserTimeline(tab,tweet_username){
+    return await scrapeTwitter.getUserTimeline(tab,tweet_username);
+}
+
+async function getUserLikes(tab,tweet_username){
+    return await scrapeTwitter.getUserLikes(tab,tweet_username);
+}
+
+async function getTweet(tab,tweet_username,tweet_id){
+    return await scrapeTwitter.getTweet(tab,tweet_username,tweet_id);
 }
 
 async function getTop_TweetsSearchResult(tab,q){
@@ -71,15 +80,17 @@ async function getNotifications(tab){
 
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
-exports.getProfileContent = getProfileContent
+exports.getUserEntityDetails = getUserEntityDetails
 exports.getTop_TweetsSearchResult = getTop_TweetsSearchResult
 exports.getLatest_TweetsSearchResult = getLatest_TweetsSearchResult
 exports.getPeople_SearchResult = getPeople_SearchResult
 exports.newTweetsSearch = newTweetsSearch
 exports.newPeopleSearch = newPeopleSearch
-
+exports.getUserTimeline = getUserTimeline
+exports.getUserLikes = getUserLikes
 exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
+exports.getTweet=getTweet
 exports.tweetsAction=tweetsAction
 exports.getNotifications=getNotifications
