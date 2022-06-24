@@ -191,6 +191,14 @@ async function getMoreSearchResult(tab_from_calling_function,mode){
         return searchResult;
     }
 }
+
+async function getNotifications(tab_from_calling_function){
+    if (tab_from_calling_function != undefined){
+        let notificationsResult = await selenium_communicator.getNotifications(tab_from_calling_function);
+        return notificationsResult;
+    }
+}
+
 async function closeSecondTab(tab_from_calling_function){
     if (tab_from_calling_function != undefined){
         await selenium_communicator.closeSecondTab(tab_from_calling_function);
@@ -199,8 +207,7 @@ async function closeSecondTab(tab_from_calling_function){
 }
 async function postTweet(tab_from_calling_function,tweetContext){
     if (tab_from_calling_function != undefined){
-        await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);
-        return true;
+        return await selenium_communicator.postTweet(tab_from_calling_function,tweetContext);;
     }
 }
 
@@ -218,6 +225,13 @@ function extractTwitterInfoFromParticipantObj(participant){
 
 
 
+async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
+    if (tab_from_calling_function != undefined){
+        await selenium_communicator.tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined);
+        return true;
+    }
+    return false;
+}
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
@@ -234,3 +248,6 @@ exports.postTweet=postTweet
 exports.getTweet=getTweet
 exports.registerParticipant=registerParticipant
 exports.extractTwitterInfoFromParticipantObj=extractTwitterInfoFromParticipantObj
+exports.tweetsAction=tweetsAction
+exports.getNotifications=getNotifications
+

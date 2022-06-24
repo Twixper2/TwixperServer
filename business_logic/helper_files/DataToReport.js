@@ -164,7 +164,7 @@ exports.report = {
         [
             "registered to experiment",
             "login", 
-            "logout",
+            "",
             "view tweet", // Passively saw a tweet, in feed or in other tab (for example in public user's timleine) 
             "like", // Can be like on a tweet or comment
             "unlike", 

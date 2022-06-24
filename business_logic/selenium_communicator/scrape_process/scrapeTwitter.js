@@ -540,5 +540,6 @@ module.exports = {scrapeWhoToFollow : scrapeWhoToFollow,
                 getUserTimeline : getUserTimeline,
                 getUserLikes : getUserLikes,
                 getTweet : getTweet,
-                reloadPage : reloadPage
+                reloadPage : reloadPage,
+                isProfileVerified:isProfileVerified
                 };

@@ -17,26 +17,28 @@ async function userRun(user_credentials){
     let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
     await tab.get(homepage_url);
 
-    var tweet_id = "1530516552084234244";
-    var user_url = "elonmusk";
-    // data-testid="unretweet"
-    var action_1 = "like";
-    let result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_1)
-    console.log(result);
-    var reply= "hello elonmusk! my name is Twixper";
-    var action_2 = "reply";
-    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_2,reply)
-    console.log(result);
-    var action_3 = "retweet";
-    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_3,reply)
-    console.log(result);
-    var action_4 = "liked";
-    result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_4,reply)
-    console.log(result);
+    // var tweet_id = "1530516552084234244";
+    // var user_url = "elonmusk";
+    // // data-testid="unretweet"
+    // var action_1 = "like";
+    // let result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_1)
+    // console.log(result);
+    // var reply= "hello elonmusk! my name is Twixper";
+    // var action_2 = "reply";
+    // result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_2,reply)
+    // console.log(result);
+    // var action_3 = "retweet";
+    // result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_3,reply)
+    // console.log(result);
+    // var action_4 = "like";
+    // result =  await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,user_url,action_4,reply)
+    // console.log(result);
     //------------------------------------------ getNotifications ------------------------------------------
 
-    // let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
-    // console.log(searchResult1);
+    // let searchResult1 = await scrapeTwitter_moshe.doIHaveNewNotifications(tab);
+    let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
+
+    console.log(searchResult1);
 
 
 
@@ -80,7 +82,7 @@ async function main(){
     // await userRun(credentials_1);
 
     // Retrieve user credentials
-    var credentials_2 = credentials.credentials_2;
+    var credentials_2 = credentials.credentials_1;
     await userRun(credentials_2);
 }
 
