@@ -304,7 +304,7 @@ router.post("/postTweet", async (req, res, next) => {
       res.sendStatus(200)
     }
     else{
-      res.status(400).send("Whoops! You already said that")
+      res.status(204).send("Whoops! You already said that")
     }
   }
   catch(e){
