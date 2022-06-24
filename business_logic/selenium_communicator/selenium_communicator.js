@@ -69,6 +69,15 @@ async function closeSecondTab(tab){
 async function postTweet(tab,tweetContext){
     return await scrapeTwitter_moshe.postTweets(tab,tweetContext);
 }
+
+async function tweetsAction(tab,tweet_id,screen_name,action,reply,ShareVia){
+    return await scrapeTwitter_moshe.tweetsActionManager(tab,tweet_id,screen_name,action,reply,ShareVia);
+}
+
+async function getNotifications(tab){
+    return await scrapeTwitter_moshe.getNotifications(tab);
+}
+
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
 exports.getUserEntityDetails = getUserEntityDetails
@@ -83,3 +92,5 @@ exports.getMoreSearchResult = getMoreSearchResult
 exports.closeSecondTab = closeSecondTab
 exports.postTweet=postTweet
 exports.getTweet=getTweet
+exports.tweetsAction=tweetsAction
+exports.getNotifications=getNotifications
