@@ -158,17 +158,14 @@ async function logInProcess(data,tab){
     catch(error){
         console.log(error);
     }
-    finally{
-        return false;
-    }
     
 }
 
 module.exports = 
     {
-            logInProcess : logInProcess, 
-            createNewTab : createNewTab,
-            saveUserCookie : saveUserCookie,
-            loadUserCookie : loadUserCookie,
-            userLogInReq : userLogInReq
+        logInProcess : logInProcess, 
+        createNewTab : createNewTab,
+        saveUserCookie : saveUserCookie,
+        loadUserCookie : loadUserCookie,
+        userLogInReq : userLogInReq
     };

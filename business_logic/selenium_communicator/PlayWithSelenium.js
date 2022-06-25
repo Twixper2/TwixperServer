@@ -47,12 +47,12 @@ async function userRun(user_cred){
     
     let tweet_username = "benyshlomo";
     let tweet_id_str = '1538068020655947776';
-    console.log(await selenium_communicator.scrapeWhoToFollow(tab));
+    // console.log(await selenium_communicator.scrapeWhoToFollow(tab));
     console.log(await selenium_communicator.getFeed(tab));
-    console.log(await selenium_communicator.getUserEntityDetails(tab,tweet_username));
-    console.log(await selenium_communicator.getUserTimeline(tab,tweet_username));
-    console.log(await selenium_communicator.getUserLikes(tab,tweet_username));
-    console.log(await selenium_communicator.getTweet(tab,tweet_username,tweet_id_str));
+    // console.log(await selenium_communicator.getUserEntityDetails(tab,tweet_username));
+    // console.log(await selenium_communicator.getUserTimeline(tab,tweet_username));
+    // console.log(await selenium_communicator.getUserLikes(tab,tweet_username));
+    // console.log(await selenium_communicator.getTweet(tab,tweet_username,tweet_id_str));
 }   
 
 
