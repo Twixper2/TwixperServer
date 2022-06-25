@@ -29,7 +29,10 @@ router.use(async function (req, res, next) {
       req.user = header_params.user;
       req.participant = participant;
       next();
-    }    
+    }
+    else{
+      res.status(401).send("This user is not connected to a exp.")
+    }
   }
   catch(e){
     res.sendStatus(500);
@@ -44,7 +47,7 @@ router.get("/getWhoToFollow", async (req, res, next) => {
   let access_token = req.server_sends_access_token;
   try{
     const whoToFollowElement = await participantsService_selenium.getWhoToFollow(null,tab);
-    res.send(whoToFollowElement);
+    res.status(200).send(whoToFollowElement);
     return;
   }
   catch(e){
@@ -71,7 +74,7 @@ router.get("/getFeed", async (req, res, next) => {
       res.status(400).json("participant from db is missing.")
     }
     const getFeed = await participantsService_selenium.getFeed(params,tab);
-    res.send(getFeed);
+    res.status(200).send(getFeed);
   }
   catch(e){
     console.log(e)
@@ -97,7 +100,7 @@ router.get("/getTweet", async (req, res, next) => {
       res.status(400).json("tweetIdStr or user or tweetUser fields are missing.")
     }
     const getTweet = await participantsService_selenium.getTweet(params,tab);
-    res.send(getTweet); 
+    res.status(200).send(getTweet); 
   }
   catch(e){
     console.log(e)
@@ -124,7 +127,7 @@ router.get("/getUserEntityDetails", async (req, res, next) => {
     }
     const getUserEntityDetails = await participantsService_selenium.getUserEntityDetails(params,tab);
     // Add also Tweets & Likes tab
-    res.send(getUserEntityDetails);
+    res.status(200).send(getUserEntityDetails);
   }
   catch(e){
     console.log(e)
@@ -151,7 +154,7 @@ router.get("/getUserTimeline", async (req, res, next) => {
     }
     const getUserTimeline = await participantsService_selenium.getUserTimeline(params,tab);
     // Add also Tweets & Likes tab
-    res.send(getUserTimeline);
+    res.status(200).send(getUserTimeline);
   }
   catch(e){
     console.log(e)
@@ -178,7 +181,7 @@ router.get("/getUserLikes", async (req, res, next) => {
     }
     const getUserLikes = await participantsService_selenium.getUserLikes(params,tab);
     // Add also Tweets & Likes tab
-    res.send(getUserLikes);
+    res.status(200).send(getUserLikes);
   }
   catch(e){
     console.log(e)
