@@ -1,20 +1,13 @@
 var authorizeUser = require("./selenium_authorize/authorizeUser.js");
 var scrapeTwitter = require("./scrape_process/scrapeTwitter.js");
-var credentials = require("../twitter_communicator/static_twitter_data/CredentialsJSON.js");
+var {user_credentials} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 const {Builder, By, Key, until} = require('selenium-webdriver');
-const bcrypt = require("bcryptjs");
-const { tabWait } = require("./scrape_process/scrapeTwitter.js");
 const manipulator = require("../participant/manipulator/manipulator.js");
+// const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
+const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium.js");
+const selenium_communicator = require("./selenium_communicator.js");
 
-
-async function userRun(user_credentials){
-    let tab = await createNewTab();
-    // Log in to twitter and get cookies
-    await authorizeUser.logInProcess(user_credentials,tab, By, Key);
-
-    // let whoToFollowElement = await scrapeTwitter.scrapeWhoToFollow(tab);
-    // console.log(whoToFollowElement);
-
+async function userRun(user_cred){
 
     // Define participant arg' for manipulation
     const participant1 = {
@@ -44,40 +37,23 @@ async function userRun(user_credentials){
             "keywords": []
         }]
     }
-    await tabWait(tab,2000);
 
-
-    
-    // let n_first_tweets = await scrapeTwitter.getFeed(tab);
+    let tab = await participantAuthUtils_selenium.createNewTab();
+    // Log in to twitter and get cookies
+    await authorizeUser.logInProcess(user_cred,tab, By, Key);
     // if (n_first_tweets) {
-    //     n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
+        // n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
     // }
-
-    // console.log(n_first_tweets);
-
-
-
-    // console.log(await scrapeTwitter.scrapeWhoToFollow(tab));
-
-    let tweet_username = "benybenshlom";
-    // let json_details = await scrapeTwitter.getProfileContent(tab,tweet_username);
-
+    
+    let tweet_username = "benyshlomo";
     let tweet_id_str = '1538068020655947776';
-    let json_details = await scrapeTwitter.getTweet(tab,tweet_username,tweet_id_str);
-    console.log(json_details);
-
+    // console.log(await selenium_communicator.scrapeWhoToFollow(tab));
+    console.log(await selenium_communicator.getFeed(tab));
+    // console.log(await selenium_communicator.getUserEntityDetails(tab,tweet_username));
+    // console.log(await selenium_communicator.getUserTimeline(tab,tweet_username));
+    // console.log(await selenium_communicator.getUserLikes(tab,tweet_username));
+    // console.log(await selenium_communicator.getTweet(tab,tweet_username,tweet_id_str));
 }   
-
-async function createNewTab(){
-
-    // Include selenium webdriver
-    require('chromedriver');
-    let swd = require("selenium-webdriver");
-    let browser = new swd.Builder();
-    let tab = browser.forBrowser("chrome").build();
-    tab.manage().window().maximize();
-    return tab;
-}
 
 
 async function main(){
@@ -87,7 +63,11 @@ async function main(){
     // await userRun(credentials_1);
 
     // Retrieve user credentials
-    var credentials_2 = credentials.credentials_2;
+    let correct = user_credentials.correct_credentials;
+    let incorrect = user_credentials.incorrect_credentials;
+    var credentials_2 = correct.credentials_2;
+    var credentials_4 = incorrect.credentials_3;
+    var credentials_3 = incorrect.credentials_4;
     await userRun(credentials_2);
 }
 

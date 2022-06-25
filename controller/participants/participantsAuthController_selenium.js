@@ -6,7 +6,6 @@ const participantsService_selenium = require("../../service/participants/partici
 const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium.js");
 const { tabsHashMap } = require("../../config");
 
-
 /**
  * Requesting user's credentials, and selenium webdriver will log in to it
  */

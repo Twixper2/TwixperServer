@@ -31,6 +31,8 @@ async function getUserAuthDetsIfExist(params){
       for (var entry of tabsHashMap.entries()) {
         let key = entry[0],
             value = entry[1];
+            // key = access token in tab hash map
+            
         if(bcrypt.compareSync(params.user + params.pass, key)){
           // Found tab open
           // assign profile dets, feed, etc.
