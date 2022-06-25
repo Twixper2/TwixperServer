@@ -123,7 +123,7 @@ async function saveUserCookie(tab, username,allCookies=undefined){
  * @param {*} tab - Current web page
  * @returns interest the user's tab session information from the database (if its not is first conation)
  */
-async function userLogInReq(data,tab){
+async function logInProcessWithCookies(data,tab){
     try{
         let allCookies = data.cookies; 
         let username = data.user;   
@@ -178,5 +178,5 @@ module.exports =
         createNewTab : createNewTab,
         saveUserCookie : saveUserCookie,
         loadUserCookie : loadUserCookie,
-        userLogInReq : userLogInReq
+        logInProcessWithCookies : logInProcessWithCookies
     };

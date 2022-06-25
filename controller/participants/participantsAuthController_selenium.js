@@ -51,9 +51,6 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       access_token : params.access_token
     });
     }
-
-
-
   }
   catch(e){
     console.log(e)
