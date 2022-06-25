@@ -12,14 +12,28 @@ async function logInProcess(params,tab){
     return login_response;
 }
 
-async function userLogInReq(params,tab){
-    const login_response = await authorizeUser.userLogInReq(params,tab);
+async function logInProcessWithCookies(params,tab){
+    const login_response = await authorizeUser.logInProcessWithCookies(params,tab);
     return login_response;
 }
 
 async function IsAccessTokenInTabHashMap(access_token){
-  return tabsHashMap.get(access_token);
+    let userInfo = tabsHashMap.get(access_token); 
+    return userInfo;
 }
+
+async function IfAccessTokenNotInTabHashMap(access_token,username){
+    //get user info from DB
+    let userInfo = await getUserInfo_utils(username);
+    //If we have found info and the access_token the same then you will start the process of opening a new tab
+    if(userInfo?.access_token && access_token === userInfo.access_token){
+        userInfo.user= userInfo._id;
+        delete userInfo._id
+        let loginInfo = await participantsService_selenium.logInProcess(userInfo,access_token);
+        return loginInfo;
+    }
+}
+
 
 async function getUserAuthDetsIfExist(params){
     let twitter_data_to_send = null;
@@ -46,13 +60,9 @@ async function getUserAuthDetsIfExist(params){
     // If user gave access_token, check if already auth'ed using db - load cookies if true
     result = await validateAccessToken(params);
     if(result){
-    params.cookies = result.cookies;
-    user_and_pass_encrypted = result.access_token;
-
-    // Open tab again
-    // Send client back his personal dets
-
-    twitter_data_to_send = null;
+        params.cookies = result.cookies;
+        user_and_pass_encrypted = result.access_token;
+        twitter_data_to_send = null;
     }
     else{
       // Create new authentication for the user
@@ -94,12 +104,15 @@ async function createNewTab(){
  */
 async function registerParticipant(username, access_token, expCode){
   // twitter validation
-  const twitterUserDetails = await IsAccessTokenInTabHashMap(access_token);
+  let twitterUserDetails = await IsAccessTokenInTabHashMap(access_token);
   if (twitterUserDetails == undefined) {
+    twitterUserDetails = await IfAccessTokenNotInTabHashMap(access_token,username);
+    if (twitterUserDetails == undefined) {
       throw {
           name: "InvalidAuthInfo",
           message: "Not validated as a twitter user."
       }
+    }
   }
 
   //checking experiment
@@ -166,9 +179,10 @@ function extractTwitterInfoFromParticipantObj(participant){
 exports.logInProcess = logInProcess
 exports.createNewTab = createNewTab
 exports.getUserInfo_utils = getUserInfo_utils
-exports.userLogInReq = userLogInReq
+exports.logInProcessWithCookies = logInProcessWithCookies
 exports.validateAccessToken = validateAccessToken
 exports.getUserAuthDetsIfExist = getUserAuthDetsIfExist
 exports.registerParticipant = registerParticipant
 exports.IsAccessTokenInTabHashMap = IsAccessTokenInTabHashMap
 exports.extractTwitterInfoFromParticipantObj = extractTwitterInfoFromParticipantObj
+exports.IfAccessTokenNotInTabHashMap = IfAccessTokenNotInTabHashMap

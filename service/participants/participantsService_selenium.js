@@ -22,13 +22,13 @@ try{
     let user = params.user;
 
     if(params?.cookies){
-        login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
+        login_response = await participantAuthUtils_selenium.logInProcessWithCookies(params,new_tab);
     }
     else{
         login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
         if(login_response){
             //First login - saves the cookies and tokens of the user
-            await new Promise(r => setTimeout(r, 3000));
+            await new Promise(r => setTimeout(r, 2000));
             let allCookies = await new_tab.manage().getCookies();
             await userCookiesDB.insertUserCookies(user,allCookies,access_token)
         }
@@ -38,8 +38,9 @@ try{
         config.tabsHashMap.set(access_token, {...dets_to_save});
         params.tab = new_tab;
         params.access_token = access_token;
-    }
+        return dets_to_save;
 
+    }
     return login_response;
 }
 catch(e){
