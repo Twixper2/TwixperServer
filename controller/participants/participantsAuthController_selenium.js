@@ -56,9 +56,6 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       access_token : params.access_token
     });
     }
-
-
-
   }
   catch(e){
     console.log(e)
@@ -90,7 +87,6 @@ router.post("//registerToExperiment", async (req, res, next) => {
       res.status(400).send("No exp_code code provided in Body.");
       return;
     }
-    
     let participant  = null
     try {
       let initial_content = null;

@@ -194,7 +194,6 @@ async function doIHaveNewNotifications(tab){
         await tab.switchTo().window(mainTab);
     }
 }
-
 /**
  * 
  * @param {*} tab - user page
