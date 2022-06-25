@@ -30,6 +30,8 @@ async function getUserAuthDetsIfExist(params){
       for (var entry of tabsHashMap.entries()) {
         let key = entry[0],
             value = entry[1];
+            // key = access token in tab hash map
+            
         if(bcrypt.compareSync(params.user + params.pass, key)){
           // Found tab open
           // assign profile dets, feed, etc.
@@ -42,13 +44,10 @@ async function getUserAuthDetsIfExist(params){
     }
     else if(params.access_token != null){
       // If user gave access_token, check if already auth'ed using db - load cookies if true
-      let result = await participantsService_selenium.validateAccessToken(params);
+      let result = await validateAccessToken(params);
       if(result){
         params.cookies = result.cookies;
         user_and_pass_encrypted = result.access_token;
-        // Open tab again
-        // Send client back his personal dets
-
         twitter_data_to_send = null;
       }
     }
