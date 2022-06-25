@@ -6,6 +6,10 @@ const userCookiesDB = require("../../business_logic/db/mongodb/userCookiesCollec
 const bcrypt = require("bcryptjs");
 const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator");
 const { cache } = require("ejs");
+var {twitter_address, status_text, entity_constants, selenium_constants} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
+const attribute_names = selenium_constants.attribute_names;
+const attribute_values = selenium_constants.attribute_values;
+const {By, Key, until} = require('selenium-webdriver');
 
 
 /** ______Login_____ **/
@@ -56,11 +60,12 @@ async function firstLoginDataExtraction(login_response,params){
     if(login_response){
         //open user profile page
         try{
-            await new_tab.executeScript("document.body.style.zoom='20%'");
-            await new Promise(r => setTimeout(r, 3000));
-}
+            // await new_tab.executeScript("document.body.style.zoom='20%'");
+        }
         catch(e){   
-        } 
+        }
+        await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+
         await new_tab.executeScript(`window.open("${user}");`);
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
@@ -77,18 +82,13 @@ async function firstLoginDataExtraction(login_response,params){
     return final_resp_without_tab
 }
 /** ______User's initial content_____ **/
-async function getInitialContentOfParticipant(tab,req_user){
-    const mainTab = await tab.getWindowHandle();
 
-    let whoToFollowElement = await getWhoToFollow(null,tab);
-    let feed = await getFeed(null,tab);
+async function getInitialContentOfParticipant(tab,req_user){
+    const windowsTab = await tab.getAllWindowHandles();
 
     let userLikes = undefined;
     // let userLikes = await getUserLikes({req_user},tab);
-    
-    await tab.wait(async () => (await tab.getAllWindowHandles()).length === 2, 5000);
 
-    const windowsTab = await tab.getAllWindowHandles();
     const profileHandle = windowsTab[1];
 
     await tab.switchTo().window(profileHandle);
@@ -97,9 +97,14 @@ async function getInitialContentOfParticipant(tab,req_user){
     // let userTimeline = await getUserTimeline({req_user},tab);
 
     await tab.close();
-    // await new Promise(r => setTimeout(r, 100));
 
+    await new Promise(r => setTimeout(r, 100));
+    const mainTab = windowsTab[0];
     await tab.switchTo().window(mainTab);
+
+    let whoToFollowElement = await getWhoToFollow(null,tab);
+    let feed = await getFeed(null,tab);
+
 
     return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
 }
