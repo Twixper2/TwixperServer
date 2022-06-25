@@ -30,6 +30,7 @@ router.use(async function (req, res, next) {
       req.participant = participant;
       next();
     }    
+    res.status(401).send("This user is not connected to a exp.")
   }
   catch(e){
     res.sendStatus(500);

@@ -17,7 +17,6 @@ async function createNewTab(){
         if(isHeadless){
             tab = new Builder().forBrowser('chrome')
             .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=1920,1080"))
-            // .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=3840,2,160"))
             .build()
         }
         else{

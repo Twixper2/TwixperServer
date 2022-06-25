@@ -55,7 +55,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
   catch(e){
     console.log(e)
     // Chrome is not reachable, remove tab from hashmap
-    if(e.name == "WebDriverError"){
+    if(e.name === "WebDriverError" || e.name === "NoSuchWindowError"){
       tabsHashMap.delete(params.user);
       params?.tab?.close();
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
@@ -88,13 +88,28 @@ router.post("//registerToExperiment", async (req, res, next) => {
       console.log(e)
       if (e.message) {
         if(e.status){
-          let e_to_send = {"presentToUser":e.presentToUser, "message":e.message};
+          let message = null;
+          if(e.status === 401){
+            message = e.message;
+          }
+          else if(e.status === 200){
+            message = e.message.entity_details;
+          }
+          let e_to_send = {"presentToUser":e.presentToUser, "entity_details":message};
           res.status(e.status).json(e_to_send);
         }
         else{
           res.status(400).json(e);
         } 
         return;
+      }
+      else if(e.name == "WebDriverError"){
+        // tabsHashMap.delete(params.user);
+        // params?.tab?.close();
+        res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+        return;
+      }{
+
       }
       throw e
     }

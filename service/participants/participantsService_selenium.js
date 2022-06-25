@@ -65,7 +65,7 @@ async function firstLoginDataExtraction(login_response,params){
         }
         catch(e){   
         }
-        await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+        // await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
 
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
@@ -272,10 +272,6 @@ async function registerParticipant(username, access_token, expCode){
 function extractTwitterInfoFromParticipantObj(participant){
     return participantAuthUtils_selenium.extractTwitterInfoFromParticipantObj(participant)
 }
-
-
-
-
 
 async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
     if (tab_from_calling_function != undefined){

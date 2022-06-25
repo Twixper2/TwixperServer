@@ -55,7 +55,7 @@ async function getFeed(tab){
 
 async function getUserEntityDetails(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
+        // await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
         return {entity_details};
@@ -102,10 +102,14 @@ async function getPersonalDetailsFromProfileContent(primary_column){
     let cover_and_profile_img = await primary_column.findElements(By.css(attribute_names.img));
     try{
         await retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img);
-        let username = (await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]")))).split("@")[1];
-        json_of_details.username = username;
-        json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/following']`)));
-        json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/followers']`)));
+        // let username = (await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]"))));
+        let usernames = await primary_column.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]"));
+        let usernames_getText = await usernames.getText();
+        let username_splitted = usernames_getText.split("@");
+        json_of_details.screen_name = username_splitted[1];
+        json_of_details.name = username_splitted[0].split("\n")[0];
+        json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${json_of_details.screen_name}/following']`)));
+        json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${json_of_details.screen_name}/followers']`)));
         json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserDescription+"]")));
         json_of_details.user_location = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserLocation+"]")));
         await retrieveWhenJoinedFromElement(json_of_details,primary_column);
