@@ -12,7 +12,7 @@ const { tabsHashMap } = require("../../config");
 router.post("//twitterSeleniumAuth", async (req, res, next) => {
   const params = req.body;
   if(!params || !params.user || !params.pass){
-    res.status(401).send("No params supplied.")
+    res.status(400).send("No params supplied.")
     return
   }
   try{    
@@ -25,10 +25,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       login_response = await participantsService_selenium.logInProcess(params,authCheckResults.user_and_pass_encrypted);
       if(!login_response){
         params?.tab?.close();
-        res.status(400).json({
-          twitter_user_found : false,
-          user_registered_to_experiment : false
-        });
+        res.status(401).send("Wrong username or password.");
         return;
       }
       initial_content = login_response;
@@ -38,19 +35,18 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       let participant = await database.getParticipantByUsername(params.user);
       if (participant) {
         // Extract data from collection
-        let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
-        initial_content = await  participantsService_selenium.firstLoginDataExtraction(login_response,params)
+        // let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
+        initial_content = await participantsService_selenium.firstLoginDataExtraction(login_response,params)
         res.status(200).json({
-          twitter_user_found : true,
           user_registered_to_experiment : true,
-          participant_twitter_info,
-          initial_content
+          // participant_twitter_info,
+          initial_content,
+          access_token : params.access_token
         });
         return;
       }
     // Not registered
     res.status(200).json({
-      twitter_user_found : true,
       user_registered_to_experiment : false,
       access_token : params.access_token
     });
@@ -78,27 +74,26 @@ router.post("//registerToExperiment", async (req, res, next) => {
     const header_params = req.headers
     const expCode = req.body.exp_code
     let access_token = header_params.accesstoken;
-    if(!header_params || !access_token || !header_params.user){
-      res.status(400).send("No accesstoken or user params supplied in Header.");
+    if(!header_params || !access_token || !header_params.user || !expCode){
+      res.status(400).send("No params supplied.")
       return;
     }
-    if (!expCode) {
-      res.status(400).send("No exp_code code provided in Body.");
-      return;
-    }
-    let participant  = null
+    
+    let participant = null
     try {
-      let initial_content = null;
       participant = await participantsService_selenium.registerParticipant(header_params.user, access_token, expCode);
-      if(participant){
-        
-      }
     }
     catch (e) {
       // if it is an error with message, we respond with the error object containing "name" and "message" keys
       console.log(e)
-      if (e.message) { 
-        res.status(400).json(e);
+      if (e.message) {
+        if(e.status){
+          let e_to_send = {"presentToUser":e.presentToUser, "message":e.message};
+          res.status(e.status).json(e_to_send);
+        }
+        else{
+          res.status(400).json(e);
+        } 
         return;
       }
       throw e
@@ -112,9 +107,8 @@ router.post("//registerToExperiment", async (req, res, next) => {
     // delete initial_content.tab;
 
     res.status(200).json({
-      twitter_user_found : true,
       user_registered_to_experiment : true,
-      participant_twitter_info,
+      // participant_twitter_info,
       access_token,
       initial_content:participant.initial_content
     });
@@ -131,46 +125,5 @@ router.post("//registerToExperiment", async (req, res, next) => {
     res.sendStatus(500);
   }
 });
-
-
-
-// router.post("//registerToExperiment", async (req, res, next) => {
-//   try {
-//     const header_params = req.headers
-//     const expCode = req.body.exp_code
-//     if(!header_params || !access_token || !header_params.user){
-//       res.status(400).send("No access_token or user params supplied in Header.");
-//       return;
-//     }
-//     if (!expCode) {
-//       res.status(400).send("No experiment code provided in Body.");
-//       return;
-//     }
-    
-//     let participant  = null
-//     try {
-//       participant = await participantsService_new.registerParticipant(access_token, expCode)
-//     }
-//     catch (e) {
-//       // if it is an error with message, we respond with the error object containing "name" and "message" keys
-//       console.log(e)
-//       if (e.message) { 
-//         res.status(400).json(e);
-//         return;
-//       }
-//       throw e
-//     }
-//     if (!participant) { //registration failed
-//       res.sendStatus(500);
-//       return;
-//     }
-//     const participant_twitter_info = participantsService_new.extractTwitterInfoFromParticipantObj(participant)
-//     res.status(200).json({"participant_twitter_info": participant_twitter_info}); //success
-//   } // end try
-//   catch(e) {
-//     console.log(e)
-//     res.sendStatus(500);
-//   }
-// });
 
 module.exports = router;

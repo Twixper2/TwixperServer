@@ -52,7 +52,6 @@ catch(e){
 }
 
 
-
 async function firstLoginDataExtraction(login_response,params){
 
     let final_resp_without_tab = null;
@@ -85,12 +84,6 @@ async function firstLoginDataExtraction(login_response,params){
 /** ______User's initial content_____ **/
 
 async function getInitialContentOfParticipant(tab,req_user){
-
-    let whoToFollowElement = await getWhoToFollow(null,tab);
-    let feed = await getFeed(null,tab);
-    let userLikes = undefined;
-    // let userLikes = await getUserLikes({req_user},tab);
-
     //open new tab
     await tab.executeScript(`window.open("${req_user}");`);
     // Wait for the new window or tab
@@ -106,10 +99,7 @@ async function getInitialContentOfParticipant(tab,req_user){
     const mainTab = windowsTab[0];
     await tab.switchTo().window(mainTab);
 
-    let userTimeline = undefined;
-
-    // let userTimeline = await getUserTimeline({req_user},tab);
-    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
+    return userEntityDetails;
 }
 
 /** ______User's data_____ **/

@@ -12,25 +12,29 @@ async function createNewTab(){
         require('chromedriver');
         let swd = require("selenium-webdriver");
         let tab = null;
+        const chrome = require('selenium-webdriver/chrome');
 
         if(isHeadless){
-            const chrome = require('selenium-webdriver/chrome');
             tab = new Builder().forBrowser('chrome')
             .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=1920,1080"))
+            // .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=3840,2,160"))
             .build()
         }
         else{
             let browser = new swd.Builder();
-            tab = browser.forBrowser("chrome").build();
+            tab = new Builder().forBrowser('chrome')
+            .setChromeOptions(new chrome.Options())
+            .build()
         }
 
         tab.manage().window().maximize();
+        // await tab.executeScript("document.body.style.zoom='10%'");
+
 
         return tab;
     }
     catch(error){
-        // console.log('error creating new tab');
-        console.log(error);
+        console.log('error creating new tab');
     }
 }  
 
@@ -44,9 +48,11 @@ async function insertUserName(tab,user){
         await tab.manage().setTimeouts({
             implicit: 500, // 0.5 seconds
         });
+        return true;
     }
     catch(error){
         console.log('error with insertUserName');
+        return false;
     }
 }
 
@@ -56,9 +62,11 @@ async function insertPasswordAndLogin(tab,pass){
         await tab.findElement(By.name("password")).sendKeys(pass);
         // Clicking the Log In button
         await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']")).sendKeys(Key.RETURN);
+        return true;
     }
     catch(error){
         console.log('error with insertPasswordAndLogin');
+        return false;
     }
 }
 
@@ -136,14 +144,18 @@ async function logInProcess(data,tab){
             implicit: 10000, // 10 seconds
         });
         // Step 2 - Entering the username
-        await insertUserName(tab,data.user);
+        if(!await insertUserName(tab,data.user)){
+            return false;
+        }
         // validation of username
         if(!await isUserCredentialsValid(tab)){
             console.log('username does not exist');
             return false;
         }
         // Step 3 - Entering the password
-        await insertPasswordAndLogin(tab,data.pass);
+        if(!await insertPasswordAndLogin(tab,data.pass)){
+            return false;
+        }
         // validation of password
         if(await isUserCredentialsValid(tab)){
             console.log("Successfully signed in twitter!");
@@ -158,7 +170,6 @@ async function logInProcess(data,tab){
     catch(error){
         console.log(error);
     }
-    
 }
 
 module.exports = 

@@ -63,9 +63,6 @@ async function getUserEntityDetails(tab){
     catch(error){
         console.log('error with getUserEntityDetails.');
     }
-    finally{
-
-    }
 }
 
 async function getUserTimeline(tab){
@@ -105,8 +102,11 @@ async function getPersonalDetailsFromProfileContent(primary_column){
     let cover_and_profile_img = await primary_column.findElements(By.css(attribute_names.img));
     try{
         await retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img);
-        let username = (await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]")))).split("@")[1];
+        let username = (await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]"))));
+        let x = await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]"));
+        let y = await x.getText();
         json_of_details.username = username;
+        json_of_details.name = 5;
         json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/following']`)));
         json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/followers']`)));
         json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserDescription+"]")));
@@ -115,10 +115,7 @@ async function getPersonalDetailsFromProfileContent(primary_column){
         json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserUrl+"]")));
         json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserProfessionalCategory+"]")));
         json_of_details.is_profile_verified = (await isProfileVerified(await primary_column.findElement(By.css("["+attribute_names.role+"="+attribute_values.heading+"]"))) > 0) ? true : false; 
-        let followingStatus = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.placementTracking+"]")));
-        if(followingStatus != null){
-            json_of_details.FollowingStatus = (followingStatus === "Following") ? true : false;
-        }
+        json_of_details.FollowingStatus = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.placementTracking+"]")));
     }
     catch(error){
         // One of the elements has not been field by the user
