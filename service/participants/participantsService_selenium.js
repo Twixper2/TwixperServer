@@ -6,23 +6,29 @@ const userCookiesDB = require("../../business_logic/db/mongodb/userCookiesCollec
 const bcrypt = require("bcryptjs");
 const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator");
 const { cache } = require("ejs");
+var {twitter_address, status_text, entity_constants, selenium_constants} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
+const attribute_names = selenium_constants.attribute_names;
+const attribute_values = selenium_constants.attribute_values;
+const {By, Key, until} = require('selenium-webdriver');
 
 
 /** ______Login_____ **/
 async function logInProcess(params,access_token){
 try{
     let new_tab = await participantAuthUtils_selenium.createNewTab();
+
+
     let login_response = undefined;
     let user = params.user;
 
     if(params?.cookies){
-        login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
+        login_response = await participantAuthUtils_selenium.logInProcessWithCookies(params,new_tab);
     }
     else{
         login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
         if(login_response){
             //First login - saves the cookies and tokens of the user
-            await new Promise(r => setTimeout(r, 3000));
+            await new Promise(r => setTimeout(r, 2000));
             let allCookies = await new_tab.manage().getCookies();
             await userCookiesDB.insertUserCookies(user,allCookies,access_token)
         }
@@ -32,16 +38,14 @@ try{
         config.tabsHashMap.set(access_token, {...dets_to_save});
         params.tab = new_tab;
         params.access_token = access_token;
-    }
+        return dets_to_save;
 
+    }
     return login_response;
 }
 catch(e){
     console.log(e);
 }
-
-}
-async function firstLoginHashMapInitialize(login_response,params){
 
 }
 
@@ -55,8 +59,14 @@ async function firstLoginDataExtraction(login_response,params){
 
     if(login_response){
         //open user profile page
-        await new_tab.executeScript(`window.open("${user}");`);
+        try{
+            // await new_tab.executeScript("document.body.style.zoom='20%'");
+        }
+        catch(e){   
+        }
+        await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
 
+        await new_tab.executeScript(`window.open("${user}");`);
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
@@ -72,31 +82,24 @@ async function firstLoginDataExtraction(login_response,params){
     return final_resp_without_tab
 }
 /** ______User's initial content_____ **/
+
 async function getInitialContentOfParticipant(tab,req_user){
     const windowsTab = await tab.getAllWindowHandles();
-    await new Promise(r => setTimeout(r, 5000));
 
     const mainTab = windowsTab[0];
     const profileHandle = windowsTab[1];
 
     console.log(await tab.getCurrentUrl());
-    let whoToFollowElement = await getWhoToFollow(null,tab);
-    let feed = await getFeed(null,tab);
-
-    let userLikes = undefined;
-    // let userLikes = await getUserLikes({req_user},tab);
 
     await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
-    let userTimeline = undefined;
-    // let userTimeline = await getUserTimeline({req_user},tab);
 
     await tab.close();
     await new Promise(r => setTimeout(r, 100));
 
     await tab.switchTo().window(mainTab);
 
-    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
+    return userEntityDetails;
 }
 
 /** ______User's data_____ **/

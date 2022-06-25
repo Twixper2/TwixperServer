@@ -85,7 +85,9 @@ async function postTweets(tab,tweet){
         await tabWait(tab,200);
         await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
         try{
-            await tabWait(tab,2000);
+            // await tabWait(tab,2000);
+            await tab.wait(async () => (await tab.findElement(By.css("[aria-live='assertive']")), 5000));
+
             let err = await tab.findElement(By.css("[aria-live='assertive']"));
             let message = await err.getText();
             if(message.includes("Whoops! You already said that.")){
@@ -194,7 +196,6 @@ async function doIHaveNewNotifications(tab){
         await tab.switchTo().window(mainTab);
     }
 }
-
 /**
  * 
  * @param {*} tab - user page
