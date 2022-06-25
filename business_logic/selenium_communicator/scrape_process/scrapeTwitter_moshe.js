@@ -382,7 +382,7 @@ async function searchTwitterTweets(tab,query,mode="top"){
     
     console.log("starting search");
     await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f="+ mode);
-    await jumpToBottom(tab)
+    // await jumpToBottom(tab)
     //Brings the elements of the tweets
     let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
     // parseTweets element
@@ -405,7 +405,7 @@ async function searchTwitterPeople(tab,query,count=40){
     console.log("starting search");
     // await new Promise(r => setTimeout(r, 200));
     await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f=user");
-    await jumpToBottom(tab);
+    // await jumpToBottom(tab);
     let all_People_on_page = await tab.findElements(By.css("[data-testid='cellInnerDiv']"));
     return await searchPeopleParse_Data(all_People_on_page);
 }
@@ -482,7 +482,7 @@ async function openTweetsSearchTab(tab,query,mode="live"){
         return tweets;
     }catch(error){
         console.log(error);
-        closeSearchTab(tab);
+        closeSecondTab(tab);
     }
 }
 
