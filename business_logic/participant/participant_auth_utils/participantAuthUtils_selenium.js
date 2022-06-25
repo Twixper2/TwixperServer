@@ -152,12 +152,12 @@ async function registerParticipant(username, access_token, expCode){
   let participant = {
       "exp_id": exp.exp_id,
       "group_id": group.group_id,
-      "participant_twitter_username": twitterUserDetails.user,
-      "participant_twitter_name": user_entity_details.username,
-      "participant_twitter_friends_count": user_entity_details.following_count,
-      "participant_twitter_followers_count": user_entity_details.followers_count,
-      "participant_twitter_profile_image": user_entity_details.profile_img,
-      "group_manipulations": group.group_manipulations
+      "participant_twitter_username": twitterUserDetails?.user,
+      "participant_twitter_name": user_entity_details?.username,
+      "participant_twitter_friends_count": user_entity_details?.following_count,
+      "participant_twitter_followers_count": user_entity_details?.followers_count,
+      "participant_twitter_profile_image": user_entity_details?.profile_img,
+      "group_manipulations": group?.group_manipulations
   }
   
   const successRegister = await database.insertParticipant(participant);
