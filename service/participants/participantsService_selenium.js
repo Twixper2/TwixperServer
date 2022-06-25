@@ -74,7 +74,7 @@ async function firstLoginDataExtraction(login_response,params){
 /** ______User's initial content_____ **/
 async function getInitialContentOfParticipant(tab,req_user){
     const windowsTab = await tab.getAllWindowHandles();
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 5000));
 
     const mainTab = windowsTab[0];
     const profileHandle = windowsTab[1];
