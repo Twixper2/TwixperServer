@@ -56,7 +56,7 @@ async function getFeed(tab){
 
 async function getUserEntityDetails(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
+        // await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
         return {entity_details};
@@ -77,7 +77,7 @@ async function getUserTimeline(tab){
 
 async function getUserLikes(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
+        // await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
 
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         return await getFeed(primary_column);

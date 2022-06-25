@@ -9,7 +9,7 @@ const selenium_communicator = require("../../selenium_communicator/selenium_comm
 
 
 async function logInProcess(params,tab){
-    selenium_communicator.tabWait(tab,500);
+    // selenium_communicator.tabWait(tab,500);
     const login_response = await authorizeUser.logInProcess(params,tab);
     return login_response;
 }

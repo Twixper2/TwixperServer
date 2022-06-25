@@ -62,7 +62,7 @@ async function firstLoginDataExtraction(login_response,params){
     if(login_response){
         //open user profile page
         try{
-            await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+            // await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),5000);
         }
         catch(e){   
             console.log(e);

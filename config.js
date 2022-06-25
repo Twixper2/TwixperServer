@@ -1,5 +1,5 @@
 var config = new Object()
-config.isHeadless = false;
+config.isHeadless = true;
 config.isProduction = false // real mode: true
 
 /* For twitterCommunicator */

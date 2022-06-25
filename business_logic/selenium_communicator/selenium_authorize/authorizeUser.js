@@ -16,7 +16,7 @@ async function createNewTab(){
 
         if(isHeadless){
             tab = new Builder().forBrowser('chrome')
-            .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=1920,1080"))
+            .setChromeOptions(new chrome.Options().addArguments('--headless'))
             .build()
         }
         else{
@@ -39,6 +39,8 @@ async function createNewTab(){
 
 async function insertUserName(tab,user){
     try{
+        await tab.wait(until.elementLocated(By.name("text")),10000);
+
         // Entering the username
         await tab.findElement(By.name("text")).sendKeys(user);
         // Click on Next
@@ -57,6 +59,8 @@ async function insertUserName(tab,user){
 
 async function insertPasswordAndLogin(tab,pass){
     try{
+        await tab.wait(until.elementLocated(By.name("password")),10000);
+
         // Return password input
         await tab.findElement(By.name("password")).sendKeys(pass);
         // Clicking the Log In button
@@ -71,6 +75,8 @@ async function insertPasswordAndLogin(tab,pass){
 
 async function isUserCredentialsValid(tab){
     try{
+        await tab.wait(until.elementLocated(By.css("[role='alert']")),10000);
+
         // There is a 'Wrong Password' alert
         await tab.findElement(By.css("[role='alert']")).getText();
         return false;
