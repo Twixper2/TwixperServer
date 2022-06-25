@@ -42,14 +42,15 @@ async function getUserAuthDetsIfExist(params){
         }
       }
     }
-    else if(params.access_token != null){
-      // If user gave access_token, check if already auth'ed using db - load cookies if true
-      let result = await validateAccessToken(params);
-      if(result){
-        params.cookies = result.cookies;
-        user_and_pass_encrypted = result.access_token;
-        twitter_data_to_send = null;
-      }
+    // If user gave access_token, check if already auth'ed using db - load cookies if true
+    let result = await validateAccessToken(params);
+    if(result){
+    params.cookies = result.cookies;
+    user_and_pass_encrypted = result.access_token;
+    // Open tab again
+    // Send client back his personal dets
+
+    twitter_data_to_send = null;
     }
     else{
       // Create new authentication for the user
@@ -126,8 +127,8 @@ async function registerParticipant(username, access_token, expCode){
   // raffle group for participant. currently, only naive raffle supported
   const expGroups = exp.exp_groups;
   const group = groupSelector.selectGroup(expGroups, exp.num_of_participants) 
-
-  let user_entity_details = twitterUserDetails.user_profile_content.userEntityDetails.entity_details;
+  let initial_content = await  participantsService_selenium.firstLoginDataExtraction(true,twitterUserDetails)
+  let user_entity_details = initial_content.user_profile_content.userEntityDetails.entity_details;
   // creating participant to add
   let participant = {
       "exp_id": exp.exp_id,
@@ -140,11 +141,12 @@ async function registerParticipant(username, access_token, expCode){
       "group_manipulations": group.group_manipulations
   }
   
-  const successRegister = await database.insertParticipant(participant)
+  const successRegister = await database.insertParticipant(participant);
   if(successRegister){
       // Log the registration to actions log of the experiment
-      participantActionsOnTwitter.logRegisteredToExperiment(participant)
-      return participant
+      participantActionsOnTwitter.logRegisteredToExperiment(participant);
+      participant.initial_content = initial_content;
+      return participant;
   }
   return null
 }

@@ -63,6 +63,9 @@ async function getUserEntityDetails(tab){
     catch(error){
         console.log('error with getUserEntityDetails.');
     }
+    finally{
+
+    }
 }
 
 async function getUserTimeline(tab){

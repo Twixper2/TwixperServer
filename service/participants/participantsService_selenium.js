@@ -4,37 +4,64 @@ const manipulator = require("../../business_logic/participant/manipulator/manipu
 const config = require("../../config");
 const userCookiesDB = require("../../business_logic/db/mongodb/userCookiesCollection");
 const bcrypt = require("bcryptjs");
-const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator")
+const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator");
+const { cache } = require("ejs");
 
 
 /** ______Login_____ **/
 async function logInProcess(params,access_token){
-
+try{
     let new_tab = await participantAuthUtils_selenium.createNewTab();
     let login_response = undefined;
     let user = params.user;
 
-    // if(params?.cookies){
-    //     login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
-    // }
-    login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
-    if(login_response){
-        
-        //First login - saves the cookies and tokens of the user
-        await new Promise(r => setTimeout(r, 2000));
-        let allCookies = await new_tab.manage().getCookies();
-        await userCookiesDB.insertUserCookies(user,allCookies,access_token)
+    if(params?.cookies){
+        login_response = await participantAuthUtils_selenium.userLogInReq(params,new_tab);
     }
+    else{
+        login_response = await participantAuthUtils_selenium.logInProcess(params,new_tab);
+        if(login_response){
+            //First login - saves the cookies and tokens of the user
+            await new Promise(r => setTimeout(r, 3000));
+            let allCookies = await new_tab.manage().getCookies();
+            await userCookiesDB.insertUserCookies(user,allCookies,access_token)
+        }
+    }
+    if(login_response){
+        let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
+        config.tabsHashMap.set(access_token, {...dets_to_save});
+        params.tab = new_tab;
+        params.access_token = access_token;
+    }
+
+    return login_response;
+}
+catch(e){
+    console.log(e);
+}
+
+}
+async function firstLoginHashMapInitialize(login_response,params){
+
+}
+
+
+async function firstLoginDataExtraction(login_response,params){
+
     let final_resp_without_tab = null;
+    let new_tab = params.tab
+    let user = params.user;
+    let access_token = params.access_token;
+
     if(login_response){
         //open user profile page
-        // await new_tab.executeScript(`window.open("${user}");`);
+        await new_tab.executeScript(`window.open("${user}");`);
+
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
         // Save new tab to hashmap of selenium tabs
         let final_resp = {...dets_to_save, ...initial_content};
-        config.tabsHashMap.set(access_token, final_resp);
         final_resp_without_tab = Object.assign({}, final_resp);
         delete final_resp_without_tab.tab;
         delete final_resp_without_tab.user;
@@ -43,15 +70,32 @@ async function logInProcess(params,access_token){
         new_tab.close();
     }
     return final_resp_without_tab
-} 
-
+}
 /** ______User's initial content_____ **/
 async function getInitialContentOfParticipant(tab,req_user){
+    const windowsTab = await tab.getAllWindowHandles();
+    await new Promise(r => setTimeout(r, 5000));
+
+    const mainTab = windowsTab[0];
+    const profileHandle = windowsTab[1];
+
+    console.log(await tab.getCurrentUrl());
     let whoToFollowElement = await getWhoToFollow(null,tab);
     let feed = await getFeed(null,tab);
+
+    let userLikes = undefined;
+    // let userLikes = await getUserLikes({req_user},tab);
+
+    await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
-    let userTimeline = await getUserTimeline({req_user},tab);
-    let userLikes = await getUserLikes({req_user},tab);
+    let userTimeline = undefined;
+    // let userTimeline = await getUserTimeline({req_user},tab);
+
+    await tab.close();
+    await new Promise(r => setTimeout(r, 100));
+
+    await tab.switchTo().window(mainTab);
+
     return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
 }
 
@@ -227,7 +271,7 @@ function extractTwitterInfoFromParticipantObj(participant){
 
 async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
     if (tab_from_calling_function != undefined){
-        await selenium_communicator.tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined);
+        await selenium_communicator.tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply,ShareVia);
         return true;
     }
     return false;
@@ -250,4 +294,6 @@ exports.registerParticipant=registerParticipant
 exports.extractTwitterInfoFromParticipantObj=extractTwitterInfoFromParticipantObj
 exports.tweetsAction=tweetsAction
 exports.getNotifications=getNotifications
+exports.firstLoginDataExtraction=firstLoginDataExtraction
+
 

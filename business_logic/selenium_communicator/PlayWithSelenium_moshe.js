@@ -4,6 +4,7 @@ var credentials = require("../twitter_communicator/static_twitter_data/Credentia
 const twitterInnerApiGet = require("../twitter_communicator/twitter_internal_api/twitterInnerApiGet")
 const homepage_url = "https://twitter.com/home";
 
+
 const {Builder, By, Key, until} = require('selenium-webdriver');
 var TweetsGlobalVariable = 0
 async function userRun(user_credentials){
@@ -15,7 +16,7 @@ async function userRun(user_credentials){
 
     // -----------------------open second web driver with user cookies------------------------------------
     let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
-    await tab.get(homepage_url);
+    // await tab.get(homepage_url);
 
     // var tweet_id = "1530516552084234244";
     // var user_url = "elonmusk";
@@ -36,9 +37,9 @@ async function userRun(user_credentials){
     //------------------------------------------ getNotifications ------------------------------------------
 
     // let searchResult1 = await scrapeTwitter_moshe.doIHaveNewNotifications(tab);
-    let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
-
-    console.log(searchResult1);
+    // let searchResult1 = await scrapeTwitter_moshe.getNotifications(tab);
+    // searchResult1 = twitterInnerApiGet.searchUsers("moshe");
+    // console.log(searchResult1);
 
 
 
