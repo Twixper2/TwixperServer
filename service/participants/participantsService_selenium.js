@@ -86,8 +86,6 @@ async function firstLoginDataExtraction(login_response,params){
 async function getInitialContentOfParticipant(tab,req_user){
     //open new tab
 
-    let userLikes = undefined;
-    let userTimeline = undefined;
 
     
     await tab.executeScript(`window.open("${req_user}");`);
@@ -100,14 +98,11 @@ async function getInitialContentOfParticipant(tab,req_user){
     await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
     await tab.close();
-
-    await new Promise(r => setTimeout(r, 100));
     const mainTab = windowsTab[0];
     await tab.switchTo().window(mainTab);
-    let whoToFollowElement = await getWhoToFollow(null,tab);
-    let feed = await getFeed(null,tab);
-
-    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
+    // let whoToFollowElement = await getWhoToFollow(null,tab);
+    // let feed = await getFeed(null,tab);
+    return userEntityDetails;
 }
 
 
