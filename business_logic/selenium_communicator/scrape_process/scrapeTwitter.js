@@ -6,7 +6,7 @@ const attribute_values = selenium_constants.attribute_values;
 
 async function scrapeWhoToFollow(tab){
     try{
-        await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+        // await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         let all_who_to_follow = await tab.findElement(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.whoToFollow+"'"+"]"));
         let all_buttons = await all_who_to_follow.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserCell+"]"));
         let all_images = await all_who_to_follow.findElements(By.css(attribute_names.img));
