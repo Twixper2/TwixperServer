@@ -5,8 +5,10 @@ var {twitter_address, status_address} = require("../../twitter_communicator/stat
 
 async function scrapeWhoToFollow(tab){
     try{
-        let whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
-        let all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
+        // let whoToFollowElement_x_path = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[4]/aside/div[2]";
+        
+        // let all_who_to_follow = await tab.findElement(By.xpath(whoToFollowElement_x_path));
+        let all_who_to_follow = await tab.findElement(By.css("[aria-label='Who to follow']"));
         let all_buttons = await all_who_to_follow.findElements(By.css("[role='button']"));
         let all_images = await all_who_to_follow.findElements(By.css("img"));
         // let x = await all_buttons?.findElement(By.css("[aria-label='Verified account']"));
@@ -60,6 +62,7 @@ async function scrollPost(tab){
 
 async function getUserEntityDetails(tab, tweet_username){
     try{
+
         let profile_url = twitter_address+tweet_username;
         if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
             await redirectToPage(tab,profile_url);
@@ -70,6 +73,9 @@ async function getUserEntityDetails(tab, tweet_username){
     }
     catch(error){
         console.log(error);
+    }
+    finally{
+
     }
 }
 

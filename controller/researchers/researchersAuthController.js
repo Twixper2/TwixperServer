@@ -6,7 +6,7 @@ const researcherService = require('../../service/researchers/researchersService'
 const database = require("../../business_logic/db/DBCommunicator.js");
 
 
-router.post("//researcherValidateSession", async (req, res, next) => {
+router.post("/researcherValidateSession", async (req, res, next) => {
     // if (req.session && req.session.researcherId) {
     if (req.header('Researcher-Id')) {
         // const researcherId = req.session.researcherId;
@@ -36,7 +36,7 @@ router.post("//researcherValidateSession", async (req, res, next) => {
  * Verify the id_token, check if the researcher already in database. If so, give him cookie.
  * If not, create new researcher and give him cookie
  */
-router.post("//researcherGoogleLogin", async (req, res, next) => {
+router.post("/researcherGoogleLogin", async (req, res, next) => {
     const id_token = req.body.id_token
     if (!id_token) {
         res.sendStatus(400)
