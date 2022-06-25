@@ -25,6 +25,7 @@ async function getUserAuthDetsIfExist(params){
     let twitter_data_to_send = null;
     let user_and_pass_encrypted = null;
     let cache = false;
+    let result = null;
     // Check if user already auth'ed using hashmap
     if(tabsHashMap.size > 0){
       for (var entry of tabsHashMap.entries()) {
@@ -41,10 +42,12 @@ async function getUserAuthDetsIfExist(params){
       }
     }
     // If user gave access_token, check if already auth'ed using db - load cookies if true
-    let result = await validateAccessToken(params);
+
+    // result = await validateAccessToken(params);
     if(result){
     params.cookies = result.cookies;
     user_and_pass_encrypted = result.access_token;
+
     // Open tab again
     // Send client back his personal dets
 
