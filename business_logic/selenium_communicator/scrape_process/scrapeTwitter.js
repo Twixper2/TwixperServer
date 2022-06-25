@@ -6,7 +6,7 @@ const attribute_values = selenium_constants.attribute_values;
 
 async function scrapeWhoToFollow(tab){
     try{
-        await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         let all_who_to_follow = await tab.findElement(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.whoToFollow+"'"+"]"));
         let all_buttons = await all_who_to_follow.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserCell+"]"));
         let all_images = await all_who_to_follow.findElements(By.css(attribute_names.img));
@@ -45,6 +45,7 @@ async function scrapeWhoToFollow(tab){
 
 async function getFeed(tab){
     try{
+        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         var all_tweets_on_page = await tab.findElements(By.css("["+attribute_names.role+"="+attribute_values.article+"]"));
         return await HelpParseTweets(all_tweets_on_page);
     }
@@ -55,7 +56,7 @@ async function getFeed(tab){
 
 async function getUserEntityDetails(tab){
     try{
-        // await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
+        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
         return {entity_details};
@@ -76,6 +77,8 @@ async function getUserTimeline(tab){
 
 async function getUserLikes(tab){
     try{
+        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
+
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         return await getFeed(primary_column);
     }

@@ -29,8 +29,10 @@ router.use(async function (req, res, next) {
       req.user = header_params.user;
       req.participant = participant;
       next();
+    }
+    else{
+      res.status(401).send("This user is not connected to a exp.");
     }    
-    res.status(401).send("This user is not connected to a exp.")
   }
   catch(e){
     res.sendStatus(500);
@@ -392,7 +394,7 @@ router.post("/postTweet", async (req, res, next) => {
   try{
     const publishTweetSuccess = await participantsService_selenium.postTweet(req.server_sends_tab,tweetContext);
     if(publishTweetSuccess){
-      res.sendStatus(200)
+      res.status(200).send(publishTweetSuccess);
     }
     else{
       res.status(400).send("Whoops! You already said that")

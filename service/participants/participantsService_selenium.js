@@ -62,10 +62,11 @@ async function firstLoginDataExtraction(login_response,params){
     if(login_response){
         //open user profile page
         try{
+            await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         }
         catch(e){   
+            console.log(e);
         }
-        // await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
 
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
@@ -85,9 +86,6 @@ async function firstLoginDataExtraction(login_response,params){
 
 async function getInitialContentOfParticipant(tab,req_user){
     //open new tab
-
-
-    
     await tab.executeScript(`window.open("${req_user}");`);
     // Wait for the new window or tab
     await tab.wait(async () => (await tab.getAllWindowHandles()).length === 2, 10000);
@@ -100,8 +98,6 @@ async function getInitialContentOfParticipant(tab,req_user){
     await tab.close();
     const mainTab = windowsTab[0];
     await tab.switchTo().window(mainTab);
-    // let whoToFollowElement = await getWhoToFollow(null,tab);
-    // let feed = await getFeed(null,tab);
     return userEntityDetails;
 }
 
