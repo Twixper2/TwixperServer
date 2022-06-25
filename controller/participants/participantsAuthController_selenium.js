@@ -24,7 +24,8 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
 
     if(initial_content == null){
       login_response = await participantsService_selenium.logInProcess(params,authCheckResults.user_and_pass_encrypted);
-      if(login_response == null){
+      if(!login_response){
+        params?.tab?.close();
         res.status(400).json({
           twitter_user_found : false,
           user_registered_to_experiment : false
@@ -33,36 +34,43 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
       }
       initial_content = login_response;
     }
-
+    if(login_response){
     // Check if already registered to exp'
-    let participant = await database.getParticipantByUsername(params.user);
-    if (participant) {
-      // Extract data from collection
-      let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
-      res.status(200).json({
-        twitter_user_found : true,
-        user_registered_to_experiment : true,
-        participant_twitter_info,
-        initial_content
-      });
-      return;
-    }
+      let participant = await database.getParticipantByUsername(params.user);
+      if (participant) {
+        // Extract data from collection
+        let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
+        initial_content = await  participantsService_selenium.firstLoginDataExtraction(login_response,params)
+        res.status(200).json({
+          twitter_user_found : true,
+          user_registered_to_experiment : true,
+          participant_twitter_info,
+          initial_content
+        });
+        return;
+      }
     // Not registered
     res.status(200).json({
       twitter_user_found : true,
       user_registered_to_experiment : false,
-      access_token : initial_content.access_token
+      access_token : params.access_token
     });
+    }
+
+
+
   }
   catch(e){
     console.log(e)
     // Chrome is not reachable, remove tab from hashmap
     if(e.name == "WebDriverError"){
       tabsHashMap.delete(params.user);
+      params?.tab?.close();
       res.status(502).json("Tab is closed for some reason. Please authenticate again.")
       return;
     }
     else{ // Internal error
+      params?.tab?.close();
       res.sendStatus(500)
       return;
     }
@@ -85,7 +93,11 @@ router.post("//registerToExperiment", async (req, res, next) => {
     
     let participant  = null
     try {
+      let initial_content = null;
       participant = await participantsService_selenium.registerParticipant(header_params.user, access_token, expCode);
+      if(participant){
+        
+      }
     }
     catch (e) {
       // if it is an error with message, we respond with the error object containing "name" and "message" keys
@@ -101,14 +113,15 @@ router.post("//registerToExperiment", async (req, res, next) => {
       return;
     }
     const participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
-    let initial_content = tabsHashMap.get(access_token);
-    delete initial_content.tab;
+    // let initial_content = await  participantsService_selenium.firstLoginDataExtraction(login_response,params)
+    // delete initial_content.tab;
 
     res.status(200).json({
       twitter_user_found : true,
       user_registered_to_experiment : true,
       participant_twitter_info,
-      initial_content
+      access_token,
+      initial_content:participant.initial_content
     });
     return;
   } // end try

@@ -350,8 +350,8 @@ router.post("/addAction/:action", async (req, res, next) => {
   
   try{
     const action      = req.params?.action;
-    const tweet_id    = req?.body?.tweet_id;
-    const screen_name = req?.body?.screen_name;
+    const tweet_id    = req?.body?.tweetIdStr;
+    const screen_name = req?.body?.tweetUser;
     const reply       = req?.body?.reply;
     const ShareVia    = req?.body?.ShareVia;
 
@@ -394,7 +394,7 @@ router.post("/postTweet", async (req, res, next) => {
       res.sendStatus(200)
     }
     else{
-      res.status(400).send("Whoops! You already said that")
+      res.status(204).send("Whoops! You already said that")
     }
   }
   catch(e){
