@@ -131,6 +131,12 @@ router.post("//registerToExperiment", async (req, res, next) => {
   } // end try
   catch(e) {
     console.log(e)
+    if(e.name == "WebDriverError"){
+      tabsHashMap.delete(params.user);
+      params?.tab?.close();
+      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
+      return;
+    }
     res.sendStatus(500);
   }
 });

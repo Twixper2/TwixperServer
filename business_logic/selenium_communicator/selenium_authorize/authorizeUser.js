@@ -27,7 +27,7 @@ async function createNewTab(){
         }
 
         tab.manage().window().maximize();
-        // await tab.executeScript("document.body.style.zoom='10%'");
+        await tab.executeScript("document.body.style.zoom='30%'");
 
 
         return tab;

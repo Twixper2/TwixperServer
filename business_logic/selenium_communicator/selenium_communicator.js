@@ -17,8 +17,8 @@ async function reloadPage(tab){
 
 async function scrollPost(tab){
     try{
-        await tab.executeScript('window.scrollTo(0, 600)');
-        await tabWait(tab,2000);
+        await tab.executeScript('window.scrollTo(0, 500)');
+        await tabWait(tab,1500);
     }
     catch(error){
         console.log('error with scrollPost');

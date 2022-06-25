@@ -34,6 +34,8 @@ try{
         }
     }
     if(login_response){
+        // await new_tab.executeScript("document.body.style.zoom='30%'");
+
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
         config.tabsHashMap.set(access_token, {...dets_to_save});
         params.tab = new_tab;
@@ -60,13 +62,12 @@ async function firstLoginDataExtraction(login_response,params){
     if(login_response){
         //open user profile page
         try{
-            // await new_tab.executeScript("document.body.style.zoom='20%'");
+            await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         }
         catch(e){   
+            console.log(e);
         }
-        // await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
 
-        await new_tab.executeScript(`window.open("${user}");`);
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
@@ -84,23 +85,23 @@ async function firstLoginDataExtraction(login_response,params){
 /** ______User's initial content_____ **/
 
 async function getInitialContentOfParticipant(tab,req_user){
+    //open new tab
+    await tab.executeScript(`window.open("${req_user}");`);
+    // Wait for the new window or tab
+    await tab.wait(async () => (await tab.getAllWindowHandles()).length === 2, 10000);
+    // get the new window handle
     const windowsTab = await tab.getAllWindowHandles();
-
-    const mainTab = windowsTab[0];
     const profileHandle = windowsTab[1];
-
-    console.log(await tab.getCurrentUrl());
-
+    // switch to the new window handle
     await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
-
     await tab.close();
-    await new Promise(r => setTimeout(r, 100));
-
+    const mainTab = windowsTab[0];
     await tab.switchTo().window(mainTab);
-
     return userEntityDetails;
 }
+
+
 
 /** ______User's data_____ **/
 async function getWhoToFollow(params=null,tab_from_calling_function=null){
