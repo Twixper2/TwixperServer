@@ -56,6 +56,38 @@ let entity_constants = {
                 "urls":[],
                 "media":[]}
 };
+let selenium_constants = {
+      attribute_names: {
+         aria_label:"aria-label",
+         data_test_id:"data-testid",
+         role:"role",
+         href:"href",
+         src:"src",
+         img:"img",
+         a:"a"
+      },
+      attribute_values:{
+         primaryColumn: "primaryColumn",
+         UserName: "UserName",
+         UserDescription: "UserDescription",
+         UserLocation: "UserLocation",
+         UserUrl: "UserUrl",
+         UserProfessionalCategory: "UserProfessionalCategory",
+         heading: "heading",
+         placementTracking: "placementTracking",
+         presentation: "presentation",
+         link: "link",
+         button: "button",
+         group: "group",
+         socialContext: "socialContext",
+         tweetText: "tweetText" ,
+         tweetPhoto: "tweetPhoto",
+         verifiedAccount: "Verified account",
+         whoToFollow: "Who to follow",
+         UserCell: "UserCell",
+         article: "article"
+      }
+}
 
 exports.twitter_address = twitter_address;
 exports.twitter_home_address = twitter_home_address;
@@ -63,4 +95,5 @@ exports.status_text = status_text;
 exports.auth_constants = auth_constants;
 exports.entity_constants = entity_constants;
 exports.user_credentials = user_credentials;
+exports.selenium_constants = selenium_constants;
 

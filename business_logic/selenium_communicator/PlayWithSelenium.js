@@ -41,28 +41,18 @@ async function userRun(user_cred){
     let tab = await participantAuthUtils_selenium.createNewTab();
     // Log in to twitter and get cookies
     await authorizeUser.logInProcess(user_cred,tab, By, Key);
-
-    // let whoToFollowElement = await selenium_communicator.scrapeWhoToFollow(tab);
-    // console.log(whoToFollowElement);
-
-    // let n_first_tweets = await selenium_communicator.getFeed(tab);
     // if (n_first_tweets) {
-    //     n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
+        // n_first_tweets = await manipulator.manipulateTweets(participant1, n_first_tweets)
     // }
-    // console.log(n_first_tweets);
-
     
     let tweet_username = "benyshlomo";
-    // let json_details = await selenium_communicator.getUserEntityDetails(tab,tweet_username);
-    // let tweet_id_str = '1538068020655947776';
-    // let json_details = await selenium_communicator.getTweet(tab,tweet_username,tweet_id_str);
-
-    // let json_details = await selenium_communicator.getUserTimeline(tab,tweet_username);
-    let json_details = await selenium_communicator.getUserLikes(tab,tweet_username);
-
-
-    console.log(json_details);
-
+    let tweet_id_str = '1538068020655947776';
+    console.log(await selenium_communicator.scrapeWhoToFollow(tab));
+    console.log(await selenium_communicator.getFeed(tab));
+    console.log(await selenium_communicator.getUserEntityDetails(tab,tweet_username));
+    console.log(await selenium_communicator.getUserTimeline(tab,tweet_username));
+    console.log(await selenium_communicator.getUserLikes(tab,tweet_username));
+    console.log(await selenium_communicator.getTweet(tab,tweet_username,tweet_id_str));
 }   
 
 

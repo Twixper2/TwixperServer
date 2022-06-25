@@ -1,13 +1,14 @@
 const {By, Key, until} = require('selenium-webdriver');
-var {twitter_address, status_text, entity_constants} = require("../../twitter_communicator/static_twitter_data/ConstantsJSON.js");
+var {twitter_address, status_text, entity_constants, selenium_constants} = require("../../twitter_communicator/static_twitter_data/ConstantsJSON.js");
+const attribute_names = selenium_constants.attribute_names;
+const attribute_values = selenium_constants.attribute_values;
 
 
 async function scrapeWhoToFollow(tab){
     try{
-        // let all_who_to_follow = await tab.findElement(By.xpath(scrape_process_x_paths.whoToFollowElement));
-        let all_who_to_follow = await tab.findElement(By.css("[aria-label='Who to follow']"));
-        let all_buttons = await all_who_to_follow.findElements(By.css("[data-testid='UserCell']"));
-        let all_images = await all_who_to_follow.findElements(By.css("img"));
+        let all_who_to_follow = await tab.findElement(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.whoToFollow+"'"+"]"));
+        let all_buttons = await all_who_to_follow.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserCell+"]"));
+        let all_images = await all_who_to_follow.findElements(By.css(attribute_names.img));
         // let x = await all_buttons?.findElement(By.css("[aria-label='Verified account']"));
         let profile_names_arr = new Array();
         for(let i = 0 ; i < all_buttons.length; i++){
@@ -31,7 +32,7 @@ async function scrapeWhoToFollow(tab){
 
             profile_names_arr_final.push({"user_name":profile_names_arr[j],
                                         "user_name_url":profile_names_arr[j+1].split('@')[1],
-                                        "img":await all_images[img_index].getAttribute("src"),  
+                                        "img":await all_images[img_index].getAttribute(attribute_names.src),  
                                         "is_profile_verified": await isProfileVerified_WhoToFollow(all_buttons[j])});
         }
         return profile_names_arr_final;
@@ -43,7 +44,7 @@ async function scrapeWhoToFollow(tab){
 
 async function getFeed(tab){
     try{
-        var all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
+        var all_tweets_on_page = await tab.findElements(By.css("["+attribute_names.role+"="+attribute_values.article+"]"));
         return await HelpParseTweets(all_tweets_on_page);
     }
     catch(error){
@@ -53,10 +54,7 @@ async function getFeed(tab){
 
 async function getUserEntityDetails(tab){
     try{
-        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
-        let a = 'data-testid';
-        let b = 'primaryColumn';
-        // let primary_column = await tab.findElement(By.css("["+a+"="+b+"]"));
+        let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
         return {entity_details};
     }
@@ -79,7 +77,7 @@ async function getUserTimeline(tab){
 
 async function getUserLikes(tab){
     try{
-        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+        let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         return await getFeed(primary_column);
     }
     catch(error){
@@ -89,7 +87,7 @@ async function getUserLikes(tab){
 
 async function getTweet(tab, tweet_id_str){
     try{
-        let primary_column = await tab.findElement(By.css("[data-testid='primaryColumn']"));
+        let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         let tweet_and_replies = await getFeed(primary_column);
         let tweets_len = tweet_and_replies.length;
         let index = tweet_and_replies.map(t => t.tweet_id.toString()).indexOf(tweet_id_str);
@@ -102,20 +100,20 @@ async function getTweet(tab, tweet_id_str){
 
 async function getPersonalDetailsFromProfileContent(primary_column){
     let json_of_details = {};
-    let cover_and_profile_img = await primary_column.findElements(By.css("img"));
+    let cover_and_profile_img = await primary_column.findElements(By.css(attribute_names.img));
     try{
         await retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img);
-        let username = (await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserName']")))).split("@")[1];
+        let username = (await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserName+"]")))).split("@")[1];
         json_of_details.username = username;
         json_of_details.following_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/following']`)));
         json_of_details.followers_count = await retrieveTextFromElement(await primary_column.findElements(By.css(`[href='/${username}/followers']`)));
-        json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserDescription']")));
-        json_of_details.user_location = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserLocation']")));
+        json_of_details.user_description = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserDescription+"]")));
+        json_of_details.user_location = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserLocation+"]")));
         await retrieveWhenJoinedFromElement(json_of_details,primary_column);
-        json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserUrl']")));
-        json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='UserProfessionalCategory']")));
-        json_of_details.is_profile_verified = (await isProfileVerified(await primary_column.findElement(By.css("[role='heading']"))) > 0) ? true : false; 
-        let followingStatus = await retrieveTextFromElement(await primary_column.findElements(By.css("[data-testid='placementTracking']")));
+        json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserUrl+"]")));
+        json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserProfessionalCategory+"]")));
+        json_of_details.is_profile_verified = (await isProfileVerified(await primary_column.findElement(By.css("["+attribute_names.role+"="+attribute_values.heading+"]"))) > 0) ? true : false; 
+        let followingStatus = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.placementTracking+"]")));
         if(followingStatus != null){
             json_of_details.FollowingStatus = (followingStatus === "Following") ? true : false;
         }
@@ -131,11 +129,12 @@ async function getPersonalDetailsFromProfileContent(primary_column){
 
 async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
     try{
+        let when_joined = await (await primary_column.findElements(By.css("["+attribute_names.role+"="+attribute_values.presentation+"]")));
         if(json_of_details.user_location == null){
-            json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[0].getText();
+            json_of_details.when_joined = when_joined[0].getText();
         }
         else{
-            json_of_details.when_joined = await (await primary_column.findElements(By.css("[role='presentation']")))[1].getText();
+            json_of_details.when_joined = when_joined[1].getText();
         }
     }
     catch(error){
@@ -146,12 +145,12 @@ async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
 async function retrieveCoverAndProfileImagesFromElement(json_of_details,cover_and_profile_img){
     try{
         if(cover_and_profile_img.length == 1){
-            json_of_details.profile_img = await cover_and_profile_img[0].getAttribute("src");
+            json_of_details.profile_img = await cover_and_profile_img[0].getAttribute(attribute_names.src);
             json_of_details.cover_photo = null;
         }
         else{
-            json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute("src");
-            json_of_details.profile_img = await cover_and_profile_img[1].getAttribute("src");
+            json_of_details.cover_photo = await cover_and_profile_img[0].getAttribute(attribute_names.src);
+            json_of_details.profile_img = await cover_and_profile_img[1].getAttribute(attribute_names.src);
         }
     }
     catch(error){
@@ -181,10 +180,10 @@ async function getProfileLink_ImageUrl(tweet){
     let link_href = null;
     let profile_img_url = null;
     try{
-        let profile_link = await tweet.findElement(By.css("[role='link']"));
-        link_href = await profile_link.getAttribute("href");
-        let profile_img = await profile_link.findElement(By.css("img"));
-        profile_img_url = await profile_img.getAttribute("src");
+        let profile_link = await tweet.findElement(By.css("["+attribute_names.role+"="+attribute_values.link+"]"));
+        link_href = await profile_link.getAttribute(attribute_names.href);
+        let profile_img = await profile_link.findElement(By.css(attribute_names.img));
+        profile_img_url = await profile_img.getAttribute(attribute_names.src);
     }
     catch(error){
         console.log('No profile link / image url');
@@ -197,9 +196,9 @@ async function getProfileLink_ImageUrl(tweet){
 async function getTweetId(tweet){
     let tweetIds = new Set();
     try{
-        let links_components = await tweet.findElements(By.css("a"));
+        let links_components = await tweet.findElements(By.css(attribute_names.a));
         for(let i=0; i<links_components.length; i++){
-            let link_comp_url = await links_components[i].getAttribute("href");
+            let link_comp_url = await links_components[i].getAttribute(attribute_names.href);
             if(link_comp_url.includes(status_text)){
                 let split_url_arr = link_comp_url.split("/");
                 let status_index = split_url_arr.indexOf(status_text);
@@ -219,7 +218,7 @@ async function getTweetRepliesRetweetsLikes_TweetActions(tweet){
     let tweet_actions = null;
     let replies_retweets_likes = null;
     try{
-        let group_of_buttons = await tweet.findElement(By.css("[role='group']"));
+        let group_of_buttons = await tweet.findElement(By.css("["+attribute_names.role+"="+attribute_values.group+"]"));
         replies_retweets_likes = await getNumOfTweetActions(group_of_buttons);
         tweet_actions = await getTweetActions(group_of_buttons);    
     }
@@ -236,7 +235,7 @@ async function getNumOfTweetActions(group_of_buttons){
     let retweets_num = 0;
     let likes_num = 0;
     try{
-        let text_with_dets = await group_of_buttons.getAttribute("aria-label");
+        let text_with_dets = await group_of_buttons.getAttribute(attribute_names.aria_label);
         let split_text_to_different_actions = text_with_dets.split(',');
         
         for(let i=0; i<split_text_to_different_actions.length; i++){
@@ -281,12 +280,12 @@ async function getTweetActions(group_of_buttons){
     let favorited = false;
     let retweeted = false;
     try{
-        let buttons_of_group = await group_of_buttons.findElements(By.css("[role='button']"));
+        let buttons_of_group = await group_of_buttons.findElements(By.css("["+attribute_names.role+"="+attribute_values.button+"]"));
         let retweet_button = await buttons_of_group[1];
         let like_button = await buttons_of_group[2];
 
-        let retweet_button_text = await retweet_button.getAttribute("aria-label");
-        let like_button_text = await like_button.getAttribute("aria-label");
+        let retweet_button_text = await retweet_button.getAttribute(attribute_names.aria_label);
+        let like_button_text = await like_button.getAttribute(attribute_names.aria_label);
 
         if(like_button_text.includes('Liked')){
             favorited = true;
@@ -307,10 +306,10 @@ async function getTweetActions(group_of_buttons){
 async function getTweetPhotos(tweet){
     let tweet_photos_url = new Array();
     try{
-        let tweet_photos = await tweet.findElements(By.css("[data-testid='tweetPhoto']"));
+        let tweet_photos = await tweet.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.tweetPhoto+"]"));
         for(let i=0; i< tweet_photos.length; i++){
             tweet_photos_url.push({"type": "photo",
-                                "media_url_https": await (tweet_photos[i].findElement(By.css("img"))).getAttribute("src"),"sizes":entity_constants.sizes});
+                                "media_url_https": await (tweet_photos[i].findElement(By.css(attribute_names.img))).getAttribute(attribute_names.src),"sizes":entity_constants.sizes});
         }
     }
     catch(error){
@@ -324,7 +323,7 @@ async function getTweetPhotos(tweet){
 async function isProfileVerified_WhoToFollow(tab){
     is_profile_verified = false;
     try{
-        is_profile_verified = await tab.findElement(By.css("[aria-label='Verified account']")) != undefined;
+        is_profile_verified = await tab.findElement(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.verifiedAccount+"'"+"]")) != undefined;
     }
     catch(error){
     }
@@ -337,7 +336,7 @@ async function isProfileVerified_WhoToFollow(tab){
 async function isProfileVerified(tweet){
     let is_profile_verified = 0;
     try{
-        let verified_labels = await tweet.findElements(By.css("[aria-label='Verified account']"));
+        let verified_labels = await tweet.findElements(By.css("["+attribute_names.aria_label+"="+attribute_values.verifiedAccount+"]"));
         if(verified_labels.length == 0){
             is_profile_verified = 0;
         }   
@@ -359,7 +358,7 @@ async function isProfileVerified(tweet){
 async function IsThereIsSocialContext(tweet){
     let is_there_social_context = false;
     try{
-        is_there_social_context = await tweet.findElement(By.css("[data-testid='socialContext']")) != null;
+        is_there_social_context = await tweet.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.socialContext+"]")) != null;
     }
     catch(error){
     }
@@ -445,7 +444,7 @@ async function HelpParseTweets(all_tweets_on_page){
 
 async function getQuotedTweetImageurl(tweet){
     try{
-        return await tweet.findElement(By.css("[role='presentation']")).findElement(By.css("img")).getAttribute("src");
+        return await tweet.findElement(By.css("["+attribute_names.role+"="+attribute_values.presentation+"]")).findElement(By.css(attribute_names.img)).getAttribute(attribute_names.src);
     }
     catch(error){
         console.log('error with getQuotedTweetImageurl');
@@ -454,7 +453,7 @@ async function getQuotedTweetImageurl(tweet){
 
 async function getTweetsContent(tweet){
     let tweet_text_contents_arr = new Array();
-    let tweet_contents = await tweet.findElements(By.css("[data-testid='tweetText']"));
+    let tweet_contents = await tweet.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.tweetText+"]"));
     try{
         for(let i=0; i<tweet_contents.length; i++){
             tweet_text_contents_arr.push(await tweet_contents[i].getText());
