@@ -41,9 +41,6 @@ catch(e){
 }
 
 }
-async function firstLoginHashMapInitialize(login_response,params){
-
-}
 
 
 async function firstLoginDataExtraction(login_response,params){
@@ -80,23 +77,16 @@ async function getInitialContentOfParticipant(tab,req_user){
     const profileHandle = windowsTab[1];
 
     console.log(await tab.getCurrentUrl());
-    let whoToFollowElement = await getWhoToFollow(null,tab);
-    let feed = await getFeed(null,tab);
-
-    let userLikes = undefined;
-    // let userLikes = await getUserLikes({req_user},tab);
 
     await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
-    let userTimeline = undefined;
-    // let userTimeline = await getUserTimeline({req_user},tab);
 
     await tab.close();
     await new Promise(r => setTimeout(r, 100));
 
     await tab.switchTo().window(mainTab);
 
-    return {user_profile_content:{userEntityDetails,userTimeline,userLikes},whoToFollowElement,feed};
+    return userEntityDetails;
 }
 
 /** ______User's data_____ **/

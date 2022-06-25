@@ -18,7 +18,7 @@ async function reloadPage(tab){
 async function scrollPost(tab){
     try{
         await tab.executeScript('window.scrollTo(0, 600)');
-        await tabWait(tab,4000);
+        await tabWait(tab,2000);
     }
     catch(error){
         console.log('error with scrollPost');
@@ -66,7 +66,7 @@ async function scrapeWhoToFollow(tab){
 }
 
 async function getFeed(tab){
-    if(!await isRequestedURLSameAsCurrent(tab, twitter_address)){
+    if(!await isRequestedURLSameAsCurrent(tab, twitter_home_address)){
         await redirectToPage(tab,twitter_home_address,false);
     }
     await scrollPost(tab);
