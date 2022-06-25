@@ -36,6 +36,9 @@ async function tabWait(tab,ms){
 
 async function isRequestedURLSameAsCurrent(tab,req_url){
     try{
+        console.log(await tab.getCurrentUrl());
+        console.log(req_url);
+
         return await tab.getCurrentUrl() === req_url;
     }
     catch(error){
@@ -59,17 +62,17 @@ async function redirectToPage(tab,url,reloadingPage){
 // Selenium comm
 
 async function scrapeWhoToFollow(tab){
-    if(!await isRequestedURLSameAsCurrent(tab, twitter_address)){
+    if(!await isRequestedURLSameAsCurrent(tab, twitter_home_address)){
         await redirectToPage(tab,twitter_home_address,false);
     }
     return await scrapeTwitter.scrapeWhoToFollow(tab);
 }
 
 async function getFeed(tab){
-    if(!await isRequestedURLSameAsCurrent(tab, twitter_address)){
+    if(!await isRequestedURLSameAsCurrent(tab, twitter_home_address)){
         await redirectToPage(tab,twitter_home_address,false);
     }
-    await scrollPost(tab);
+    // await scrollPost(tab);
     return await scrapeTwitter.getFeed(tab);
 }
 

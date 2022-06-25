@@ -12,6 +12,8 @@ const { cache } = require("ejs");
 async function logInProcess(params,access_token){
 try{
     let new_tab = await participantAuthUtils_selenium.createNewTab();
+
+
     let login_response = undefined;
     let user = params.user;
 
@@ -41,9 +43,7 @@ catch(e){
 }
 
 }
-async function firstLoginHashMapInitialize(login_response,params){
 
-}
 
 
 async function firstLoginDataExtraction(login_response,params){
@@ -55,8 +55,13 @@ async function firstLoginDataExtraction(login_response,params){
 
     if(login_response){
         //open user profile page
+        try{
+            await new_tab.executeScript("document.body.style.zoom='20%'");
+            await new Promise(r => setTimeout(r, 3000));
+}
+        catch(e){   
+        } 
         await new_tab.executeScript(`window.open("${user}");`);
-
         // Get initial content for participant
         let initial_content = await getInitialContentOfParticipant(new_tab,user);
         let dets_to_save = {tab:new_tab, user:user, access_token:access_token};
@@ -73,18 +78,18 @@ async function firstLoginDataExtraction(login_response,params){
 }
 /** ______User's initial content_____ **/
 async function getInitialContentOfParticipant(tab,req_user){
-    const windowsTab = await tab.getAllWindowHandles();
-    await new Promise(r => setTimeout(r, 5000));
+    const mainTab = await tab.getWindowHandle();
 
-    const mainTab = windowsTab[0];
-    const profileHandle = windowsTab[1];
-
-    console.log(await tab.getCurrentUrl());
     let whoToFollowElement = await getWhoToFollow(null,tab);
     let feed = await getFeed(null,tab);
 
     let userLikes = undefined;
     // let userLikes = await getUserLikes({req_user},tab);
+    
+    await tab.wait(async () => (await tab.getAllWindowHandles()).length === 2, 5000);
+
+    const windowsTab = await tab.getAllWindowHandles();
+    const profileHandle = windowsTab[1];
 
     await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
@@ -92,7 +97,7 @@ async function getInitialContentOfParticipant(tab,req_user){
     // let userTimeline = await getUserTimeline({req_user},tab);
 
     await tab.close();
-    await new Promise(r => setTimeout(r, 100));
+    // await new Promise(r => setTimeout(r, 100));
 
     await tab.switchTo().window(mainTab);
 
