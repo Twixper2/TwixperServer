@@ -90,7 +90,12 @@ router.post("//registerToExperiment", async (req, res, next) => {
       console.log(e)
       if (e.message) {
         if(e.status){
-          res.status(e.status).json({"presentToUser":e.presentToUser, "message":e.message});
+          if(e.status == 200){
+            res.status(e.status).json(e.message);
+          }
+          else{
+            res.status(e.status).json({"presentToUser":e.presentToUser, "message":e.message});
+          }
         }
         else{
           res.status(400).json(e);
