@@ -127,12 +127,12 @@ async function getPersonalDetailsFromProfileContent(primary_column){
 
 async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
     try{
-        let when_joined = await (await primary_column.findElements(By.css("["+attribute_names.role+"="+attribute_values.presentation+"]")));
+        let when_joined = await primary_column.findElements(By.css("["+attribute_names.role+"="+attribute_values.presentation+"]"));
         if(json_of_details.user_location == null){
-            json_of_details.when_joined = when_joined[0].getText();
+            json_of_details.when_joined = await when_joined[0].getText();
         }
         else{
-            json_of_details.when_joined = when_joined[1].getText();
+            json_of_details.when_joined = await when_joined[1].getText();
         }
     }
     catch(error){

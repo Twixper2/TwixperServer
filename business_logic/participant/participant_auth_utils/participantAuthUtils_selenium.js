@@ -59,16 +59,18 @@ async function getUserAuthDetsIfExist(params){
         }
       }
     }
-    // If user gave access_token, check if already auth'ed using db - load cookies if true
-    result = await validateAccessToken(params);
-    if(result){
-        params.cookies = result.cookies;
-        user_and_pass_encrypted = result.access_token;
-        twitter_data_to_send = null;
-    }
     else{
-      // Create new authentication for the user
-      user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
+        // If user gave access_token, check if already auth'ed using db - load cookies if true
+        result = await validateAccessToken(params);
+        if(result){
+            params.cookies = result.cookies;
+            user_and_pass_encrypted = result.access_token;
+            twitter_data_to_send = null;
+        }
+        else{
+            // Create new authentication for the user
+            user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
+        }
     }
     return {twitter_data_to_send, user_and_pass_encrypted};
 }
