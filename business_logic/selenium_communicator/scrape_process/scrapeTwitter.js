@@ -6,11 +6,9 @@ const attribute_values = selenium_constants.attribute_values;
 
 async function scrapeWhoToFollow(tab){
     try{
-        // await new_tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         let all_who_to_follow = await tab.findElement(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.whoToFollow+"'"+"]"));
         let all_buttons = await all_who_to_follow.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserCell+"]"));
         let all_images = await all_who_to_follow.findElements(By.css(attribute_names.img));
-        // let x = await all_buttons?.findElement(By.css("[aria-label='Verified account']"));
         let profile_names_arr = new Array();
         for(let i = 0 ; i < all_buttons.length; i++){
             var text = await all_buttons[i].getText();
@@ -336,7 +334,7 @@ async function isProfileVerified_WhoToFollow(tab){
 async function isProfileVerified(tweet){
     let is_profile_verified = 0;
     try{
-        let verified_labels = await tweet.findElements(By.css("["+attribute_names.aria_label+"="+attribute_values.verifiedAccount+"]"));
+        let verified_labels = await tweet.findElements(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.verifiedAccount+"'"+"]"));
         if(verified_labels.length == 0){
             is_profile_verified = 0;
         }   

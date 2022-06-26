@@ -118,8 +118,6 @@ router.post("//registerToExperiment", async (req, res, next) => {
       return;
     }
     const participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
-    // let initial_content = await  participantsService_selenium.firstLoginDataExtraction(login_response,params)
-    // delete initial_content.tab;
 
     res.status(200).json({
       user_registered_to_experiment : true,

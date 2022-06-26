@@ -163,6 +163,7 @@ async function registerParticipant(username, access_token, expCode){
   if(successRegister){
       // Log the registration to actions log of the experiment
       participantActionsOnTwitter.logRegisteredToExperiment(participant);
+      delete initial_content.access_token;
       participant.initial_content = initial_content;
       return participant;
   }
