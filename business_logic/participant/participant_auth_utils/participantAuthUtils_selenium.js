@@ -54,7 +54,7 @@ async function getUserAuthDetsIfExist(params){
           // assign profile dets, feed, etc.
           twitter_data_to_send = Object.assign({}, value);
           delete twitter_data_to_send.tab;
-          delete twitter_data_to_send.user;
+        //   delete twitter_data_to_send.user;
           break;
         }
       }
@@ -137,11 +137,12 @@ async function registerParticipant(username, access_token, expCode){
   // verifying not already registered
   let participantFromDb = await database.getParticipantByUsername(username);
   if (participantFromDb) {
-      throw {
-          status:200,
-          presentToUser: false,
-          message: {entity_details: await extractTwitterInfoFromParticipantObj(participantFromDb)}
-      }
+    let initial_content = await participantsService_selenium.firstLoginDataExtraction(true,twitterUserDetails);
+    throw {
+        status:200,
+        presentToUser: false,
+        message: {user_registered_to_experiment: true, participant_twitter_info: await extractTwitterInfoFromParticipantObj(participantFromDb), access_token, initial_content}
+    }
   }
 
   // raffle group for participant. currently, only naive raffle supported

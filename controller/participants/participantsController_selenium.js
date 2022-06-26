@@ -12,13 +12,14 @@ router.use(async function (req, res, next) {
   try{
     const header_params = req.headers
     const access_token = header_params.accesstoken;
-    if(!header_params || !access_token || !header_params.user){
+    const user = header_params.user;
+    if(!header_params || !access_token || !user){
       res.status(400).send("No access_token or user params supplied in Header.")
       return
     }
     let entity_details = tabsHashMap.get(access_token);
-    if(tabsHashMap.size == 0 || entity_details == undefined){
-      res.status(401).send("This user is not authenticated.")
+    if(tabsHashMap.size == 0 || entity_details == undefined || entity_details.user !== user){
+      res.status(401).send("This user is not authenticated.");
       return
     }
     let participant = await database.getParticipantByUsername(header_params.user);
@@ -31,7 +32,7 @@ router.use(async function (req, res, next) {
       next();
     }
     else{
-      res.status(401).send("This user is not connected to a exp.")
+      res.status(401).send("This user is not connected to a exp.");
     }
   }
   catch(e){

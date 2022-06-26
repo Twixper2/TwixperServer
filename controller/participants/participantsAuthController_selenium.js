@@ -20,7 +20,6 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
     let authCheckResults = await participantAuthUtils_selenium.getUserAuthDetsIfExist(params);
     let login_response = null;
     let initial_content = authCheckResults.twitter_data_to_send;
-
     if(initial_content == null){
       login_response = await participantsService_selenium.logInProcess(params,authCheckResults.user_and_pass_encrypted);
       if(!login_response){
@@ -29,6 +28,9 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
         return;
       }
       initial_content = login_response;
+    }
+    else if(initial_content.user != undefined && initial_content.access_token != undefined){
+      login_response = true;
     }
     if(login_response){
     // Check if already registered to exp'
@@ -45,11 +47,11 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
         });
         return;
       }
-    // Not registered
-    res.status(200).json({
-      user_registered_to_experiment : false,
-      access_token : params.access_token
-    });
+      // Not registered
+      res.status(200).json({
+        user_registered_to_experiment : false,
+        access_token : params.access_token || initial_content.access_token
+      });
     }
   }
   catch(e){
@@ -71,7 +73,7 @@ router.post("//twitterSeleniumAuth", async (req, res, next) => {
 
 router.post("//registerToExperiment", async (req, res, next) => {
   try {
-    const header_params = req.headers
+    const header_params = req. headers
     const expCode = req.body.exp_code
     let access_token = header_params.accesstoken;
     if(!header_params || !access_token || !header_params.user || !expCode){
@@ -88,15 +90,7 @@ router.post("//registerToExperiment", async (req, res, next) => {
       console.log(e)
       if (e.message) {
         if(e.status){
-          let message = null;
-          if(e.status === 401){
-            message = e.message;
-          }
-          else if(e.status === 200){
-            message = e.message.entity_details;
-          }
-          let e_to_send = {"presentToUser":e.presentToUser, "entity_details":message};
-          res.status(e.status).json(e_to_send);
+          res.status(e.status).json({"presentToUser":e.presentToUser, "message":e.message});
         }
         else{
           res.status(400).json(e);
@@ -121,7 +115,7 @@ router.post("//registerToExperiment", async (req, res, next) => {
 
     res.status(200).json({
       user_registered_to_experiment : true,
-      // participant_twitter_info,
+      participant_twitter_info,
       access_token,
       initial_content:participant.initial_content
     });
