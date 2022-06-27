@@ -19,7 +19,22 @@ async function insertParticipant(participant) {
     return false
 }
 
-
+/**
+ * this method returns user by twitter_id_str
+ * @param {user username} user 
+*/
+async function getAllActiveParticipant() {
+    const db = await makeDb()
+    let result = null
+    try{
+        let collection = db.collection("Participants")
+        result = await collection.find().toArray()
+    }
+    catch(e){
+        throw(e)
+    }
+    return result
+}
 
 
 /**
@@ -133,5 +148,5 @@ module.exports = {
     getParticipantByToken : getParticipantByToken,
     updateParticipantTokens: updateParticipantTokens,
     deleteParticipantsFromExp : deleteParticipantsFromExp,
-
+    getAllActiveParticipant : getAllActiveParticipant
 }

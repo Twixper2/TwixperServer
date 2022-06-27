@@ -2,6 +2,7 @@ const scrapeTwitter = require("../selenium_communicator/scrape_process/scrapeTwi
 const scrapeTwitter_moshe = require("../selenium_communicator/scrape_process/scrapeTwitter_moshe")
 const {twitter_address, status_text, twitter_home_address} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
+const database = require("../../business_logic/db/DBCommunicator.js");
 
 // Helpers
 
@@ -148,6 +149,24 @@ async function getNotifications(tab){
     return await scrapeTwitter_moshe.getNotifications(tab);
 }
 
+async function doIHaveNewNotifications(tab){
+    return await scrapeTwitter_moshe.doIHaveNewNotifications(tab);
+}
+
+async function getAllUserCookie(){
+    let allParticipants = await database.getAllActiveParticipant();
+    let cookieJar = [];
+    await Promise.all(allParticipants.map(async (participant) => {
+        var user = participant.participant_twitter_username;
+        let DbResult = await database.getInfoByTwitterUserName(user);
+        if(DbResult){
+            cookieJar.push(DbResult);
+        }
+         
+    }));
+    return cookieJar;
+}
+
 exports.scrapeWhoToFollow = scrapeWhoToFollow
 exports.getFeed = getFeed
 exports.getUserEntityDetails = getUserEntityDetails
@@ -166,3 +185,6 @@ exports.tweetsAction=tweetsAction
 exports.getNotifications=getNotifications
 exports.tabWait=tabWait
 exports.reloadPage=reloadPage
+exports.getAllUserCookie=getAllUserCookie
+exports.doIHaveNewNotifications=doIHaveNewNotifications
+

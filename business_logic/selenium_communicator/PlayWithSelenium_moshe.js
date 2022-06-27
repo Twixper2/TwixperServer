@@ -1,4 +1,6 @@
 var authorizeUser = require("./selenium_authorize/authorizeUser.js");
+var participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
+
 var scrapeTwitter_moshe = require("./scrape_process/scrapeTwitter_moshe.js");
 var credentials = require("../twitter_communicator/static_twitter_data/CredentialsJSON.js");
 const twitterInnerApiGet = require("../twitter_communicator/twitter_internal_api/twitterInnerApiGet")
@@ -15,7 +17,7 @@ async function userRun(user_credentials){
     // await authorizeUser.userLogInReq(user_credentials,tab, By, Key);
 
     // -----------------------open second web driver with user cookies------------------------------------
-    let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
+    // let tab =await authorizeUser.loadUserCookie(await createNewTab(),user_credentials.user);
     // await tab.get(homepage_url);
 
     // var tweet_id = "1530516552084234244";
@@ -60,6 +62,9 @@ async function userRun(user_credentials){
     // let json_details = await scrapeTwitter_moshe.getProfileContent(tab,tweet_username,n);
     // console.log(json_details);
     // let y=3;
+
+    let test = await participantsService_selenium.checkForPushNotifications();
+
 }
 
 async function createNewTab(){

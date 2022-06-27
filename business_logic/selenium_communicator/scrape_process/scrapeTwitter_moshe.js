@@ -146,47 +146,35 @@ async function getNotifications(tab){
 
 async function doIHaveNewNotifications(tab){
     try{
-        // if((await tab.getAllWindowHandles()).length != 2 ){
-        //     // open new tab - search page
-        //     await tab.executeScript(`window.open("home");`);
-        //     await tabWait(tab,3000);
-        // }
-        // // save all open tabs handles
-        // const windowTab = await tab.getAllWindowHandles();
-        // // switch to the new tab
-        // await tab.switchTo().window(windowTab[1]);
-
         let notificationsBellStatus = (await tab.findElement(By.css("[href='/notifications']")).getAttribute("aria-label"));
 
         if(notificationsBellStatus == 'Notifications'){
             return false;
         }
 
-        let numOfNotifications = notificationsBellStatus.match(/(\d+)/)[0];
+        let numOfNotifications = parseInt(notificationsBellStatus.match(/(\d+)/)[0]);
 
         console.log("starting notifications check");
-        if((await tab.getAllWindowHandles()).length != 2 ){
-            // open new tab - search page
-            await tab.executeScript(`window.open("notifications");`);
-            await tabWait(tab,3000);
-        }
-        let all_notifications_on_page = await tab.findElement(By.css("[role='article']"));
-        let lestNotifications = await notificationsParseData(all_notifications_on_page);
-        let notificationType = lestNotifications.notificationType;
+        await tab.get("https://twitter.com/notifications");
+        await tab.wait(until.elementLocated(By.css("[role='article']")),10000);
         
-        switch(notificationType){
-            case 'Alerts':
-                break;
-            case 'like':
-                break;
-            case 'Retweeted':
-                break;
-            case 'Suggestions':
-                break;
-            default:
-                break;
-        }
-        return notifications;
+        let all_notifications_on_page = await (await tab.findElements(By.css("[role='article']"))).slice(0, numOfNotifications);
+        let lestNotifications = await notificationsDataManager(all_notifications_on_page);
+        // let notificationType = lestNotifications.notificationType;
+        return lestNotifications;
+        // switch(notificationType){
+        //     case 'Alerts':
+        //         break;
+        //     case 'like':
+        //         break;
+        //     case 'Retweeted':
+        //         break;
+        //     case 'Suggestions':
+        //         break;
+        //     default:
+        //         break;
+        // }
+        // return notifications;
     }
     catch(error){
         console.log(error);

@@ -48,13 +48,12 @@ async function getExperimentById(expId) {
 }
 
 
-//remove after hackhton
-async function getExperiments() {
+async function getAllActiveExperiments() {
   const db = await makeDb()
   let result = null
   try {
     let collection = db.collection("Experiments")
-    result = await collection.find({}).toArray()
+    result = await collection.find({status:"active"}).toArray()
   }
   catch (e) {
     throw e
@@ -181,5 +180,6 @@ module.exports = {
   getExperimentByCode: getExperimentByCode,
   deleteAllExperiments: deleteAllExperiments,
   updateExpStatus : updateExpStatus,
-  setExpEndDate: setExpEndDate
+  setExpEndDate: setExpEndDate,
+  getAllActiveExperiments: getAllActiveExperiments
 }

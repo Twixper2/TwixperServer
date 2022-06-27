@@ -2,11 +2,14 @@ const selenium_communicator = require("../../business_logic/selenium_communicato
 const participantAuthUtils_selenium = require("../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium");
 const manipulator = require("../../business_logic/participant/manipulator/manipulator.js")
 const config = require("../../config");
-const userCookiesDB = require("../../business_logic/db/mongodb/userCookiesCollection");
+const userCookiesCollection = require("../../business_logic/db/mongodb/userCookiesCollection");
+const expCollection = require("../../business_logic/db/mongodb/experimentsCollection");
+const participantsCollection = require("../../business_logic/db/mongodb/participantsCollection");
+
 const bcrypt = require("bcryptjs");
 const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator");
 const { cache } = require("ejs");
-var {twitter_address, status_text, entity_constants, selenium_constants} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
+var {twitter_address,twitter_home_address, status_text, entity_constants, selenium_constants} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 const attribute_names = selenium_constants.attribute_names;
 const attribute_values = selenium_constants.attribute_values;
 const {By, Key, until} = require('selenium-webdriver');
@@ -30,7 +33,7 @@ try{
             //First login - saves the cookies and tokens of the user
             await new Promise(r => setTimeout(r, 2000));
             let allCookies = await new_tab.manage().getCookies();
-            await userCookiesDB.insertUserCookies(user,allCookies,access_token)
+            await userCookiesCollection.insertUserCookies(user,allCookies,access_token)
         }
     }
     if(login_response){
@@ -51,7 +54,12 @@ catch(e){
 
 }
 
-
+/**
+ * 
+ * @param {*} login_response - bool - if twitter verified the user
+ * @param {*} params - Header params
+ * @returns initialization values of the user account
+ * */
 async function firstLoginDataExtraction(login_response,params){
 
     let final_resp_without_tab = null;
@@ -84,6 +92,12 @@ async function firstLoginDataExtraction(login_response,params){
 }
 /** ______User's initial content_____ **/
 
+/**
+ * 
+ * @param {*} tab User current tab
+ * @param {*} req_user User screen name
+ * @returns The user profile info
+ */
 async function getInitialContentOfParticipant(tab,req_user){
     //open new tab
     await tab.executeScript(`window.open("${req_user}");`);
@@ -95,6 +109,7 @@ async function getInitialContentOfParticipant(tab,req_user){
     // switch to the new window handle
     await tab.switchTo().window(profileHandle);
     let userEntityDetails = await getUserEntityDetails({req_user},tab);
+    //Close the profile page and return to the main page
     await tab.close();
     const mainTab = windowsTab[0];
     await tab.switchTo().window(mainTab);
@@ -276,6 +291,43 @@ async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,actio
     }
     return false;
 }
+
+async function checkForPushNotifications(){
+    //Draw all Active participants Cookies
+    let userInfo = await selenium_communicator.getAllUserCookie();
+    //open new tabs
+    let tab = await participantAuthUtils_selenium.createNewTab();
+
+    //For all new tabs and check notifications
+    await Promise.all(userInfo.map(async (info) => {
+        try{ 
+            try{
+                if(!info?.cookies)
+                info.cookies = await userCookiesDB.getCookiesByTwitterUserName(info.username);
+                info.cookies.forEach(element => {
+                    tab.manage().addCookie(element)
+                });
+            }catch(e){
+                console.log(e);
+            }
+            await tab.get("https://twitter.com/home");
+
+            await tab.navigate().refresh();
+            await selenium_communicator.tabWait(tab,3000);
+
+            var userNotifications = await selenium_communicator.doIHaveNewNotifications(tab);
+            if(userNotifications){
+                console.log(userNotifications);
+                //Send notification
+
+            }
+        }catch(e){
+            console.log(e);
+        }finally{
+            tab.close();
+        }
+    }));
+}
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed
@@ -295,5 +347,6 @@ exports.extractTwitterInfoFromParticipantObj=extractTwitterInfoFromParticipantOb
 exports.tweetsAction=tweetsAction
 exports.getNotifications=getNotifications
 exports.firstLoginDataExtraction=firstLoginDataExtraction
+exports.checkForPushNotifications=checkForPushNotifications
 
 

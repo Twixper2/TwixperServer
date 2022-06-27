@@ -11,7 +11,7 @@ const fileManager = require("./business_logic/db/local_files/fileManager")
 const config = require('./config')
 var isProd = false;
 var app = express();
-
+const participantsService_selenium = require("./service/participants/participantsService_selenium.js")
 
 // Letting all origins to pass
 //app.use(cors());
@@ -62,6 +62,8 @@ const participantsController_selenium  = require("./controller/participants/part
    for push notifications
    example - setinterval(checkForPushNot , 50000ms);
 */
+let x = setInterval(async () => { await participantsService_selenium.checkForPushNotifications()}, 10000);
+
 
 app.get("//", (req, res) => res.send("welcome v.2"));
 
