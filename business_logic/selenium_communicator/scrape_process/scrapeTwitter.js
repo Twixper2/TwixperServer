@@ -6,11 +6,9 @@ const attribute_values = selenium_constants.attribute_values;
 
 async function scrapeWhoToFollow(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         let all_who_to_follow = await tab.findElement(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.whoToFollow+"'"+"]"));
         let all_buttons = await all_who_to_follow.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserCell+"]"));
         let all_images = await all_who_to_follow.findElements(By.css(attribute_names.img));
-        // let x = await all_buttons?.findElement(By.css("[aria-label='Verified account']"));
         let profile_names_arr = new Array();
         for(let i = 0 ; i < all_buttons.length; i++){
             var text = await all_buttons[i].getText();
@@ -45,7 +43,6 @@ async function scrapeWhoToFollow(tab){
 
 async function getFeed(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         var all_tweets_on_page = await tab.findElements(By.css("["+attribute_names.role+"="+attribute_values.article+"]"));
         return await HelpParseTweets(all_tweets_on_page);
     }
@@ -56,7 +53,7 @@ async function getFeed(tab){
 
 async function getUserEntityDetails(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
+        // await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
         return {entity_details};
@@ -77,8 +74,6 @@ async function getUserTimeline(tab){
 
 async function getUserLikes(tab){
     try{
-        await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
-
         let primary_column = await tab.findElement(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]"));
         return await getFeed(primary_column);
     }
@@ -119,10 +114,7 @@ async function getPersonalDetailsFromProfileContent(primary_column){
         json_of_details.user_url = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserUrl+"]")));
         json_of_details.user_profession = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.UserProfessionalCategory+"]")));
         json_of_details.is_profile_verified = (await isProfileVerified(await primary_column.findElement(By.css("["+attribute_names.role+"="+attribute_values.heading+"]"))) > 0) ? true : false; 
-        let followingStatus = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.placementTracking+"]")));
-        if(followingStatus != null){
-            json_of_details.FollowingStatus = (followingStatus === "Following") ? true : false;
-        }
+        json_of_details.FollowingStatus = await retrieveTextFromElement(await primary_column.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.placementTracking+"]")));
     }
     catch(error){
         // One of the elements has not been field by the user
@@ -132,14 +124,15 @@ async function getPersonalDetailsFromProfileContent(primary_column){
         return json_of_details;
     }
 }
+
 async function retrieveWhenJoinedFromElement(json_of_details,primary_column){
     try{
-        let when_joined = await (await primary_column.findElements(By.css("["+attribute_names.role+"="+attribute_values.presentation+"]")));
+        let when_joined = await primary_column.findElements(By.css("["+attribute_names.role+"="+attribute_values.presentation+"]"));
         if(json_of_details.user_location == null){
-            json_of_details.when_joined = when_joined[0].getText();
+            json_of_details.when_joined = await when_joined[0].getText();
         }
         else{
-            json_of_details.when_joined = when_joined[1].getText();
+            json_of_details.when_joined = await when_joined[1].getText();
         }
     }
     catch(error){
@@ -341,7 +334,7 @@ async function isProfileVerified_WhoToFollow(tab){
 async function isProfileVerified(tweet){
     let is_profile_verified = 0;
     try{
-        let verified_labels = await tweet.findElements(By.css("["+attribute_names.aria_label+"="+attribute_values.verifiedAccount+"]"));
+        let verified_labels = await tweet.findElements(By.css("["+attribute_names.aria_label+"="+"'"+attribute_values.verifiedAccount+"'"+"]"));
         if(verified_labels.length == 0){
             is_profile_verified = 0;
         }   

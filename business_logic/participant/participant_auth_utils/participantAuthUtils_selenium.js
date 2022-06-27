@@ -54,21 +54,23 @@ async function getUserAuthDetsIfExist(params){
           // assign profile dets, feed, etc.
           twitter_data_to_send = Object.assign({}, value);
           delete twitter_data_to_send.tab;
-          delete twitter_data_to_send.user;
+        //   delete twitter_data_to_send.user;
           break;
         }
       }
     }
-    // If user gave access_token, check if already auth'ed using db - load cookies if true
-    result = await validateAccessToken(params);
-    if(result){
-        params.cookies = result.cookies;
-        user_and_pass_encrypted = result.access_token;
-        twitter_data_to_send = null;
-    }
     else{
-      // Create new authentication for the user
-      user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
+        // If user gave access_token, check if already auth'ed using db - load cookies if true
+        result = await validateAccessToken(params);
+        if(result){
+            params.cookies = result.cookies;
+            user_and_pass_encrypted = result.access_token;
+            twitter_data_to_send = null;
+        }
+        else{
+            // Create new authentication for the user
+            user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
+        }
     }
     return {twitter_data_to_send, user_and_pass_encrypted};
 }
@@ -135,11 +137,12 @@ async function registerParticipant(username, access_token, expCode){
   // verifying not already registered
   let participantFromDb = await database.getParticipantByUsername(username);
   if (participantFromDb) {
-      throw {
-          status:200,
-          presentToUser: false,
-          message: {entity_details: await extractTwitterInfoFromParticipantObj(participantFromDb)}
-      }
+    let initial_content = await participantsService_selenium.firstLoginDataExtraction(true,twitterUserDetails);
+    throw {
+        status:200,
+        presentToUser: false,
+        message: {user_registered_to_experiment: true, participant_twitter_info: await extractTwitterInfoFromParticipantObj(participantFromDb), access_token, initial_content}
+    }
   }
 
   // raffle group for participant. currently, only naive raffle supported
@@ -163,6 +166,7 @@ async function registerParticipant(username, access_token, expCode){
   if(successRegister){
       // Log the registration to actions log of the experiment
       participantActionsOnTwitter.logRegisteredToExperiment(participant);
+      delete initial_content.access_token;
       participant.initial_content = initial_content;
       return participant;
   }

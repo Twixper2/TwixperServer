@@ -76,6 +76,8 @@ async function firstLoginDataExtraction(login_response,params){
         final_resp_without_tab = Object.assign({}, final_resp);
         delete final_resp_without_tab.tab;
         delete final_resp_without_tab.user;
+        delete final_resp_without_tab.access_token;
+
     }
     else{
         new_tab.close();
