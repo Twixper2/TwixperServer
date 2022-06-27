@@ -40,7 +40,7 @@ async function scrapeWhoToFollow(tab) {
         user_name: profile_names_arr[j],
         user_name_url: profile_names_arr[j + 1].split('@')[1],
         img: await all_images[img_index].getAttribute(attribute_names.src),
-        is_profile_verified: await isProfileVerified_WhoToFollow(all_buttons[j]),
+        is_profile_verified: await isProfileVerified(all_buttons[j]),
       });
     }
     return profile_names_arr_final;
@@ -62,7 +62,6 @@ async function getFeed(tab) {
 
 async function getUserEntityDetails(tab) {
   try {
-    // await tab.wait(until.elementLocated(By.css("["+attribute_names.data_test_id+"="+attribute_values.primaryColumn+"]")),10000);
     let primary_column = await tab.findElement(
       By.css('[' + attribute_names.data_test_id + '=' + attribute_values.primaryColumn + ']')
     );
@@ -322,38 +321,20 @@ async function getTweetActions(group_of_buttons) {
 
 async function getTweetPhotos(tweet) {
   let tweet_photos_url = new Array();
-  try {
-    let tweet_photos = await tweet.findElements(
-      By.css('[' + attribute_names.data_test_id + '=' + attribute_values.tweetPhoto + ']')
-    );
-    for (let i = 0; i < tweet_photos.length; i++) {
-      tweet_photos_url.push({
-        type: 'photo',
-        media_url_https: await tweet_photos[i]
-          .findElement(By.css(attribute_names.img))
-          .getAttribute(attribute_names.src),
-        sizes: entity_constants.sizes,
-      });
-    }
-  } catch (error) {
-    console.log('No photos in tweet');
-  } finally {
-    return tweet_photos_url;
+  try{
+      let tweet_photos = await tweet.findElements(By.css("["+attribute_names.data_test_id+"="+attribute_values.tweetPhoto+"]"));
+      for(let i=0; i< tweet_photos.length; i++){
+          tweet_photos_url.push({"type": "photo",
+                              "media_url_https": await (tweet_photos[i].findElement(By.css(attribute_names.img))).getAttribute(attribute_names.src),"sizes":entity_constants.sizes});
+      }
+  }
+  catch(error){
+      console.log('No photos in tweet');
+  }
+  finally{
+      return tweet_photos_url;
   }
 }
-
-// async function isProfileVerified_WhoToFollow(tab) {
-//   is_profile_verified = false;
-//   try {
-//     is_profile_verified =
-//       (await tab.findElement(
-//         By.css('[' + attribute_names.aria_label + '=' + "'" + attribute_values.verifiedAccount + "'" + ']')
-//       )) != undefined;
-//   } catch (error) {
-//   } finally {
-//     return is_profile_verified;
-//   }
-// }
 
 async function isProfileVerified(tab) {
   is_profile_verified = false;
@@ -367,26 +348,6 @@ async function isProfileVerified(tab) {
     return is_profile_verified;
   }
 }
-
-// async function isProfileVerified(tweet) {
-//   let is_profile_verified = 0;
-//   try {
-//     let verified_labels = await tweet.findElements(
-//       By.css('[' + attribute_names.aria_label + '=' + "'" + attribute_values.verifiedAccount + "'" + ']')
-//     );
-//     if (verified_labels.length == 0) {
-//       is_profile_verified = 0;
-//     } else if (verified_labels.length == 1) {
-//       is_profile_verified = 1;
-//     } else {
-//       is_profile_verified = 2;
-//     }
-//   } catch (error) {
-//     console.log('Profile is not verified.');
-//   } finally {
-//     return is_profile_verified;
-//   }
-// }
 
 async function IsThereIsSocialContext(tweet) {
   let is_there_social_context = false;
@@ -446,8 +407,11 @@ async function HelpParseTweets(all_tweets_on_page) {
       let tweet_actions = replies_retweets_likes_And_tweet_actions.tweet_actions;
       let retweeted = tweet_actions.retweeted;
       let favorited = tweet_actions.favorited;
-      let entities = entity_constants.entities;
-      entities.media = tweet_photos != null ? tweet_photos : [];
+      let entities = {"hashtags":[],
+                            "symbols":[],
+                            "user_mentions":[],
+                            "urls":[],
+                            "media":(tweet_photos != null) ? tweet_photos : []};
 
       if (arr[0].includes('Retweeted')) {
         // Check if tweet is Retweet
@@ -528,7 +492,6 @@ async function getQuoteTweetData(arr, full_texts, tweet_ids, tweet, quoted_tweet
   let quoted_tweet_photos = null;
   let quoted_entities = entity_constants.entities;
   try {
-    // Check if tweet is tweet sharing (quoting)
     let index_end_post_content = arr.indexOf('Quote Tweet');
     // Now, figure out shared tweet's details
     let inside_user_name = arr[index_end_post_content + 1];
@@ -536,7 +499,11 @@ async function getQuoteTweetData(arr, full_texts, tweet_ids, tweet, quoted_tweet
     created_at = arr[index_end_post_content + 3].split(' ')[2];
     user = { name: inside_user_name, screen_name: inside_user_url_name };
     quoted_tweet_photos = await getTweetPhotos(quoted_tweet_element);
-    quoted_entities.media = quoted_tweet_photos != null ? quoted_tweet_photos : [];
+    quoted_entities = {"hashtags":[],
+                            "symbols":[],
+                            "user_mentions":[],
+                            "urls":[],
+                            "media":(quoted_tweet_photos != null) ? quoted_tweet_photos : []};
   } catch (error) {
     console.log('error with getting Quote Tweet data');
   } finally {

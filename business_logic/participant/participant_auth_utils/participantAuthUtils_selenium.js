@@ -53,7 +53,7 @@ async function getUserAuthDetsIfExist(params){
           // Found tab open
           // assign profile dets, feed, etc.
           twitter_data_to_send = Object.assign({}, value);
-          delete twitter_data_to_send.tab;
+        //   delete twitter_data_to_send.tab;
         //   delete twitter_data_to_send.user;
           break;
         }

@@ -33,17 +33,20 @@ router.post('//twitterSeleniumAuth', async (req, res, next) => {
       initial_content = login_response;
     } else if (initial_content.user != undefined && initial_content.access_token != undefined) {
       login_response = true;
+      if(initial_content.tab != null){
+        params.tab = initial_content.tab;
+      }
     }
     if (login_response) {
       // Check if already registered to exp'
       let participant = await database.getParticipantByUsername(params.user);
       if (participant) {
         // Extract data from collection
-        // let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
+        let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
         initial_content = await participantsService_selenium.firstLoginDataExtraction(login_response, params);
         res.status(200).json({
           user_registered_to_experiment: true,
-          // participant_twitter_info,
+          participant_twitter_info,
           initial_content,
           access_token: params.access_token,
         });
@@ -88,7 +91,11 @@ router.post('//registerToExperiment', async (req, res, next) => {
     } catch (e) {
       // if it is an error with message, we respond with the error object containing "name" and "message" keys
       console.log(e);
-      if (e.message) {
+      if (e.name == 'WebDriverError'){
+        res.status(502).json('Tab is closed for some reason. Please authenticate again.');
+        return;
+      }
+      else if (e.message) {
         if (e.status) {
           if (e.status == 200) {
             res.status(e.status).json(e.message);
@@ -99,13 +106,6 @@ router.post('//registerToExperiment', async (req, res, next) => {
           res.status(400).json(e);
         }
         return;
-      } else if (e.name == 'WebDriverError') {
-        // tabsHashMap.delete(params.user);
-        // params?.tab?.close();
-        res.status(502).json('Tab is closed for some reason. Please authenticate again.');
-        return;
-      }
-      {
       }
       throw e;
     }

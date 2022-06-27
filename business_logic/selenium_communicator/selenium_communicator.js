@@ -2,6 +2,8 @@ const scrapeTwitter = require("../selenium_communicator/scrape_process/scrapeTwi
 const scrapeTwitter_moshe = require("../selenium_communicator/scrape_process/scrapeTwitter_moshe")
 const {twitter_address, status_text, twitter_home_address} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
+const JS_HALF_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight / 2)';
+
 
 // Helpers
 
@@ -17,7 +19,7 @@ async function reloadPage(tab){
 
 async function scrollPost(tab){
     try{
-        await tab.executeScript('window.scrollTo(0, 600)');
+        await tab.executeScript(JS_HALF_SCROLL_BOTTOM);
         await tabWait(tab,2000);
     }
     catch(error){
