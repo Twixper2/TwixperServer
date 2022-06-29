@@ -40,6 +40,9 @@ async function insertParticipant(participant) {
     await participantsCollection.insertParticipant(participant);
     return true
 }
+async function getAllActiveParticipant(){
+    return await participantsCollection.getAllActiveParticipant();
+}
 
 async function getParticipantByUsername(user){
     return await participantsCollection.getParticipantByUsername(user);
@@ -223,6 +226,7 @@ module.exports = {
     setExpEndDate : setExpEndDate,
     insertUserCookies : insertUserCookies,
     getInfoByTwitterUserName : getInfoByTwitterUserName,
-    getParticipantByUsername : getParticipantByUsername
+    getParticipantByUsername : getParticipantByUsername,
+    getAllActiveParticipant : getAllActiveParticipant
 }
 

@@ -16,7 +16,7 @@ async function createNewTab(){
 
         if(isHeadless){
             tab = new Builder().forBrowser('chrome')
-            .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=1920,1080"))
+            .setChromeOptions(new chrome.Options().addArguments('--headless'))
             .build()
         }
         else{
@@ -27,7 +27,7 @@ async function createNewTab(){
         }
 
         tab.manage().window().maximize();
-        // await tab.executeScript("document.body.style.zoom='10%'");
+        await tab.executeScript("document.body.style.zoom='30%'");
 
 
         return tab;
@@ -39,6 +39,8 @@ async function createNewTab(){
 
 async function insertUserName(tab,user){
     try{
+        // await tab.wait(until.elementLocated(By.name("text")),5000);
+
         // Entering the username
         await tab.findElement(By.name("text")).sendKeys(user);
         // Click on Next
@@ -57,6 +59,8 @@ async function insertUserName(tab,user){
 
 async function insertPasswordAndLogin(tab,pass){
     try{
+        // await tab.wait(until.elementLocated(By.name("password")),5000);
+
         // Return password input
         await tab.findElement(By.name("password")).sendKeys(pass);
         // Clicking the Log In button
@@ -71,6 +75,8 @@ async function insertPasswordAndLogin(tab,pass){
 
 async function isUserCredentialsValid(tab){
     try{
+        // await tab.wait(until.elementLocated(By.css("[role='alert']")),1000);
+
         // There is a 'Wrong Password' alert
         await tab.findElement(By.css("[role='alert']")).getText();
         return false;
@@ -80,6 +86,7 @@ async function isUserCredentialsValid(tab){
         return true;
     }
 }
+
  /**
   * The function receives a new page and insert the user cookies of the page he logged in from
   * @param {*} tab - chrome web driver
@@ -93,9 +100,15 @@ async function loadUserCookie(tab, username, allCookies=undefined){
         allCookies.forEach(element => {
             tab.manage().addCookie(element)
         });
+        await tab.get(home_url);
+        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+        if(await tab.getCurrentUrl() != home_url){
+            throw ("Cookies loading process has failed - try login without cookies");
+        }
         return tab;
     }catch(e){
-        return tab;
+        console.log(e)
+        return false;
     }
 }
 
@@ -106,8 +119,7 @@ async function loadUserCookie(tab, username, allCookies=undefined){
  * @returns boolean val of the oppression 
  */
 async function saveUserCookie(tab, username,allCookies=undefined){
-    try{
-        
+    try{ 
         let allCookies = await tab.manage().getCookies();
         await userCookiesDB.insertUserCookies(username,allCookies);
         return true;
@@ -126,7 +138,11 @@ async function logInProcessWithCookies(data,tab){
     try{
         let allCookies = data.cookies; 
         let username = data.user;   
-        await loadUserCookie(tab, username, allCookies);
+        let status = await loadUserCookie(tab, username, allCookies);
+        //if we failed to load cookies we try again with regular login
+        if(!status){
+            return await logInProcess(data,tab);
+        }
         await tab.get(home_url);
         console.log("Successfully signed in twitter!");
         return true;

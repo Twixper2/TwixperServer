@@ -75,7 +75,7 @@ async function getProfileContent(tab,tweet_username){
 
 async function postTweets(tab,tweet){
     try{
-        await tabWait(tab,2000);
+        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
         console.log("starting post");
         const windowTab = await tab.getAllWindowHandles();
         // switch to the main page
@@ -85,19 +85,18 @@ async function postTweets(tab,tweet){
         await tabWait(tab,200);
         await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
         try{
-            // await tabWait(tab,2000);
-            await tab.wait(async () => (await tab.findElement(By.css("[aria-live='assertive']")), 5000));
-
+            await tab.wait(until.elementLocated(By.css("[aria-live='assertive']")),4000);
             let err = await tab.findElement(By.css("[aria-live='assertive']"));
             let message = await err.getText();
             if(message.includes("Whoops! You already said that.")){
                 await tab.navigate().refresh();
                 return false;
             }
-            return true;
+
+
         }catch(error){
-            console.log(error);
-            return true;
+            let my_tweet = await tab.findElement(By.css("[data-testid='tweet']"));
+            return await HelpParseTweets([my_tweet]);
         }    
     }catch(error){
         console.log(error);
@@ -147,53 +146,32 @@ async function getNotifications(tab){
 
 async function doIHaveNewNotifications(tab){
     try{
-        // if((await tab.getAllWindowHandles()).length != 2 ){
-        //     // open new tab - search page
-        //     await tab.executeScript(`window.open("home");`);
-        //     await tabWait(tab,3000);
-        // }
-        // // save all open tabs handles
-        // const windowTab = await tab.getAllWindowHandles();
-        // // switch to the new tab
-        // await tab.switchTo().window(windowTab[1]);
-
+        //Find the bell icon and see if he has any status of new notification
         let notificationsBellStatus = (await tab.findElement(By.css("[href='/notifications']")).getAttribute("aria-label"));
-
+        //Give the bell icon have the valley of Notifications that means we don't have Notifications
         if(notificationsBellStatus == 'Notifications'){
             return false;
         }
-
-        let numOfNotifications = notificationsBellStatus.match(/(\d+)/)[0];
-
+        //else we cut the number of new notification from the status and convert it to int
+        let numOfNotifications = parseInt(notificationsBellStatus.match(/(\d+)/)[0]);
         console.log("starting notifications check");
-        if((await tab.getAllWindowHandles()).length != 2 ){
-            // open new tab - search page
-            await tab.executeScript(`window.open("notifications");`);
-            await tabWait(tab,3000);
-        }
-        let all_notifications_on_page = await tab.findElement(By.css("[role='article']"));
-        let lestNotifications = await notificationsParseData(all_notifications_on_page);
-        let notificationType = lestNotifications.notificationType;
-        
-        switch(notificationType){
-            case 'Alerts':
-                break;
-            case 'like':
-                break;
-            case 'Retweeted':
-                break;
-            case 'Suggestions':
-                break;
-            default:
-                break;
-        }
-        return notifications;
+        //Redirect to the defecation page
+        await tab.get("https://twitter.com/notifications");
+        //Waiting 10 seconds until the page is loaded
+        await tab.wait(until.elementLocated(By.css("[role='article']")),10000);
+        //We scrape the number of new notification and send them to the notification parser
+        let all_notifications_on_page = await (await tab.findElements(By.css("[role='article']"))).slice(0, numOfNotifications);
+        let lestNotifications = await notificationsDataManager(all_notifications_on_page);
+        return lestNotifications;
+
     }
     catch(error){
         console.log(error);
         await tab.close();
-        let mainTab = (await tab.getAllWindowHandles())[0];
-        await tab.switchTo().window(mainTab);
+        return false;
+        // let mainTab = (await tab.getAllWindowHandles())[0];
+        // await tab.switchTo().window(mainTab);
+
     }
 }
 /**
@@ -382,7 +360,7 @@ async function searchTwitterTweets(tab,query,mode="top"){
     
     console.log("starting search");
     await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f="+ mode);
-    await jumpToBottom(tab)
+    // await jumpToBottom(tab)
     //Brings the elements of the tweets
     let all_tweets_on_page = await tab.findElements(By.css("[role='article']"));
     // parseTweets element
@@ -405,7 +383,7 @@ async function searchTwitterPeople(tab,query,count=40){
     console.log("starting search");
     // await new Promise(r => setTimeout(r, 200));
     await tab.get("https://twitter.com/search?q="+query+"&src=typed_query&f=user");
-    await jumpToBottom(tab);
+    // await jumpToBottom(tab);
     let all_People_on_page = await tab.findElements(By.css("[data-testid='cellInnerDiv']"));
     return await searchPeopleParse_Data(all_People_on_page);
 }
@@ -482,7 +460,7 @@ async function openTweetsSearchTab(tab,query,mode="live"){
         return tweets;
     }catch(error){
         console.log(error);
-        closeSearchTab(tab);
+        closeSecondTab(tab);
     }
 }
 
