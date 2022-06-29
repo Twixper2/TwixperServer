@@ -294,12 +294,17 @@ async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,actio
     }
     return false;
 }
+
+/**
+ * in case of logout error screen we need to refresh the page
+ * @param {*} tab - current user tab
+ * @returns if an error pop or not 
+ */
 async function logoutErrorHandler(tab){
     try{        
         if(await tab.getCurrentUrl()=="https://twitter.com/logout/error"){
             await tab.wait(until.elementLocated(By.css("[role='button']")),10000);
             await tab.findElement(By.css("[role='button']")).sendKeys(Key.RETURN);
-            authorizeUser.saveUserCookie(tab,info._id);
             return true;
         }
         return false;
@@ -308,7 +313,9 @@ async function logoutErrorHandler(tab){
     }
 }
 
-
+/**
+ * 
+ */
 async function checkForPushNotifications(){
     let tab = null
     let messages = [];
@@ -507,5 +514,3 @@ exports.tweetsAction=tweetsAction
 exports.getNotifications=getNotifications
 exports.firstLoginDataExtraction=firstLoginDataExtraction
 exports.checkForPushNotifications=checkForPushNotifications
-
-

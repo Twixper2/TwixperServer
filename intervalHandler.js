@@ -3,12 +3,11 @@ const participantsService_selenium = require("./service/participants/participant
 async function main(){
     try{
         console.log("starting notifications check")
-        let test = await setInterval( async () => { await participantsService_selenium.checkForPushNotifications()}, 30000);
-        console.log("fines notifications check")
+        let test = await setInterval( async () => { await participantsService_selenium.checkForPushNotifications()}, 500000);
         
-        // await participantsService_selenium.checkForPushNotifications()
     }catch(e){
         console.log(e);
+
     }
 }
 main()
