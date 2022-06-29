@@ -1,7 +1,7 @@
 const {By, Key, until} = require('selenium-webdriver');
 const JS_SCROLL_BOTTOM = 'window.scrollTo(0, document.body.scrollHeight)';
 const twitterInnerApiUrl = "https://twitter.com/i/api/2"
-const {HelpParseTweets} = require("./scrapeTwitter");
+const {HelpParseTweets,isProfileVerified} = require("./scrapeTwitter");
 
 
 async function scrapeWhoToFollow(tab){
@@ -84,6 +84,21 @@ async function postTweets(tab,tweet){
         await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(tweet);
         await tabWait(tab,200);
         await tab.findElement(By.css("[data-testid='tweetButtonInline']")).sendKeys(Key.RETURN);
+        try{
+            // await tabWait(tab,2000);
+            await tab.wait(async () => (await tab.findElement(By.css("[aria-live='assertive']")), 5000));
+
+            let err = await tab.findElement(By.css("[aria-live='assertive']"));
+            let message = await err.getText();
+            if(message.includes("Whoops! You already said that.")){
+                await tab.navigate().refresh();
+                return false;
+            }
+            return true;
+        }catch(error){
+            console.log(error);
+            return true;
+        }    
     }catch(error){
         console.log(error);
     }
@@ -91,7 +106,7 @@ async function postTweets(tab,tweet){
 
 async function getNotifications(tab){
     try{
-        console.log("starting new search");
+        console.log("getting notifications");
         if((await tab.getAllWindowHandles()).length != 2 ){
             // open new tab - search page
             await tab.executeScript(`window.open("notifications");`);
@@ -105,7 +120,7 @@ async function getNotifications(tab){
         // switch to the new tab
         await tab.switchTo().window(windowTab[1]);
         let all_notifications_on_page = await tab.findElements(By.css("[role='article']"));
-        let notifications = await notificationsParseData(all_notifications_on_page);
+        let notifications = await notificationsDataManager(all_notifications_on_page);
         return notifications;
     }
     catch(error){
@@ -126,15 +141,75 @@ async function getNotifications(tab){
         //Brings the elements of the notifications
         let all_notifications_on_page = await tab.findElements(By.css("[role='article']"));
         // parse notifications element
-        let notifications = await notificationsParseData(all_notifications_on_page);
+        let notifications = await notificationsDataManager(all_notifications_on_page);
         return notifications;
 }
 
-async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined){
+async function doIHaveNewNotifications(tab){
+    try{
+        // if((await tab.getAllWindowHandles()).length != 2 ){
+        //     // open new tab - search page
+        //     await tab.executeScript(`window.open("home");`);
+        //     await tabWait(tab,3000);
+        // }
+        // // save all open tabs handles
+        // const windowTab = await tab.getAllWindowHandles();
+        // // switch to the new tab
+        // await tab.switchTo().window(windowTab[1]);
+
+        let notificationsBellStatus = (await tab.findElement(By.css("[href='/notifications']")).getAttribute("aria-label"));
+
+        if(notificationsBellStatus == 'Notifications'){
+            return false;
+        }
+
+        let numOfNotifications = notificationsBellStatus.match(/(\d+)/)[0];
+
+        console.log("starting notifications check");
+        if((await tab.getAllWindowHandles()).length != 2 ){
+            // open new tab - search page
+            await tab.executeScript(`window.open("notifications");`);
+            await tabWait(tab,3000);
+        }
+        let all_notifications_on_page = await tab.findElement(By.css("[role='article']"));
+        let lestNotifications = await notificationsParseData(all_notifications_on_page);
+        let notificationType = lestNotifications.notificationType;
+        
+        switch(notificationType){
+            case 'Alerts':
+                break;
+            case 'like':
+                break;
+            case 'Retweeted':
+                break;
+            case 'Suggestions':
+                break;
+            default:
+                break;
+        }
+        return notifications;
+    }
+    catch(error){
+        console.log(error);
+        await tab.close();
+        let mainTab = (await tab.getAllWindowHandles())[0];
+        await tab.switchTo().window(mainTab);
+    }
+}
+/**
+ * 
+ * @param {*} tab - user page
+ * @param {*} tweet_id - of the tweet we want to add actions to
+ * @param {*} screen_name - the screen_name of the user that the tweet id is belong to
+ * @param {*} action - what action you want to add or remove? reply/retweet/like/Share Tweet
+ * @param {*} reply 
+ * @returns 
+ */
+async function tweetsActionManager(tab,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
     try{
         console.log("starting addEmotionToTweets");
 
-        var currUrl = user_url+"/status/"+tweet_id;
+        var currUrl = screen_name+"/status/"+tweet_id;
         await tab.executeScript(`window.open("${currUrl}");`);
         await tabWait(tab,5000);
         const windowTab = await tab.getAllWindowHandles();
@@ -146,26 +221,60 @@ async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined)
         var tweet_buttons = await tweet[0]?.findElements(By.css("[role='button']"));
         let label = undefined;
         let button = undefined;
-        for(var i = 0 ; i < tweet_buttons.length; i++){
-            label = await tweet_buttons[i].getAttribute("aria-label");
-            if(label.toLocaleLowerCase()==action.toLocaleLowerCase()){
+
+        //getting the relent button
+        for(var i = 0 ; i < tweet_buttons.length; i++){ 
+            label = (await tweet_buttons[i].getAttribute("aria-label")).toLocaleLowerCase();
+            //check if its a like action 
+            if(action.toLocaleLowerCase() == "like"){
+                // if the label is like its mean we still didn't like this post - add like
+                if(label == "like"){
+                    button = tweet_buttons[i];
+                    break;
+                }
+                // if the label is liked its mean we did like this post - remove like
+                else if(label == "liked"){
+                        button = tweet_buttons[i];
+                        break;
+                }     
+            }
+
+            if(action.toLocaleLowerCase() == "retweet"){
+                // if the label is like its mean we still didn't retweet this post - add retweet
+
+                if(label == "retweet"){
+                    button = tweet_buttons[i];
+                    break;
+                }
+                // if the label is retweeted its mean we did retweet this post - remove retweet
+                else if(label == "retweeted"){
+                        button = tweet_buttons[i];
+                        break;
+                } 
+            }
+            //for reply action
+            if(action.toLocaleLowerCase() == label){
                 button = tweet_buttons[i];
                 break;
             }
         }
-        if(action == "like" || action == "liked"){
+
+        if(label  == "like"|| label == "liked"){
             return await likeHandler(button);
         }
-        else if(action == "reply"){
+        else if(label  == "reply"){
             return await replyHandler(tab, button,reply);
         }
-        else if(action == "retweet" || action=="unretweet"){
+        else if(label  == "retweet"){
             return await retweetHandler(tab, button);
+        }
+        else if(label == "retweeted"){
+            return await retweetedHandler(tab, button);
         }
         else{
             return undefined;
         }
-
+    
     }catch(e){
         console.log(e);
         return "There was a problem with "+action;
@@ -177,61 +286,69 @@ async function tweetsActionManager(tab,tweet_id,user_url,action,reply=undefined)
         await tab.switchTo().window(mainTab);
     }
 }
-
-    async function likeHandler(button){
-        try{    
-            
-            await button?.sendKeys(Key.RETURN);
-            return "like action has been fulfilled";
-            
-        }catch(e){
-            console.log(e);
-            return "There was a problem adding 'like' action";
-        }
+async function likeHandler(button){
+    try{         
+        await button?.sendKeys(Key.RETURN);
+        return "like action has been fulfilled";
+        
+    }catch(e){
+        console.log(e);
+        return "There was a problem adding 'like' action";
     }
-
-    async function replyHandler(tab, button, reply){
-            try{    
-                await button?.sendKeys(Key.RETURN);
-                await tabWait(tab,500);
-                await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(reply);
-                await tabWait(tab,500);
-                await tab.findElement(By.css("[data-testid='tweetButton']")).sendKeys(Key.RETURN);
-                await tabWait(tab,1000);
-                return "reply action has been fulfilled";
- 
-            }catch(e){
-                console.log(e);
-                return "There was a problem adding 'reply' action";
-            }
-    }
-
-    async function retweetHandler(tab, button){
+}
+async function replyHandler(tab, button, reply){
         try{    
             await button?.sendKeys(Key.RETURN);
             await tabWait(tab,500);
-            await tab.findElement(By.css("[data-testid='retweetConfirm']")).sendKeys(Key.RETURN);
+            await tab.findElement(By.css("[data-testid='tweetTextarea_0']")).sendKeys(reply);
             await tabWait(tab,500);
-            return "retweet action has been fulfilled";
+            await tab.findElement(By.css("[data-testid='tweetButton']")).sendKeys(Key.RETURN);
+            await tabWait(tab,1000);
+            return "reply action has been fulfilled";
 
         }catch(e){
             console.log(e);
-            return "There was a problem adding 'retweet' action";
+            return "There was a problem adding 'reply' action";
         }
-    }
+}
+async function retweetHandler(tab, button){
+    try{    
+        await button?.sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        await tab.findElement(By.css("[data-testid='retweetConfirm']")).sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        return "retweet action has been fulfilled";
 
-    async function quoteTweetsHandler(button){
-        try{    
-            await button?.sendKeys(Key.RETURN);
-            await tabWait(tab,200);
-            await tab.findElement(By.css("[href='/compose/tweet']")).sendKeys(Key.RETURN);
-            await tabWait(tab,200);
-            return "retweet action has been fulfilled";
-
-        }catch(e){
-            return "There was a problem adding 'retweet' action";
-        }
+    }catch(e){
+        console.log(e);
+        return "There was a problem adding 'retweet' action";
     }
+}
+async function retweetedHandler(tab, button){
+    try{    
+        await button?.sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        await tab.findElement(By.css("[data-testid='unretweetConfirm']")).sendKeys(Key.RETURN);
+        await tabWait(tab,500);
+        return "retweet action has been fulfilled";
+
+    }catch(e){
+        console.log(e);
+        return "There was a problem adding 'retweet' action";
+    }
+}
+async function quoteTweetsHandler(button){
+    try{    
+        await button?.sendKeys(Key.RETURN);
+        await tabWait(tab,200);
+        await tab.findElement(By.css("[href='/compose/tweet']")).sendKeys(Key.RETURN);
+        await tabWait(tab,200);
+        return "retweet action has been fulfilled";
+
+    }catch(e){
+        return "There was a problem adding 'retweet' action";
+    }
+}
 /**---------------Attempt to allow to added emoji ------------------ */
 // async function postTweets(tab,tweet){
 //     try{
@@ -549,16 +666,79 @@ async function searchPeopleParse_Data(User_on_page){
         var img_1 = await all_images[0]?.getAttribute("src");
         for(var i = 0 ; i < all_buttons.length; i++){
             var text = await all_buttons[i]?.getText();
+            let is_profile_verified = (await isProfileVerified(all_buttons[i]) > 0) ? true : false;
+
             var arr = text.split('\n');
             if(arr.length>1){
-                Users_arr.push({"user_name":arr[0],"user_name_url":arr[1],"img":img_1,"FollowingStatus":arr[2]});
+                Users_arr.push({"name":arr[0],"screen_name":arr[1],"img":img_1,"FollowingStatus":arr[2],"description":arr[3],"is_profile_verified":is_profile_verified});
             }
         }
     }
     return Users_arr;
 }
+async function tweet_NotificationsHandler(notification){
+    try{
 
-async function notificationsParseData(notifications_on_page){
+            let f = await notification.getAttribute(("data-testid"));
+            let tweet_ids = await getTweetId(notification);
+
+            // console.log("tweet");
+            var all_links = await notification?.findElements(By.css("[role='link']"));
+
+            var all_images = await all_links[0]?.findElements(By.css("img"));
+    
+            var profile_img_url = await all_images[0]?.getAttribute("src");
+            var user_name = await all_links[1]?.getText();
+            var screen_name = await(await all_links[2]?.getText()).replace('@',"");
+            var profile_link = 'https://twitter.com/' + screen_name
+            var timeAgo = await all_links[3]?.getText();
+
+            var replyTo = new Array();
+
+            for(var i = 4 ; i < all_links.length; i++){
+                var screen_name = await(await all_links[i]?.getText()).replace('@',"");
+
+                var user =  {
+                    "screen_name": screen_name,
+                    "profile_link":'https://twitter.com/' + screen_name,
+                };
+                replyTo.push(user);
+            }
+
+            var all_buttons = await notification?.findElements(By.css("[role='button']"));
+    
+            var buttonsInfo = await getButtonInfo(all_buttons);
+
+            var fullText = await notification.findElement(By.css("[data-testid='tweetText']")).getText();
+            return (
+                {
+                "notificationType":"tweet",
+                "tweet_ids":tweet_ids,
+                "user": {
+                    "name": user_name,
+                    "screen_name": screen_name
+                },
+                "created_at":timeAgo,
+                "profile_img_url":profile_img_url,
+                "profile_link":profile_link,
+                "replyTo":replyTo,
+                "buttons":buttonsInfo,
+                "body_text":fullText
+            });            
+        }catch(e){
+
+        }
+    
+}
+async function alerts_NotificationsHandler(notification){
+    var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
+    notifications_arr.push(
+        {
+        "notificationType":notificationsType,
+        "title_text":notificationText
+    });
+}
+async function notificationsDataManager(notifications_on_page){
     try{
         var notifications_arr = new Array();
         // Iterate over each on n User
@@ -567,41 +747,7 @@ async function notificationsParseData(notifications_on_page){
             var notification = notifications_on_page[k];
             let f = await notification.getAttribute(("data-testid"));
             if(f=="tweet"){
-                let tweet_ids = await getTweetId(notification);
-    
-                // console.log("tweet");
-                var all_links = await notification?.findElements(By.css("[role='link']"));
-    
-                var all_images = await all_links[0]?.findElements(By.css("img"));
-        
-                var img = await all_images[0]?.getAttribute("src");
-                var user_name = await all_links[1]?.getText();
-                var user_name_url = await all_links[2]?.getText();
-                var timeAgo = await all_links[3]?.getText();
-    
-                var replyTo = new Array();
-    
-                for(var i = 4 ; i < all_links.length; i++){
-                    replyTo += " " +await all_links[i]?.getText();
-                }
-    
-                var all_buttons = await notification?.findElements(By.css("[role='button']"));
-        
-                var buttonsInfo = await getButtonInfo(all_buttons);
-    
-                var fullText = await notification.findElement(By.css("[data-testid='tweetText']")).getText();
-                notifications_arr.push(
-                    {
-                    "notificationType":"tweet",
-                    "tweet_ids":tweet_ids,
-                    "user_name":user_name,
-                    "user_name_url":user_name_url,
-                    "created_at":timeAgo,
-                    "img":img,
-                    "replyTo":replyTo,
-                    "buttons":buttonsInfo,
-                    "full_text":fullText
-                });
+                notifications_arr.push(await tweet_NotificationsHandler(notification));
             }
             else{
                 // console.log("not tweet")
@@ -610,30 +756,37 @@ async function notificationsParseData(notifications_on_page){
                 var notificationsType = notificationsIconsType(notificationSVG)
 
                 if (notificationsType=="Alerts"){
-                    var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
-                    notifications_arr.push(
-                        {
-                        "notificationType":notificationsType,
-                        "notificationText":notificationText,
-                        "iconPath":pathTag
-                    });
+                    notifications_arr.push(await alerts_NotificationsHandler(notification));
                 }
                 else if(notificationsType){
+
                     var all_links = await notification?.findElements(By.css("[role='link']"));
                     var all_images = await all_links[0]?.findElements(By.css("img"));
                     var img = await all_images[0]?.getAttribute("src");
-    
-                    var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).split('\n');
-                    var user_name = await notificationText[0];
+                    var profile_link =await (await notification.findElement(By.css("[role='link']")))?.getAttribute(("href"));
+                    var screen_name = await profile_link.replace('https://twitter.com/','');;
+                    var ltr_div = await notification.findElement(By.css("[dir='ltr']"));
+                    var span_div = await ltr_div.findElements(By.css("span"));
+                    
+                    var user_name = await span_div[0].getText();
+                    var notificationText =  await ltr_div.getText();
+
+                    if(user_name.includes('In case you missed')){
+                        user_name = await span_div[3].getText();
+                    }
+                    
                     var fullText = await notification?.findElement(By.css("[data-testid='tweetText']")).getText();
                     notifications_arr.push(
                         {
                         "notificationType":notificationsType,
-                        "user_name":user_name,
-                        "img":img,
-                        "notificationText":notificationText,
-                        "full_text":fullText,
-                        "iconPath":pathTag
+                        "user": {
+                            "name": user_name,
+                            "screen_name": screen_name
+                        },
+                        "profile_img_url":img,
+                        "profile_link":profile_link,
+                        "title_text":notificationText,
+                        "body_text":fullText
                     });
                 }
             }
@@ -703,11 +856,12 @@ module.exports = {
                 searchTwitterPeople : searchTwitterPeople,
                 postTweets: postTweets,
 
-                openTweetsSearchTab:openTweetsSearchTab,
-                openPeopleSearchTab:openPeopleSearchTab,
-                getMoreSearchResult:getMoreSearchResult,
-                closeSecondTab:closeSecondTab,
-                getNotifications: getNotifications,
-                getMoreNotifications:getMoreNotifications,
-                tweetsActionManager: tweetsActionManager
+                openTweetsSearchTab : openTweetsSearchTab,
+                openPeopleSearchTab : openPeopleSearchTab,
+                getMoreSearchResult : getMoreSearchResult,
+                closeSecondTab : closeSecondTab,
+                getNotifications : getNotifications,
+                getMoreNotifications : getMoreNotifications,
+                tweetsActionManager : tweetsActionManager,
+                doIHaveNewNotifications : doIHaveNewNotifications
 };

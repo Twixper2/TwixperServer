@@ -1,56 +1,79 @@
-const {By, Key, until} = require('selenium-webdriver');
+const {By, Key, until, Builder} = require('selenium-webdriver');
 const login_url = "https://twitter.com/i/flow/login";
 const home_url = "https://twitter.com/home";
 const userCookiesDB = require("../../db/mongodb/userCookiesCollection");
-const headless = false;
+const {isHeadless} = require("../../../config.js");
+const {auth_constants} = require("../../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 
 
 async function createNewTab(){
-    // Include selenium webdriver
-    require('chromedriver');
-    let swd = require("selenium-webdriver");
-    let tab = null;
-
-    if(headless){
+    try{
+        // Include selenium webdriver
+        require('chromedriver');
+        let swd = require("selenium-webdriver");
+        let tab = null;
         const chrome = require('selenium-webdriver/chrome');
-        tab = new Builder().forBrowser('chrome')
-        .setChromeOptions(new chrome.Options().addArguments('--headless'))
-        .build()
-    }
-    else{
-        let browser = new swd.Builder();
-        tab = browser.forBrowser("chrome").build();
-    }
 
-    tab.manage().window().maximize();
+        if(isHeadless){
+            tab = new Builder().forBrowser('chrome')
+            .setChromeOptions(new chrome.Options().addArguments('--headless').addArguments("--window-size=1920,1080"))
+            .build()
+        }
+        else{
+            let browser = new swd.Builder();
+            tab = new Builder().forBrowser('chrome')
+            .setChromeOptions(new chrome.Options())
+            .build()
+        }
 
-    return tab;
+        tab.manage().window().maximize();
+        // await tab.executeScript("document.body.style.zoom='10%'");
+
+
+        return tab;
+    }
+    catch(error){
+        console.log('error creating new tab');
+    }
 }  
 
 async function insertUserName(tab,user){
-    // Entering the username
-    // await tab.findElement(By.name("text")).sendKeys(user);
-    let test = await tab.findElement(By.name("text")).sendKeys(user);
-    // Click on Next
-    var username_x_path = "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[5]/label/div/div[2]/div/input";
-    await tab.findElement(By.xpath(username_x_path)).sendKeys(Key.RETURN);
+    try{
+        // Entering the username
+        await tab.findElement(By.name("text")).sendKeys(user);
+        // Click on Next
+        await tab.findElement(By.xpath(auth_constants.username_x_path)).sendKeys(Key.RETURN);
+        // Change timeout so it will not stuck while checking for alert element for element for too long
+        await tab.manage().setTimeouts({
+            implicit: 500, // 0.5 seconds
+        });
+        return true;
+    }
+    catch(error){
+        console.log('error with insertUserName');
+        return false;
+    }
 }
 
 async function insertPasswordAndLogin(tab,pass){
-    // Return password input
-    await tab.findElement(By.name("password")).sendKeys(pass);
-    // Clicking the Log In button
-    await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']")).sendKeys(Key.RETURN);
-    // Change timeout so it will not stuck while checking for alert element for element for too long
-    await tab.manage().setTimeouts({
-        implicit: 500, // 0.5 seconds
-    });
+    try{
+        // Return password input
+        await tab.findElement(By.name("password")).sendKeys(pass);
+        // Clicking the Log In button
+        await tab.findElement(By.css("[data-testid='LoginForm_Login_Button']")).sendKeys(Key.RETURN);
+        return true;
+    }
+    catch(error){
+        console.log('error with insertPasswordAndLogin');
+        return false;
+    }
 }
 
 async function isUserCredentialsValid(tab){
     try{
         // There is a 'Wrong Password' alert
-        return await tab.findElement(By.css("[role='alert']")).getText();
+        await tab.findElement(By.css("[role='alert']")).getText();
+        return false;
     }
     catch(error){
         // Error - no such element, so no error alert
@@ -99,7 +122,7 @@ async function saveUserCookie(tab, username,allCookies=undefined){
  * @param {*} tab - Current web page
  * @returns interest the user's tab session information from the database (if its not is first conation)
  */
-async function userLogInReq(data,tab){
+async function logInProcessWithCookies(data,tab){
     try{
         let allCookies = data.cookies; 
         let username = data.user;   
@@ -111,35 +134,48 @@ async function userLogInReq(data,tab){
         return false;
     }
 }
+
 async function logInProcess(data,tab){
-    
-    await tab.get(login_url);
-    // Timeout to wait if connection is slow
-    await tab.manage().setTimeouts({
-        implicit: 10000, // 10 seconds
-    });
-    // Step 2 - Entering the username
-    await insertUserName(tab,data.user);
-    // Step 3 - Entering the password
-    await insertPasswordAndLogin(tab,data.pass);
-    // validation of password
-    var validation_result = await isUserCredentialsValid(tab);
-    if(validation_result == true){
-        console.log("Successfully signed in twitter!");
-        //Waiting for the home page with the cookies to load before pulling them out
-        return true;
-    }
-    else{
-        console.log(validation_result);
-        return false;
+    try{
+        await tab.get(login_url);
+        // Timeout to wait if connection is slow
+        await tab.manage().setTimeouts({
+            implicit: 10000, // 10 seconds
+        });
+        // Step 2 - Entering the username
+        if(!await insertUserName(tab,data.user)){
+            return false;
+        }
+        // validation of username
+        if(!await isUserCredentialsValid(tab)){
+            console.log('username does not exist');
+            return false;
+        }
+        // Step 3 - Entering the password
+        if(!await insertPasswordAndLogin(tab,data.pass)){
+            return false;
+        }
+        // validation of password
+        if(await isUserCredentialsValid(tab)){
+            console.log("Successfully signed in twitter!");
+            //Waiting for the home page with the cookies to load before pulling them out
+            return true;
+        }
+        else{
+            console.log('password and username does not match');
+            return false;
+        }
+    }   
+    catch(error){
+        console.log(error);
     }
 }
 
 module.exports = 
     {
-            logInProcess : logInProcess, 
-            createNewTab : createNewTab,
-            saveUserCookie : saveUserCookie,
-            loadUserCookie : loadUserCookie,
-            userLogInReq : userLogInReq
+        logInProcess : logInProcess, 
+        createNewTab : createNewTab,
+        saveUserCookie : saveUserCookie,
+        loadUserCookie : loadUserCookie,
+        logInProcessWithCookies : logInProcessWithCookies
     };

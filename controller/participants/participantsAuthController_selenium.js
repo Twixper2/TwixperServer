@@ -1,144 +1,133 @@
-var express = require("express");
+var express = require('express');
 var router = express.Router();
-const database = require("../../business_logic/db/DBCommunicator.js");
-const bcrypt = require("bcryptjs");
-const participantsService_new = require("../../service/participants/participantsService_new.js");
-const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
-const { tabsHashMap } = require("../../config");
-
+const database = require('../../business_logic/db/DBCommunicator.js');
+const bcrypt = require('bcryptjs');
+const participantsService_selenium = require('../../service/participants/participantsService_selenium.js');
+const participantAuthUtils_selenium = require('../../business_logic/participant/participant_auth_utils/participantAuthUtils_selenium.js');
+const { tabsHashMap } = require('../../config');
 
 /**
  * Requesting user's credentials, and selenium webdriver will log in to it
  */
-router.post("//twitterSeleniumAuth", async (req, res, next) => {
+router.post('//twitterSeleniumAuth', async (req, res, next) => {
   const params = req.body;
-  // If there are no params at all,
-  // Or no pass or no user params
-  if(!params || !params.user || !params.pass){
-    res.status(401).send("No params supplied.")
-    return
+  if (!params || !params.user || !params.pass) {
+    res.status(400).send('No params supplied.');
+    return;
   }
-  try{    
-    let user_value_from_hashmap = null;
-    let cache = false;
-    if(tabsHashMap.size > 0){
-      for (var entry of tabsHashMap.entries()) {
-        let key = entry[0],
-            value = entry[1];
-        if(bcrypt.compareSync(params.user + params.pass, key)){
-          // Found tab open
-          user_value_from_hashmap = value;
-          break;
-        }
-      }
-    }
-
-
-    
-    if(user_value_from_hashmap != null){
-      // return profile dets etc.
-      resp_without_tab_and_user = Object.assign({}, user_value_from_hashmap);
-      delete resp_without_tab_and_user.tab;
-      delete resp_without_tab_and_user.user;
-      res.status(200).send(resp_without_tab_and_user);
-      return;
-    }
-
-    
-    let user_and_pass_encrypted = undefined;
-    //Checks if the user give access_token, if is the same  has the one in the system -> loads the cookies
-    let result = await participantsService_selenium.validateAccessToken(params);
-    if(result){
-      params.cookies = result.cookies;
-      user_and_pass_encrypted = result.access_token;
-      // Open tab again
-      // Send client back his personal dets
-    }
-    else{
-      user_and_pass_encrypted = bcrypt.hashSync(params.user + params.pass,parseInt(process.env.bcrypt_saltRounds));
-    }
-    
-
-    
-    const login_response = await participantsService_selenium.logInProcess(params,user_and_pass_encrypted);
-    if(login_response != null){
-      res.status(200).send(login_response);
-    }
-    else{
-      res.status(401).send("Login has not been completed, please try again.");
-    }
-  }
-  catch(e){
-    console.log(e)
-    // Chrome is not reachable, remove tab from hashmap
-    if(e.name == "WebDriverError"){
-      tabsHashMap.delete(params.user);
-      res.status(502).json("Tab is closed for some reason. Please authenticate again.")
-      return;
-    }
-    else{ // Internal error
-      res.sendStatus(500)
-      return;
-    }
-  }
-})
-
-
-/*
-Need to implement the endpoint below
-*/
-
-router.post("//registerToExperiment", async (req, res, next) => {
   try {
-    // validate request params and cookies
-    const expCode = req.body.exp_code
-    if (!expCode) {
-      res.status(400).send("No experiment code provided.")
-      return;
-    }
-
-    if(!req.header('access_token')){
-      res.status(428).send("Missing auth header (access_token)");
-      return;
-      /*
-        The HTTP 428 Precondition Required response status code indicates that the server requires
-        the request to be conditional. Typically, this means that a required precondition header, 
-        such as If-Match , is missing.
-      */
-    }  
-    
-    // Decrypt tokens
-    const access_token = req.header('access_token')
-    
-    // trying registering user
-    let participant  = null
-    try {
-      participant = await participantsService_new.registerParticipant(access_token, expCode)
-    }
-    catch (e) {
-      // if it is an error with message, we respond with the error object containing "name" and "message" keys
-      console.log(e)
-      if (e.message) { 
-        res.status(400).json(e);
+    // Function checks in tabHashmap and DB for already auth'ed user.
+    let authCheckResults = await participantAuthUtils_selenium.getUserAuthDetsIfExist(params);
+    let login_response = null;
+    let initial_content = authCheckResults.twitter_data_to_send;
+    if (initial_content == null) {
+      login_response = await participantsService_selenium.logInProcess(
+        params,
+        authCheckResults.user_and_pass_encrypted
+      );
+      if (!login_response) {
+        params?.tab?.close();
+        res.status(401).send('Wrong username or password.');
         return;
       }
-      throw e
+      initial_content = login_response;
+    } else if (initial_content.user != undefined && initial_content.access_token != undefined) {
+      login_response = true;
+      if(initial_content.tab != null){
+        params.tab = initial_content.tab;
+      }
     }
-    if (!participant) { //registration failed
+    if (login_response) {
+      // Check if already registered to exp'
+      let participant = await database.getParticipantByUsername(params.user);
+      if (participant) {
+        // Extract data from collection
+        let participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant)
+        initial_content = await participantsService_selenium.firstLoginDataExtraction(login_response, params);
+        res.status(200).json({
+          user_registered_to_experiment: true,
+          participant_twitter_info,
+          initial_content,
+          access_token: params.access_token,
+        });
+        return;
+      }
+      // Not registered
+      res.status(200).json({
+        user_registered_to_experiment: false,
+        access_token: params.access_token || initial_content.access_token,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    // Chrome is not reachable, remove tab from hashmap
+    if (e.name === 'WebDriverError' || e.name === 'NoSuchWindowError') {
+      tabsHashMap.delete(params.user);
+      params?.tab?.close();
+      res.status(502).json('Tab is closed for some reason. Please authenticate again.');
+      return;
+    } else {
+      // Internal error
+      params?.tab?.close();
       res.sendStatus(500);
       return;
     }
-    const participant_twitter_info = participantsService_new.extractTwitterInfoFromParticipantObj(participant)
-    res.status(200).json({"participant_twitter_info": participant_twitter_info}); //success
-  } // end try
-  catch(e) {
-    console.log(e)
-    res.sendStatus(500);
   }
 });
 
-function encryptToken(token) {
-  return bcrypt.hashSync(token, 10);
-}
+router.post('//registerToExperiment', async (req, res, next) => {
+  try {
+    const header_params = req.headers;
+    const expCode = req.body.exp_code;
+    let access_token = header_params.accesstoken;
+    if (!header_params || !access_token || !header_params.user || !expCode) {
+      res.status(400).send('No params supplied.');
+      return;
+    }
+
+    let participant = null;
+    try {
+      participant = await participantsService_selenium.registerParticipant(header_params.user, access_token, expCode);
+    } catch (e) {
+      // if it is an error with message, we respond with the error object containing "name" and "message" keys
+      console.log(e);
+      if (e.name == 'WebDriverError'){
+        res.status(502).json('Tab is closed for some reason. Please authenticate again.');
+        return;
+      }
+      else if (e.message) {
+        if (e.status) {
+          if (e.status == 200) {
+            res.status(e.status).json(e.message);
+          } else {
+            res.status(e.status).json({ presentToUser: e.presentToUser, message: e.message });
+          }
+        } else {
+          res.status(400).json(e);
+        }
+        return;
+      }
+      throw e;
+    }
+    if (!participant) {
+      //registration failed
+      res.sendStatus(500);
+      return;
+    }
+    const participant_twitter_info = participantsService_selenium.extractTwitterInfoFromParticipantObj(participant);
+
+    res.status(200).json({
+      user_registered_to_experiment: true,
+      participant_twitter_info,
+      access_token,
+      initial_content: participant.initial_content,
+    });
+    return;
+  } catch (e) {
+    // end try
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
 
 module.exports = router;
