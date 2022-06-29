@@ -63,7 +63,7 @@ async function userRun(user_credentials){
     // console.log(json_details);
     // let y=3;
 
-    let test = await participantsService_selenium.checkForPushNotifications();
+    // let test = await participantsService_selenium.checkForPushNotifications();
 
 }
 
@@ -88,8 +88,14 @@ async function main(){
     // await userRun(credentials_1);
 
     // Retrieve user credentials
-    var credentials_2 = credentials.credentials_1;
-    await userRun(credentials_2);
+    // var credentials_2 = credentials.credentials_1;
+    // await userRun(credentials_2);
+    // try{
+    //     let test = setInterval(async () => { await participantsService_selenium.checkForPushNotifications()}, 30000);
+    // }catch(e){
+    //     console.log(e);
+    // }
+
 }
 
 main();

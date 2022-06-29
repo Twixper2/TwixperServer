@@ -5,15 +5,18 @@ const config = require("../../config");
 const userCookiesCollection = require("../../business_logic/db/mongodb/userCookiesCollection");
 const expCollection = require("../../business_logic/db/mongodb/experimentsCollection");
 const participantsCollection = require("../../business_logic/db/mongodb/participantsCollection");
-
+const authorizeUser = require("../../business_logic/selenium_communicator/selenium_authorize/authorizeUser")
 const bcrypt = require("bcryptjs");
 const scrapeTwitter_moshe = require("../../business_logic/selenium_communicator/selenium_communicator");
 const { cache } = require("ejs");
 var {twitter_address,twitter_home_address, status_text, entity_constants, selenium_constants} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 const attribute_names = selenium_constants.attribute_names;
 const attribute_values = selenium_constants.attribute_values;
+
 const {By, Key, until} = require('selenium-webdriver');
 
+const { Expo }  = require('expo-server-sdk');
+const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 
 /** ______Login_____ **/
 async function logInProcess(params,access_token){
@@ -291,43 +294,199 @@ async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,actio
     }
     return false;
 }
+async function logoutErrorHandler(tab){
+    try{        
+        if(await tab.getCurrentUrl()=="https://twitter.com/logout/error"){
+            await tab.wait(until.elementLocated(By.css("[role='button']")),10000);
+            await tab.findElement(By.css("[role='button']")).sendKeys(Key.RETURN);
+            authorizeUser.saveUserCookie(tab,info._id);
+            return true;
+        }
+        return false;
+    }catch(e){
+        console.log(e);
+    }
+}
+
 
 async function checkForPushNotifications(){
-    //Draw all Active participants Cookies
-    let userInfo = await selenium_communicator.getAllUserCookie();
-    //open new tabs
-    let tab = await participantAuthUtils_selenium.createNewTab();
+    let tab = null
+    let messages = [];
+    try{
+        //Draw all Active participants Cookies form DB
+        let userInfo = await selenium_communicator.getAllUserCookie();
 
-    //For all new tabs and check notifications
-    await Promise.all(userInfo.map(async (info) => {
-        try{ 
-            try{
-                if(!info?.cookies)
-                info.cookies = await userCookiesDB.getCookiesByTwitterUserName(info.username);
-                info.cookies.forEach(element => {
-                    tab.manage().addCookie(element)
-                });
-            }catch(e){
-                console.log(e);
-            }
-            await tab.get("https://twitter.com/home");
-
-            await tab.navigate().refresh();
-            await selenium_communicator.tabWait(tab,3000);
-
-            var userNotifications = await selenium_communicator.doIHaveNewNotifications(tab);
-            if(userNotifications){
-                console.log(userNotifications);
-                //Send notification
-
-            }
-        }catch(e){
-            console.log(e);
-        }finally{
-            tab.close();
+        //For all new tabs and check notifications
+        for (let info of userInfo){
+            //open new tabs
+            tab = await participantAuthUtils_selenium.createNewTab();
+            await PushNotificationsHandler(info,tab,messages);
+            //close tab
+            tab?.close();
         }
-    }));
+        // Only if there are any notification to send go to the sender function
+        if(messages.length>0){
+            sendNotificationsToServer(messages);
+            console.log(messages);
+        }
+    }catch(e){
+        console.log(e);
+    }
+    
 }
+
+/**
+ * This function contains the logic of The check Notification,
+ * it load the cookie 
+ * parse the notifications 
+ * and Organize them to send to the user
+ * @param {*} info - current user cookie information from the DB
+ * @param {*} tab - new tab the just open and waiting for cookie load
+ * @param {*} messages - and array of messages to send to the users after finding notification.
+ */
+async function PushNotificationsHandler(info,tab,messages){
+    try{ 
+        if(info?.cookies){
+            // info.cookies = await userCookiesDB.getCookiesByTwitterUserName(info._id);
+            info.cookies.forEach((cookie) => {
+                 tab.manage().addCookie(cookie);
+            });
+        }
+        await tab.get("https://twitter.com/home");
+        await selenium_communicator.tabWait(tab,5000);
+        
+        if(!await logoutErrorHandler(tab)){
+            await tab.navigate().refresh();
+            await selenium_communicator.tabWait(tab,1000);
+            await tab.navigate().refresh();
+        }
+
+        await selenium_communicator.tabWait(tab,4000);
+
+        var notifications = await selenium_communicator.doIHaveNewNotifications(tab);
+        if(notifications){
+            let pushToken = info?.pushToken;
+            console.log(notifications);
+            
+            //Send notification
+            // Check that all your push tokens appear to be valid Expo push tokens
+            if (!Expo.isExpoPushToken(pushToken)) {
+                console.error(`Push token ${pushToken} is not a valid Expo push token`);
+            }
+            else{
+                // Construct a message (see https://docs.expo.io/push-notifications/sending-notifications/)
+                messages.push({
+                    to: pushToken,
+                    sound: 'default',
+                    body: `This is a notification for ${info._id}`,
+                    data: { notifications },
+                })
+            }
+
+        }
+
+    }catch(e){
+        console.log(e);
+    }
+
+}
+
+/**
+ * This function was taken from expo's website
+ * @param {*} messages - An array of messages, Each slot of the array is a different user.
+ */
+async function sendNotificationsToServer(messages){
+    try{
+        // The Expo push notification service accepts batches of notifications so
+        // that you don't need to send 1000 requests to send 1000 notifications. We
+        // recommend you batch your notifications to reduce the number of requests
+        // and to compress them (notifications with similar content will get
+        // compressed).
+        let chunks = expo.chunkPushNotifications(messages);
+        let tickets = [];
+        (async () => {
+        // Send the chunks to the Expo push notification service. There are
+        // different strategies you could use. A simple one is to send one chunk at a
+        // time, which nicely spreads the load out over time:
+        for (let chunk of chunks) {
+            try {
+            let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            console.log(ticketChunk);
+            tickets.push(...ticketChunk);
+            // NOTE: If a ticket contains an error code in ticket.details.error, you
+            // must handle it appropriately. The error codes are listed in the Expo
+            // documentation:
+            // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+            } catch (error) {
+            console.error(error);
+            }
+        }
+        })();
+
+
+
+        // Later, after the Expo push notification service has delivered the
+        // notifications to Apple or Google (usually quickly, but allow the the service
+        // up to 30 minutes when under load), a "receipt" for each notification is
+        // created. The receipts will be available for at least a day; stale receipts
+        // are deleted.
+        //
+        // The ID of each receipt is sent back in the response "ticket" for each
+        // notification. In summary, sending a notification produces a ticket, which
+        // contains a receipt ID you later use to get the receipt.
+        //
+        // The receipts may contain error codes to which you must respond. In
+        // particular, Apple or Google may block apps that continue to send
+        // notifications to devices that have blocked notifications or have uninstalled
+        // your app. Expo does not control this policy and sends back the feedback from
+        // Apple and Google so you can handle it appropriately.
+        let receiptIds = [];
+        for (let ticket of tickets) {
+        // NOTE: Not all tickets have IDs; for example, tickets for notifications
+        // that could not be enqueued will have error information and no receipt ID.
+        if (ticket.id) {
+            receiptIds.push(ticket.id);
+        }
+        }
+
+        let receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
+        (async () => {
+        // Like sending notifications, there are different strategies you could use
+        // to retrieve batches of receipts from the Expo service.
+        for (let chunk of receiptIdChunks) {
+            try {
+            let receipts = await expo.getPushNotificationReceiptsAsync(chunk);
+            console.log(receipts);
+
+            // The receipts specify whether Apple or Google successfully received the
+            // notification and information about an error, if one occurred.
+            for (let receiptId in receipts) {
+                let { status, message, details } = receipts[receiptId];
+                if (status === 'ok') {
+                continue;
+                } else if (status === 'error') {
+                console.error(
+                    `There was an error sending a notification: ${message}`
+                );
+                if (details && details.error) {
+                    // The error codes are listed in the Expo documentation:
+                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+                    // You must handle the errors appropriately.
+                    console.error(`The error code is ${details.error}`);
+                }
+                }
+            }
+            } catch (error) {
+            console.error(error);
+            }
+        }
+        })();
+    }catch(e){
+        console.log(e);
+    }
+    
+}
+
 exports.logInProcess = logInProcess
 exports.getWhoToFollow = getWhoToFollow
 exports.getFeed = getFeed

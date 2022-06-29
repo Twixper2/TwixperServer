@@ -146,41 +146,32 @@ async function getNotifications(tab){
 
 async function doIHaveNewNotifications(tab){
     try{
+        //Find the bell icon and see if he has any status of new notification
         let notificationsBellStatus = (await tab.findElement(By.css("[href='/notifications']")).getAttribute("aria-label"));
-
+        //Give the bell icon have the valley of Notifications that means we don't have Notifications
         if(notificationsBellStatus == 'Notifications'){
             return false;
         }
-
+        //else we cut the number of new notification from the status and convert it to int
         let numOfNotifications = parseInt(notificationsBellStatus.match(/(\d+)/)[0]);
-
         console.log("starting notifications check");
+        //Redirect to the defecation page
         await tab.get("https://twitter.com/notifications");
+        //Waiting 10 seconds until the page is loaded
         await tab.wait(until.elementLocated(By.css("[role='article']")),10000);
-        
+        //We scrape the number of new notification and send them to the notification parser
         let all_notifications_on_page = await (await tab.findElements(By.css("[role='article']"))).slice(0, numOfNotifications);
         let lestNotifications = await notificationsDataManager(all_notifications_on_page);
-        // let notificationType = lestNotifications.notificationType;
         return lestNotifications;
-        // switch(notificationType){
-        //     case 'Alerts':
-        //         break;
-        //     case 'like':
-        //         break;
-        //     case 'Retweeted':
-        //         break;
-        //     case 'Suggestions':
-        //         break;
-        //     default:
-        //         break;
-        // }
-        // return notifications;
+
     }
     catch(error){
         console.log(error);
         await tab.close();
-        let mainTab = (await tab.getAllWindowHandles())[0];
-        await tab.switchTo().window(mainTab);
+        return false;
+        // let mainTab = (await tab.getAllWindowHandles())[0];
+        // await tab.switchTo().window(mainTab);
+
     }
 }
 /**

@@ -62,8 +62,14 @@ const participantsController_selenium  = require("./controller/participants/part
    for push notifications
    example - setinterval(checkForPushNot , 50000ms);
 */
-let x = setInterval(async () => { await participantsService_selenium.checkForPushNotifications()}, 10000);
-
+try{
+  console.log("starting notifications check")
+  let test = setInterval( async () => { await participantsService_selenium.checkForPushNotifications()}, 30000);
+  console.log("fines notifications check")
+  // await participantsService_selenium.checkForPushNotifications()
+}catch(e){
+  console.log(e);
+}
 
 app.get("//", (req, res) => res.send("welcome v.2"));
 

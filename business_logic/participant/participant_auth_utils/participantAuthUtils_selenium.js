@@ -36,7 +36,6 @@ async function IfAccessTokenNotInTabHashMap(access_token,username){
     }
 }
 
-
 async function getUserAuthDetsIfExist(params){
     let twitter_data_to_send = null;
     let user_and_pass_encrypted = null;

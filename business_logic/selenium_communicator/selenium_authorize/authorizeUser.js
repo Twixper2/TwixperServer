@@ -86,6 +86,7 @@ async function isUserCredentialsValid(tab){
         return true;
     }
 }
+
  /**
   * The function receives a new page and insert the user cookies of the page he logged in from
   * @param {*} tab - chrome web driver
@@ -99,9 +100,15 @@ async function loadUserCookie(tab, username, allCookies=undefined){
         allCookies.forEach(element => {
             tab.manage().addCookie(element)
         });
+        await tab.get(home_url);
+        await tab.wait(until.elementLocated(By.css("[data-testid='primaryColumn']")),10000);
+        if(await tab.getCurrentUrl() != home_url){
+            throw ("Cookies loading process has failed - try login without cookies");
+        }
         return tab;
     }catch(e){
-        return tab;
+        console.log(e)
+        return false;
     }
 }
 
@@ -112,8 +119,7 @@ async function loadUserCookie(tab, username, allCookies=undefined){
  * @returns boolean val of the oppression 
  */
 async function saveUserCookie(tab, username,allCookies=undefined){
-    try{
-        
+    try{ 
         let allCookies = await tab.manage().getCookies();
         await userCookiesDB.insertUserCookies(username,allCookies);
         return true;
@@ -132,7 +138,11 @@ async function logInProcessWithCookies(data,tab){
     try{
         let allCookies = data.cookies; 
         let username = data.user;   
-        await loadUserCookie(tab, username, allCookies);
+        let status = await loadUserCookie(tab, username, allCookies);
+        //if we failed to load cookies we try again with regular login
+        if(!status){
+            return await logInProcess(data,tab);
+        }
         await tab.get(home_url);
         console.log("Successfully signed in twitter!");
         return true;
