@@ -3,7 +3,7 @@ var router = express.Router();
 const { tabsHashMap } = require("../../config");
 const participantsService_selenium = require("../../service/participants/participantsService_selenium.js");
 const database = require("../../business_logic/db/DBCommunicator.js");
-
+const participantActionsOnTwitter = require("../../business_logic/participant/participant_actions/participantActionsOnTwitter.js")
 var searchMode = "";
 
 /* Make sure user is authenticated by checking if tab is active
@@ -270,15 +270,16 @@ router.get("/search/:searchMode", async (req, res, next) => {
 
   // searchMode - tweets or people
   const mode = req.params?.searchMode;
+  let params = {participant: req?.participant};
 
-  if (!q || q==""|| mode=="") {
-    res.status(400).send("search query not provided")
-    return
+  if (!q || q==""|| mode==""|| !req?.participant ) {
+    res.status(400).send("search query / participant params where not provided");
+    return;
   }
   try{
     //According to the search parameter received by a search operation
     if(mode == "tweets"){
-      const tweetsSearchResults = await participantsService_selenium.newTweetsSearch(req.server_sends_tab, q)
+      const tweetsSearchResults = await participantsService_selenium.newTweetsSearch(req.server_sends_tab, q, params)
       res.send(tweetsSearchResults)
     }
     else if(mode == "people"){
@@ -357,18 +358,32 @@ router.post("/addAction/:action", async (req, res, next) => {
     const screen_name = req?.body?.tweetUser;
     const reply       = req?.body?.reply;
     const ShareVia    = req?.body?.ShareVia;
-
-    if(tweet_id==undefined || screen_name == undefined || action == undefined){
+    const participant = req?.participant;
+    if(tweet_id==undefined || screen_name == undefined || action == undefined || participant == undefined){
       res.status(400).send("one or more of action params is not provided")
     }
 
     if(action == "like" || action =="retweet" || action =="reply"){
-      const tweetsSearchResults = await participantsService_selenium.tweetsAction(req.server_sends_tab,tweet_id,screen_name,action,reply,ShareVia);
-      res.send(tweetsSearchResults)
+      const tweetsActionResults = await participantsService_selenium.tweetsAction(participant,req.server_sends_tab,tweet_id,screen_name,action,reply,ShareVia);
+      res.status(200).send(tweetsActionResults)
+      if(tweetsActionResults?.label == "like"){
+        participantActionsOnTwitter.likeTweet(participant,tweet_id)
+      }
+
+      else if(tweetsActionResults?.label == "unlike"){
+        participantActionsOnTwitter.unlikeTweet(participant,tweet_id)
+      }
+
+      else if(tweetsActionResults?.label =="retweet"){
+        participantActionsOnTwitter.publishRetweet(participant,tweet_id)
+      }
+
+      else if(tweetsActionResults?.label =="reply"){
+        participantActionsOnTwitter.logParticipantActions(participant,tweetsActionResults?.label)
+      }
     }
     else{
       res.status(400).send("action is not provided")
-      return
     }
 
   }
@@ -387,6 +402,7 @@ router.post("/addAction/:action", async (req, res, next) => {
 router.post("/postTweet", async (req, res, next) => {
 
   const tweetContext = req?.body?.tweetContext;
+  const participant = req.participant;
   if (!tweetContext) {
     res.status(400).send("No tweet Context was provided.")
     return;
@@ -394,6 +410,7 @@ router.post("/postTweet", async (req, res, next) => {
   try{
     const publishTweetSuccess = await participantsService_selenium.postTweet(req.server_sends_tab,tweetContext);
     if(publishTweetSuccess){
+      participantActionsOnTwitter.publishTweet(participant,publishTweetSuccess)
       res.status(200).send(publishTweetSuccess);
     }
     else{

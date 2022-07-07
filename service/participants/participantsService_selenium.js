@@ -12,6 +12,7 @@ const { cache } = require("ejs");
 var {twitter_address,twitter_home_address, status_text, entity_constants, selenium_constants} = require("../../business_logic/twitter_communicator/static_twitter_data/ConstantsJSON.js");
 const attribute_names = selenium_constants.attribute_names;
 const attribute_values = selenium_constants.attribute_values;
+const participantActionsOnTwitter = require("../../business_logic/participant/participant_actions/participantActionsOnTwitter.js")
 
 const {By, Key, until} = require('selenium-webdriver');
 
@@ -239,9 +240,12 @@ async function searchPeople(tab_from_calling_function,q){
         return getProfileContent;
     }
 }
-async function newTweetsSearch(tab_from_calling_function,q){
+async function newTweetsSearch(tab_from_calling_function,q,){
     if (tab_from_calling_function != undefined){
         let searchResult = await selenium_communicator.newTweetsSearch(tab_from_calling_function,q);
+        if (searchResult && params) {
+            searchResult = await manipulator.manipulateTweets(params.participant, searchResult)
+        }
         return searchResult;
     }
 }
@@ -287,31 +291,29 @@ function extractTwitterInfoFromParticipantObj(participant){
     return participantAuthUtils_selenium.extractTwitterInfoFromParticipantObj(participant)
 }
 
-async function tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
+async function tweetsAction(participant,tab_from_calling_function,tweet_id,screen_name,action,reply=undefined,ShareVia=undefined){
     if (tab_from_calling_function != undefined){
-        await selenium_communicator.tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply,ShareVia);
-        return true;
+        let tweetsActionResults = await selenium_communicator.tweetsAction(tab_from_calling_function,tweet_id,screen_name,action,reply,ShareVia);
+        if(tweetsActionResults?.label == "like"){
+            participantActionsOnTwitter.likeTweet(participant,tweet_id,tweetsActionResults)
+          }
+    
+          else if(tweetsActionResults?.label == "unlike"){
+            participantActionsOnTwitter.unlikeTweet(participant,tweet_id,tweetsActionResults)
+          }
+    
+          else if(tweetsActionResults?.label =="retweet"){
+            // participantActionsOnTwitter.publishRetweet(participant,tweet_id,tweetsActionResults)
+          }
+    
+          else if(tweetsActionResults?.label =="reply"){
+            // participantActionsOnTwitter.logParticipantActions(participant,tweetsActionResults?.label,tweetsActionResults)
+          }
+        return tweetsActionResults;
     }
     return false;
 }
 
-/**
- * in case of logout error screen we need to refresh the page
- * @param {*} tab - current user tab
- * @returns if an error pop or not 
- */
-async function logoutErrorHandler(tab){
-    try{        
-        if(await tab.getCurrentUrl()=="https://twitter.com/logout/error"){
-            await tab.wait(until.elementLocated(By.css("[role='button']")),10000);
-            await tab.findElement(By.css("[role='button']")).sendKeys(Key.RETURN);
-            return true;
-        }
-        return false;
-    }catch(e){
-        console.log(e);
-    }
-}
 
 /**
  * 
@@ -362,7 +364,7 @@ async function PushNotificationsHandler(info,tab,messages){
         await tab.get("https://twitter.com/home");
         await selenium_communicator.tabWait(tab,5000);
         
-        if(!await logoutErrorHandler(tab)){
+        if(!await authorizeUser.logoutErrorHandler(tab)){
             await tab.navigate().refresh();
             await selenium_communicator.tabWait(tab,1000);
             await tab.navigate().refresh();

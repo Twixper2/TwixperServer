@@ -7,8 +7,8 @@ const dateFormat = config.dateFormat
 
 /* _____ Make and save every user action _____ */
 
-async function likeTweet(participant, tweetId){    
-    let likeSuccess = await twitterComm.likeTweet(participant, tweetId) 
+async function likeTweet(participant, tweetId,likeSuccess){    
+    // let likeSuccess = await twitterComm.likeTweet(participant, tweetId) 
 
     //create the action obj and add to db for report
     const actionDate = moment.utc().format(dateFormat);
@@ -20,8 +20,8 @@ async function likeTweet(participant, tweetId){
     return likeSuccess
 }
 
-async function unlikeTweet(participant, tweetId){    
-    let unlikeSuccess = await twitterComm.unlikeTweet(participant, tweetId)
+async function unlikeTweet(participant, tweetId,unlikeSuccess){    
+    // let unlikeSuccess = await twitterComm.unlikeTweet(participant, tweetId)
 
     //create the action obj and add to db for report
     const actionDate = moment.utc().format(dateFormat);
@@ -59,8 +59,8 @@ async function unfollow(participant, screenName){
     return unfollowSuccess
 }
 
-async function publishTweet(participant, tweetParams){    
-    let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
+async function publishTweet(participant, tweetParams ,publishTweetSuccess){    
+    // let publishTweetSuccess = await twitterComm.publishTweet(participant, tweetParams)
 
     // Create the action obj and add to db for report
     let actionType = "tweeted"

@@ -199,7 +199,8 @@ async function tweetsActionManager(tab,tweet_id,screen_name,action,reply=undefin
         var tweet_buttons = await tweet[0]?.findElements(By.css("[role='button']"));
         let label = undefined;
         let button = undefined;
-
+        const d = new Date();
+        let time = d.toDateString();
         //getting the relent button
         for(var i = 0 ; i < tweet_buttons.length; i++){ 
             label = (await tweet_buttons[i].getAttribute("aria-label")).toLocaleLowerCase();
@@ -237,17 +238,46 @@ async function tweetsActionManager(tab,tweet_id,screen_name,action,reply=undefin
             }
         }
 
-        if(label  == "like"|| label == "liked"){
-            return await likeHandler(button);
+        if(label  == "like"){
+            let status = await likeHandler(button);
+            return {
+                label,
+                status,
+                time
+            }
+        }
+        if(label == "liked"){
+            let status = await likeHandler(button);
+            return {
+                label:"unlike",
+                status,
+                time
+            }
         }
         else if(label  == "reply"){
-            return await replyHandler(tab, button,reply);
+            let status =  await replyHandler(tab, button,reply);
+            return {
+                label,
+                reply,
+                status,
+                time
+            }
         }
         else if(label  == "retweet"){
-            return await retweetHandler(tab, button);
+            let status =  await retweetHandler(tab, button);
+            return {
+                label,
+                status,
+                time
+            }
         }
         else if(label == "retweeted"){
-            return await retweetedHandler(tab, button);
+            let status =  await retweetedHandler(tab, button);
+            return {
+                label,
+                status,
+                time
+            }
         }
         else{
             return undefined;
@@ -256,7 +286,6 @@ async function tweetsActionManager(tab,tweet_id,screen_name,action,reply=undefin
     }catch(e){
         console.log(e);
         return "There was a problem with "+action;
-
     }finally{
         await tabWait(tab,1000);
         await tab.close();
