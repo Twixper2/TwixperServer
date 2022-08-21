@@ -112,7 +112,7 @@ async function getNotifications(tab){
         }else{
             tab.get("https://twitter.com/notifications")
         }
-        await tabWait(tab,3000);
+        await tabWait(tab,4000);
 
         // save all open tabs handles
         const windowTab = await tab.getAllWindowHandles();
@@ -733,15 +733,15 @@ async function tweet_NotificationsHandler(notification){
                 "body_text":fullText
             });            
         }catch(e){
-
+            throw e;
         }
     
 }
 async function alerts_NotificationsHandler(notification){
     var notificationText = await(await notification.findElement(By.css("[dir='ltr']")).getText()).replace('\n', ' ');
-    notifications_arr.push(
+    return(
         {
-        "notificationType":notificationsType,
+        "notificationType":"Alerts",
         "title_text":notificationText
     });
 }
@@ -800,7 +800,7 @@ async function notificationsDataManager(notifications_on_page){
         }
         return notifications_arr;
     }catch(e){
-
+        throw e;
     }
     
 }
