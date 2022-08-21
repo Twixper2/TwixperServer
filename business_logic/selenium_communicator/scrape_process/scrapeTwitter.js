@@ -76,6 +76,16 @@ async function getUserEntityDetails(tab) {
   }
 }
 
+async function getUserTimeline(tab) {
+  try {
+    return await getFeed(tab);
+  } catch (error) {
+    console.log('error with getUserTimeline');
+  } finally{
+    return { entity_details };
+  }
+}
+
 async function getUserLikes(tab) {
   let result = null;
   try {
@@ -507,9 +517,6 @@ async function getQuoteTweetData(arr, full_texts, tweet_ids, tweet, quoted_tweet
   }
 }
 
-// async function algorithmicRankingButton(tab){
-// }
-
 module.exports = {
   scrapeWhoToFollow,
   getFeed,
@@ -518,4 +525,5 @@ module.exports = {
   getUserLikes,
   getTweet,
   isProfileVerified,
+  getUserTimeline
 };

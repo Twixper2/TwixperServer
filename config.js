@@ -1,6 +1,6 @@
 var config = new Object()
-config.isHeadless = false;
-config.isProduction = false // real mode: true
+config.isHeadless = true;
+config.isProduction = true // real mode: true
 
 /* For twitterCommunicator */
 // Get

@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 // const session = require("client-sessions");
 const fileManager = require("./business_logic/db/local_files/fileManager")
 const config = require('./config')
-var isProd = false;
+var isProd = true;
 var app = express();
 const participantsService_selenium = require("./service/participants/participantsService_selenium.js")
 
@@ -62,14 +62,14 @@ const participantsController_selenium  = require("./controller/participants/part
    for push notifications
    example - setinterval(checkForPushNot , 50000ms);
 */
-try{
-  console.log("starting notifications check")
-  let test = setInterval( async () => { await participantsService_selenium.checkForPushNotifications()}, 30000);
-  console.log("fines notifications check")
-  // await participantsService_selenium.checkForPushNotifications()
-}catch(e){
-  console.log(e);
-}
+// try{
+//   console.log("starting notifications check")
+//   let test = setInterval( async () => { await participantsService_selenium.checkForPushNotifications()}, 30000);
+//   console.log("fines notifications check")
+//   // await participantsService_selenium.checkForPushNotifications()
+// }catch(e){
+//   console.log(e);
+// }
 
 app.get("//", (req, res) => res.send("welcome v.2"));
 

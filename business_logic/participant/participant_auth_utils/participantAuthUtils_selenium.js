@@ -143,6 +143,12 @@ async function registerParticipant(username, access_token, expCode){
         message: {user_registered_to_experiment: true, participant_twitter_info: await extractTwitterInfoFromParticipantObj(participantFromDb), access_token, initial_content}
     }
   }
+  else{
+    throw {
+        status:400,
+        presentToUser: false
+    }
+  }
 
   // raffle group for participant. currently, only naive raffle supported
   const expGroups = exp.exp_groups;

@@ -92,7 +92,7 @@ async function getUserTimeline(tab,tweet_username){
     if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
         await redirectToPage(tab,profile_url,true);
     }
-    return await scrapeTwitter.getFeed(tab);
+    return await scrapeTwitter.getUserTimeline(tab);
 }
 
 async function getUserLikes(tab,tweet_username){
