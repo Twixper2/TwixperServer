@@ -20,9 +20,7 @@ const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 
 /** ______Login_____ **/
 async function logInProcess(params,access_token){
-try{
     let new_tab = await participantAuthUtils_selenium.createNewTab();
-
 
     let login_response = undefined;
     let user = params.user;
@@ -50,11 +48,6 @@ try{
 
     }
     return login_response;
-}
-catch(e){
-    console.log(e);
-}
-
 }
 
 /**

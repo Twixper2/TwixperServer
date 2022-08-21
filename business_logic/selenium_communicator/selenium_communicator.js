@@ -21,7 +21,7 @@ async function reloadPage(tab){
 async function scrollPost(tab){
     try{
         await tab.executeScript(JS_HALF_SCROLL_BOTTOM);
-        await tabWait(tab,2000);
+        await tabWait(tab,5000);
     }
     catch(error){
         console.log('error with scrollPost');
@@ -39,8 +39,8 @@ async function tabWait(tab,ms){
 
 async function isRequestedURLSameAsCurrent(tab,req_url){
     try{
-        console.log(await tab.getCurrentUrl());
-        console.log(req_url);
+        // console.log(await tab.getCurrentUrl());
+        // console.log(req_url);
 
         return await tab.getCurrentUrl() === req_url;
     }
@@ -55,7 +55,7 @@ async function redirectToPage(tab,url,reloadingPage){
         if(reloadingPage){
             await reloadPage(tab)
         }
-        await tabWait(tab,3000);
+        await tabWait(tab,5000);
     }
     catch(error){
         console.log('error with redirectToPage');
@@ -92,7 +92,7 @@ async function getUserTimeline(tab,tweet_username){
     if(!await isRequestedURLSameAsCurrent(tab, profile_url)){
         await redirectToPage(tab,profile_url,true);
     }
-    return await scrapeTwitter.getUserTimeline(tab);
+    return await scrapeTwitter.getFeed(tab);
 }
 
 async function getUserLikes(tab,tweet_username){
