@@ -9,8 +9,9 @@ const attribute_names = selenium_constants.attribute_names;
 const attribute_values = selenium_constants.attribute_values;
 
 async function scrapeWhoToFollow(tab) {
+  let profile_names_arr_final = null;
   try {
-    let all_who_to_follow = await tab.findElement(
+    all_who_to_follow = await tab.findElement(
       By.css('[' + attribute_names.aria_label + '=' + "'" + attribute_values.whoToFollow + "'" + ']')
     );
     let all_buttons = await all_who_to_follow.findElements(
@@ -28,7 +29,7 @@ async function scrapeWhoToFollow(tab) {
       }
     }
     // Adding names collected as username & and username with @ to the object to send
-    let profile_names_arr_final = new Array();
+    profile_names_arr_final = new Array();
     for (let j = 0; j < profile_names_arr.length; j = j + 2) {
       if (j > 0) {
         var img_index = j / 2;
@@ -43,55 +44,53 @@ async function scrapeWhoToFollow(tab) {
         is_profile_verified: await isProfileVerified(all_buttons[j]),
       });
     }
-    return profile_names_arr_final;
   } catch (error) {
-    console.log('error with whoToFollow.');
+  } finally{
+    return profile_names_arr_final;
   }
 }
 
 async function getFeed(tab) {
+  let result = null;
   try {
-    var all_tweets_on_page = await tab.findElements(
+    let all_tweets_on_page = await tab.findElements(
       By.css('[' + attribute_names.role + '=' + attribute_values.article + ']')
     );
-    return await HelpParseTweets(all_tweets_on_page);
+    result = await HelpParseTweets(all_tweets_on_page);
   } catch (error) {
-    console.log('error with getFeed.');
+  } finally {
+    return result;
   }
 }
 
 async function getUserEntityDetails(tab) {
+  let entity_details = null;
   try {
     let primary_column = await tab.findElement(
       By.css('[' + attribute_names.data_test_id + '=' + attribute_values.primaryColumn + ']')
     );
-    let entity_details = await getPersonalDetailsFromProfileContent(primary_column);
+    entity_details = await getPersonalDetailsFromProfileContent(primary_column);
+  } catch (error) {
+  } finally{
     return { entity_details };
-  } catch (error) {
-    console.log('error with getUserEntityDetails.');
-  }
-}
-
-async function getUserTimeline(tab) {
-  try {
-    return await getFeed(tab);
-  } catch (error) {
-    console.log('error with getUserTimeline');
   }
 }
 
 async function getUserLikes(tab) {
+  let result = null;
   try {
     let primary_column = await tab.findElement(
       By.css('[' + attribute_names.data_test_id + '=' + attribute_values.primaryColumn + ']')
     );
-    return await getFeed(primary_column);
+    result = await getFeed(primary_column);
   } catch (error) {
-    console.log('error with getUserLikes');
+  } finally {
+    return result;
   }
 }
 
 async function getTweet(tab, tweet_id_str) {
+  let result = null;
   try {
     let primary_column = await tab.findElement(
       By.css('[' + attribute_names.data_test_id + '=' + attribute_values.primaryColumn + ']')
@@ -99,9 +98,10 @@ async function getTweet(tab, tweet_id_str) {
     let tweet_and_replies = await getFeed(primary_column);
     let tweets_len = tweet_and_replies.length;
     let index = tweet_and_replies.map((t) => t.tweet_id.toString()).indexOf(tweet_id_str);
-    return tweets_len > 1 ? tweet_and_replies.slice(index + 1, tweet_and_replies.length) : [];
+    result = tweets_len > 1 ? tweet_and_replies.slice(index + 1, tweet_and_replies.length) : [];
   } catch (error) {
-    console.log('error with getTweet.');
+  } finally{
+    return result;
   }
 }
 
@@ -156,8 +156,6 @@ async function getPersonalDetailsFromProfileContent(primary_column) {
       )
     );
   } catch (error) {
-    // One of the elements has not been field by the user
-    console.log('error with getPersonalDetailsFromProfileContent');
   } finally {
     return json_of_details;
   }
@@ -174,7 +172,6 @@ async function retrieveWhenJoinedFromElement(json_of_details, primary_column) {
       json_of_details.when_joined = await when_joined[1].getText();
     }
   } catch (error) {
-    console.log('error with retrieveWhenJoinedFromElement');
   }
 }
 
@@ -188,7 +185,6 @@ async function retrieveCoverAndProfileImagesFromElement(json_of_details, cover_a
       json_of_details.profile_img = await cover_and_profile_img[1].getAttribute(attribute_names.src);
     }
   } catch (error) {
-    console.log('error with retrieveCoverAndProfileImagesFromElement');
   }
 }
 
@@ -201,7 +197,6 @@ async function retrieveTextFromElement(e) {
       text_to_return = await e.getText();
     }
   } catch (error) {
-    console.log('no text to retrieve from element');
   } finally {
     return text_to_return;
   }
@@ -216,7 +211,6 @@ async function getProfileLink_ImageUrl(tweet) {
     let profile_img = await profile_link.findElement(By.css(attribute_names.img));
     profile_img_url = await profile_img.getAttribute(attribute_names.src);
   } catch (error) {
-    console.log('No profile link / image url');
   } finally {
     return { link_href, profile_img_url };
   }
@@ -235,7 +229,6 @@ async function getTweetId(tweet) {
       }
     }
   } catch (error) {
-    console.log('error with getting tweet id');
   } finally {
     return tweetIds;
   }
@@ -251,7 +244,6 @@ async function getTweetRepliesRetweetsLikes_TweetActions(tweet) {
     replies_retweets_likes = await getNumOfTweetActions(group_of_buttons);
     tweet_actions = await getTweetActions(group_of_buttons);
   } catch (error) {
-    console.log('problem with twitter actions collecting.');
   } finally {
     return { replies_retweets_likes, tweet_actions };
   }
@@ -313,7 +305,6 @@ async function getTweetActions(group_of_buttons) {
       retweeted = true;
     }
   } catch (error) {
-    console.log('error with getTweetActions');
   } finally {
     return { favorited, retweeted };
   }
@@ -329,7 +320,6 @@ async function getTweetPhotos(tweet) {
       }
   }
   catch(error){
-      console.log('No photos in tweet');
   }
   finally{
       return tweet_photos_url;
@@ -352,6 +342,8 @@ async function isProfileVerified(tab) {
 async function IsThereIsSocialContext(tweet) {
   let is_there_social_context = false;
   try {
+    let x = await tweet.findElement(
+      By.css('[' + attribute_names.data_test_id + '=' + attribute_values.socialContext + ']'));
     is_there_social_context =
       (await tweet.findElement(
         By.css('[' + attribute_names.data_test_id + '=' + attribute_values.socialContext + ']')
@@ -373,7 +365,6 @@ async function findQuotedTweetElement(tweet) {
       }
     }
   } catch (error) {
-    console.log('not found quoted tweet element');
   } finally {
     return quotedTweetElement;
   }
@@ -453,7 +444,6 @@ async function HelpParseTweets(all_tweets_on_page) {
       });
     }
   } catch (error) {
-    console.log('error with parsing tweets');
   } finally {
     return tweets_arr;
   }
@@ -466,7 +456,6 @@ async function getQuotedTweetImageurl(tweet) {
       .findElement(By.css(attribute_names.img))
       .getAttribute(attribute_names.src);
   } catch (error) {
-    console.log('error with getQuotedTweetImageurl');
   }
 }
 
@@ -480,7 +469,6 @@ async function getTweetsContent(tweet) {
       tweet_text_contents_arr.push(await tweet_contents[i].getText());
     }
   } catch (error) {
-    console.log('No tweet contents');
   } finally {
     return tweet_text_contents_arr;
   }
@@ -505,7 +493,6 @@ async function getQuoteTweetData(arr, full_texts, tweet_ids, tweet, quoted_tweet
                             "urls":[],
                             "media":(quoted_tweet_photos != null) ? quoted_tweet_photos : []};
   } catch (error) {
-    console.log('error with getting Quote Tweet data');
   } finally {
     return {
       user,
@@ -528,7 +515,6 @@ module.exports = {
   getFeed,
   getUserEntityDetails,
   HelpParseTweets,
-  getUserTimeline,
   getUserLikes,
   getTweet,
   isProfileVerified,
