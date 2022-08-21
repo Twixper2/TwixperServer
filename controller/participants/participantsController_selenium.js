@@ -333,8 +333,6 @@ router.get("/search/getMoreSearchResult/:searchMode", async (req, res, next) => 
 });
 
 router.get("/notifications", async (req, res, next) => {
-
-
   try{
     const tweetsSearchResults = await participantsService_selenium.getNotifications(req.server_sends_tab)
     res.send(tweetsSearchResults)
