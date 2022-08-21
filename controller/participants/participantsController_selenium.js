@@ -48,6 +48,10 @@ router.get("/getWhoToFollow", async (req, res, next) => {
   let access_token = req.server_sends_access_token;
   try{
     const whoToFollowElement = await participantsService_selenium.getWhoToFollow(null,tab);
+    if(whoToFollowElement == null || whoToFollowElement.length === 0){
+      res.status(400).send('an error has occurred.');
+      return;
+    }
     res.status(200).send(whoToFollowElement);
     return;
   }
@@ -75,6 +79,10 @@ router.get("/getFeed", async (req, res, next) => {
       res.status(400).json("participant from db is missing.")
     }
     const getFeed = await participantsService_selenium.getFeed(params,tab);
+    if(getFeed == null || getFeed.length === 0){
+      res.status(400).send('an error has occurred.');
+      return;
+    }
     res.status(200).send(getFeed);
   }
   catch(e){
@@ -101,6 +109,10 @@ router.get("/getTweet", async (req, res, next) => {
       res.status(400).json("tweetIdStr or user or tweetUser fields are missing.")
     }
     const getTweet = await participantsService_selenium.getTweet(params,tab);
+    if(!getTweet){
+      res.status(400).send('an error has occurred.');
+      return;
+    }
     res.status(200).send(getTweet); 
   }
   catch(e){
@@ -124,9 +136,14 @@ router.get("/getUserEntityDetails", async (req, res, next) => {
   try{
     let params = req.query;
     if(!params.req_user){
-      res.status(400).json("user field is empty.")
+      res.status(400).json("user field is empty.");
+      return;
     }
     const getUserEntityDetails = await participantsService_selenium.getUserEntityDetails(params,tab);
+    if(!getUserEntityDetails){
+      res.status(400).send('an error has occurred.');
+      return;
+    }
     // Add also Tweets & Likes tab
     res.status(200).send(getUserEntityDetails);
   }
@@ -154,6 +171,10 @@ router.get("/getUserTimeline", async (req, res, next) => {
       res.status(400).json("user field is empty.")
     }
     const getUserTimeline = await participantsService_selenium.getUserTimeline(params,tab);
+    if(!getUserTimeline || getUserTimeline.length === 0){
+      res.status(400).send('an error has occurred.');
+      return;
+    }
     // Add also Tweets & Likes tab
     res.status(200).send(getUserTimeline);
   }
@@ -181,6 +202,10 @@ router.get("/getUserLikes", async (req, res, next) => {
       res.status(400).json("user field is empty.")
     }
     const getUserLikes = await participantsService_selenium.getUserLikes(params,tab);
+    if(!getUserLikes || getUserLikes.length === 0){
+      res.status(400).send('an error has occurred.');
+      return;
+    }
     // Add also Tweets & Likes tab
     res.status(200).send(getUserLikes);
   }

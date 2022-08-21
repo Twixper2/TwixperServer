@@ -14,9 +14,7 @@ const {By, Key, until} = require('selenium-webdriver');
 
 /** ______Login_____ **/
 async function logInProcess(params,access_token){
-try{
     let new_tab = await participantAuthUtils_selenium.createNewTab();
-
 
     let login_response = undefined;
     let user = params.user;
@@ -42,11 +40,6 @@ try{
 
     }
     return login_response;
-}
-catch(e){
-    console.log(e);
-}
-
 }
 
 
